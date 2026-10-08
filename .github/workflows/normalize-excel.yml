@@ -1,0 +1,37 @@
+name: Normalize Excel Column B
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'data/tu_vung_hsk.xlsx'
+      - 'scripts/normalize_excel.py'
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install openpyxl
+
+      - name: Run normalize script
+        run: python scripts/normalize_excel.py
+
+      - name: Commit normalized file
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/tu_vung_hsk_normalized.xlsx
+          git diff --staged --quiet || git commit -m "Chuẩn hóa cột B: tu_vung_hsk_normalized.xlsx"
+          git push
