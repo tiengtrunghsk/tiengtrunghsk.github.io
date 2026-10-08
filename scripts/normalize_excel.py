@@ -11,24 +11,49 @@ COLUMN = 'B'
 START_ROW = 3
 
 def normalize_text(text: str) -> str:
-    """Chuẩn hóa: dấu phân cách -> |, tối đa 2 từ, định dạng 'A | B'"""
+    """Chuẩn hóa cột B:
+       - Dấu phân cách (kể cả fullwidth) -> |
+       - Từ 1 đứng riêng, các từ sau viết liền
+       - Kết quả: 'A | BC' hoặc 'A | B' hoặc 'A'
+    """
     if not text or not isinstance(text, str):
         return text
 
     text = text.strip()
 
-    cleaned = re.sub(r'[\(\)\[\]\{\};,/\-_、，；]+', '|', text)
+    # 1. Dấu phân cách: ASCII + fullwidth
+    cleaned = re.sub(
+        r'[\(\)\[\]\{\};,/\-_'
+        r'（）［］｛｝；，、／＼－＿—]+',
+        '|', text
+    )
+
+    # 2. Khoảng trắng quanh | -> |
     cleaned = re.sub(r'\s*\|\s*', '|', cleaned)
+
+    # 3. Gộp nhiều | thành 1
     cleaned = re.sub(r'\|+', '|', cleaned)
+
+    # 4. Bỏ | đầu/cuối
     cleaned = cleaned.strip('|')
 
+    # 5. Nếu không có | mà có khoảng trắng giữa chữ Hán -> coi là phân cách
     if '|' not in cleaned and re.search(r'[\u4e00-\u9fff]\s+[\u4e00-\u9fff]', cleaned):
         cleaned = re.sub(r'\s+', '|', cleaned)
 
+    # 6. Tách, lọc rỗng
     parts = [p.strip() for p in cleaned.split('|') if p.strip()]
-    parts = parts[:2]
 
-    return ' | '.join(parts)
+    if not parts:
+        return text
+    if len(parts) == 1:
+        return parts[0]
+
+    # 7. Từ đầu riêng, các từ sau viết liền
+    first = parts[0]
+    rest = ''.join(parts[1:])   # ⚠️ nối liền không dấu cách
+
+    return f'{first} | {rest}'
 
 
 def verify_only_column_b_changed(src, dst, column='B'):
@@ -74,12 +99,10 @@ def main():
         print(f'❌ Không tìm thấy file: {src_file}')
         return
 
-    # 1️⃣ Tạo file tạm để chuẩn hóa
     tmp_file = os.path.join(DATA_DIR, '_tmp_normalized.xlsx')
     shutil.copyfile(src_file, tmp_file)
     print(f'📋 Đã copy file gốc → {tmp_file}')
 
-    # 2️⃣ Chuẩn hóa file tạm
     wb = load_workbook(tmp_file)
     total_edit = 0
 
@@ -100,22 +123,18 @@ def main():
     wb.save(tmp_file)
     print(f'\n✅ Đã sửa {total_edit} ô trong file tạm.')
 
-    # 3️⃣ Kiểm tra an toàn (chỉ cột B thay đổi)
     if not verify_only_column_b_changed(src_file, tmp_file, COLUMN):
         os.remove(tmp_file)
         raise SystemExit('❌ Kiểm tra thất bại, hủy thao tác!')
 
-    # 4️⃣ Tạo tên backup có timestamp nếu file old đã tồn tại
     backup_file = os.path.join(DATA_DIR, f'{BACKUP_PREFIX}.xlsx')
     if os.path.exists(backup_file):
         ts = datetime.now().strftime('%Y%m%d_%H%M%S')
         backup_file = os.path.join(DATA_DIR, f'{BACKUP_PREFIX}_{ts}.xlsx')
 
-    # 5️⃣ Đổi tên file gốc → old
     shutil.move(src_file, backup_file)
     print(f'\n📦 Đã backup file gốc → {backup_file}')
 
-    # 6️⃣ Đổi tên file tạm → tên gốc
     shutil.move(tmp_file, src_file)
     print(f'🔄 File chuẩn hóa đã thay thế → {src_file}')
 
