@@ -14198,8 +14198,27 @@ function initApp() {
         applyFilter();
     });
 
+    /* ⭐ CHỜ DATA LOAD XONG rồi mới filter + render + cập nhật UI */
     waitForData(function() {
-        try { buildFilters(); applyFilter(); }
+        try {
+            buildFilters();
+            applyFilter();
+            updateResultCount();
+
+            if (typeof publishTierState === 'function') publishTierState();
+            if (typeof applyUserUI === 'function') applyUserUI();
+            if (typeof markCurrentDatasetActive === 'function') markCurrentDatasetActive();
+
+            if (typeof favUpdateLockState === 'function') favUpdateLockState();
+            if (typeof favRefreshUI === 'function') favRefreshUI();
+
+            if (typeof updateDemoBannerByTier === 'function') updateDemoBannerByTier();
+            if (typeof renderExpiryBanner === 'function') renderExpiryBanner();
+
+            if (typeof maybeShowOnboarding === 'function') {
+                setTimeout(maybeShowOnboarding, 300);
+            }
+        }
         catch(e) { console.error('Init error:', e); }
     });
 
