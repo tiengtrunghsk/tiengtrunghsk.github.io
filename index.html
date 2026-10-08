@@ -8868,60 +8868,6 @@ body.acm-bulk-mode .acm-select-all-row{display:flex;}
     border-color: transparent !important;
 }
 
-/* Style cho tab tu-vung-hsk-old */
-.ds-btn[data-dataset="tu-vung-hsk-old"] {
-    background: var(--surface) !important;
-    border-color: var(--border) !important;
-    color: var(--text) !important;
-}
-.ds-btn[data-dataset="tu-vung-hsk-old"] i:first-child { color: var(--primary) !important; }
-.ds-btn[data-dataset="tu-vung-hsk-old"]:hover {
-    border-color: var(--primary) !important;
-    background: var(--primary-light) !important;
-}
-.ds-btn[data-dataset="tu-vung-hsk-old"].active {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
-    color: #fff !important;
-    border-color: transparent !important;
-    box-shadow: 0 4px 12px rgba(124, 58, 237, .35) !important;
-}
-.ds-btn[data-dataset="tu-vung-hsk-old"].active i:first-child { color: #fff !important; }
-[data-theme="dark"] .ds-btn[data-dataset="tu-vung-hsk-old"] {
-    background: var(--surface) !important;
-    border-color: var(--border) !important;
-}
-[data-theme="dark"] .ds-btn[data-dataset="tu-vung-hsk-old"].active {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
-    border-color: transparent !important;
-}
-
-/* Style cho tab tu-vung-hsk-old-20261008-152944 */
-.ds-btn[data-dataset="tu-vung-hsk-old-20261008-152944"] {
-    background: var(--surface) !important;
-    border-color: var(--border) !important;
-    color: var(--text) !important;
-}
-.ds-btn[data-dataset="tu-vung-hsk-old-20261008-152944"] i:first-child { color: var(--primary) !important; }
-.ds-btn[data-dataset="tu-vung-hsk-old-20261008-152944"]:hover {
-    border-color: var(--primary) !important;
-    background: var(--primary-light) !important;
-}
-.ds-btn[data-dataset="tu-vung-hsk-old-20261008-152944"].active {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
-    color: #fff !important;
-    border-color: transparent !important;
-    box-shadow: 0 4px 12px rgba(124, 58, 237, .35) !important;
-}
-.ds-btn[data-dataset="tu-vung-hsk-old-20261008-152944"].active i:first-child { color: #fff !important; }
-[data-theme="dark"] .ds-btn[data-dataset="tu-vung-hsk-old-20261008-152944"] {
-    background: var(--surface) !important;
-    border-color: var(--border) !important;
-}
-[data-theme="dark"] .ds-btn[data-dataset="tu-vung-hsk-old-20261008-152944"].active {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
-    border-color: transparent !important;
-}
-
 /* VOCAB PREMIUM CSS */
 
 .ds-btn[data-dataset="tu-vung"] {
@@ -10769,22 +10715,6 @@ body.has-floating-group #quickSearchRoot{
             <i class="fas fa-comments ds-btn-icon"></i>
             <span class="ds-btn-text">
                 <span class="ds-btn-title"><b>1K+</b> Câu giao tiếp</span>
-                <span class="ds-btn-sub">Hội thoại thực tế</span>
-            </span>
-            
-        </button>
-        <button class="ds-btn ds-btn-primary" data-dataset="tu-vung-hsk-old" >
-            <i class="fas fa-comments ds-btn-icon"></i>
-            <span class="ds-btn-text">
-                <span class="ds-btn-title">Tu Vung Hsk Old</span>
-                <span class="ds-btn-sub">Hội thoại thực tế</span>
-            </span>
-            
-        </button>
-        <button class="ds-btn ds-btn-primary" data-dataset="tu-vung-hsk-old-20261008-152944" >
-            <i class="fas fa-comments ds-btn-icon"></i>
-            <span class="ds-btn-text">
-                <span class="ds-btn-title">Tu Vung Hsk Old 20261008 152944</span>
                 <span class="ds-btn-sub">Hội thoại thực tế</span>
             </span>
             
@@ -28819,11 +28749,11 @@ window.__switchRawData = function(datasetId) {
 /* FIX.PY - Lazy load data tu JSON */
 (function() {
     'use strict';
-    var NEW_IDS = ["1k-cau-giao-tiep", "tu-vung-hsk-old", "tu-vung-hsk-old-20261008-152944"];
+    var NEW_IDS = ["1k-cau-giao-tiep"];
 
     window.FIXPY_DATASETS = {};
     window.__fixpyDataLoaded = false;
-    window.__fixpyMeta = {"1k-cau-giao-tiep":{"id":"1k-cau-giao-tiep","name":"1K+ Câu giao tiếp","icon":"fa-comments","color":"#0891b2","count":1060,"source":"1K+_Câu_giao_tiếp.xlsx","type":"main","group":"fixpy"},"tu-vung-hsk-old":{"id":"tu-vung-hsk-old","name":"Tu Vung Hsk Old","icon":"fa-file-alt","color":"#dc2626","count":506,"source":"tu_vung_hsk_old.xlsx","type":"main","group":"fixpy"},"tu-vung-hsk-old-20261008-152944":{"id":"tu-vung-hsk-old-20261008-152944","name":"Tu Vung Hsk Old 20261008 152944","icon":"fa-book","color":"#059669","count":506,"source":"tu_vung_hsk_old_20261008_152944.xlsx","type":"main","group":"fixpy"},"tu-vung":{"id":"tu-vung","name":"11000+ Từ vựng HSK","icon":"fa-book","color":"#f59e0b","count":11747,"source":"tu_vung_hsk.xlsx","type":"premium","group":"fixpy"},"tu-vung-hsk-old-20261008-152625":{"id":"tu-vung-hsk-old-20261008-152625","name":"Tu Vung Hsk Old 20261008 152625","icon":"fa-book","color":"#059669","count":506,"source":"tu_vung_hsk_old_20261008_152625.xlsx","type":"main","group":"fixpy"}};
+    window.__fixpyMeta = {"1k-cau-giao-tiep":{"id":"1k-cau-giao-tiep","name":"1K+ Câu giao tiếp","icon":"fa-comments","color":"#0891b2","count":1060,"source":"1K+_Câu_giao_tiếp.xlsx","type":"main","group":"fixpy"},"tu-vung":{"id":"tu-vung","name":"11000+ Từ vựng HSK","icon":"fa-book","color":"#f59e0b","count":11747,"source":"tu_vung_hsk.xlsx","type":"premium","group":"fixpy"},"tu-vung-hsk-old":{"id":"tu-vung-hsk-old","name":"Tu Vung Hsk Old","icon":"fa-file-alt","color":"#dc2626","count":506,"source":"tu_vung_hsk_old.xlsx","type":"main","group":"fixpy"},"tu-vung-hsk-old-20261008-152944":{"id":"tu-vung-hsk-old-20261008-152944","name":"Tu Vung Hsk Old 20261008 152944","icon":"fa-book","color":"#059669","count":506,"source":"tu_vung_hsk_old_20261008_152944.xlsx","type":"main","group":"fixpy"},"tu-vung-hsk-old-20261008-152625":{"id":"tu-vung-hsk-old-20261008-152625","name":"Tu Vung Hsk Old 20261008 152625","icon":"fa-book","color":"#059669","count":506,"source":"tu_vung_hsk_old_20261008_152625.xlsx","type":"main","group":"fixpy"}};
 
     (function() {
         fetch('data/fixpy_datasets.json?t=' + Math.floor(Date.now() / 60000))
