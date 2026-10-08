@@ -2,9 +2,11 @@ from openpyxl import load_workbook
 import re
 import os
 import shutil
+from datetime import datetime
 
-SRC_FILE = 'data/tu_vung_hsk.xlsx'
-DST_FILE = 'data/tu_vung_hsk_normalized.xlsx'
+DATA_DIR = 'data'
+FILE_NAME = 'tu_vung_hsk.xlsx'
+BACKUP_PREFIX = 'tu_vung_hsk_old'
 COLUMN = 'B'
 START_ROW = 3
 
@@ -15,39 +17,27 @@ def normalize_text(text: str) -> str:
 
     text = text.strip()
 
-    # 1. Dấu phân cách -> |
     cleaned = re.sub(r'[\(\)\[\]\{\};,/\-_、，；]+', '|', text)
-
-    # 2. Khoảng trắng quanh | -> |
     cleaned = re.sub(r'\s*\|\s*', '|', cleaned)
-
-    # 3. Gộp nhiều | thành 1
     cleaned = re.sub(r'\|+', '|', cleaned)
-
-    # 4. Bỏ | đầu/cuối
     cleaned = cleaned.strip('|')
 
-    # 5. Nếu không có | mà có khoảng trắng giữa chữ Hán -> coi là phân cách
     if '|' not in cleaned and re.search(r'[\u4e00-\u9fff]\s+[\u4e00-\u9fff]', cleaned):
         cleaned = re.sub(r'\s+', '|', cleaned)
 
-    # 6. Tối đa 2 từ
     parts = [p.strip() for p in cleaned.split('|') if p.strip()]
     parts = parts[:2]
 
-    # 7. Ghép chuẩn "A | B"
     return ' | '.join(parts)
 
 
 def verify_only_column_b_changed(src, dst, column='B'):
-    """So sánh 2 file: đảm bảo chỉ cột B thay đổi"""
     print('\n🔍 Kiểm tra an toàn...')
     wb_src = load_workbook(src)
     wb_dst = load_workbook(dst)
 
-    # Kiểm tra số lượng sheet khớp
     if wb_src.sheetnames != wb_dst.sheetnames:
-        print(f'❌ Danh sách sheet khác nhau!')
+        print('❌ Danh sách sheet khác nhau!')
         return False
 
     diffs_outside_b = 0
@@ -78,22 +68,24 @@ def verify_only_column_b_changed(src, dst, column='B'):
 
 
 def main():
-    if not os.path.isfile(SRC_FILE):
-        print(f'❌ Không tìm thấy file: {SRC_FILE}')
+    src_file = os.path.join(DATA_DIR, FILE_NAME)
+
+    if not os.path.isfile(src_file):
+        print(f'❌ Không tìm thấy file: {src_file}')
         return
 
-    # 🔁 Tạo bản sao từ file gốc
-    shutil.copyfile(SRC_FILE, DST_FILE)
-    print(f'📋 Đã tạo bản sao: {DST_FILE}')
+    # 1️⃣ Tạo file tạm để chuẩn hóa
+    tmp_file = os.path.join(DATA_DIR, '_tmp_normalized.xlsx')
+    shutil.copyfile(src_file, tmp_file)
+    print(f'📋 Đã copy file gốc → {tmp_file}')
 
-    # Mở bản sao để sửa (file gốc không bị chạm)
-    wb = load_workbook(DST_FILE)
+    # 2️⃣ Chuẩn hóa file tạm
+    wb = load_workbook(tmp_file)
     total_edit = 0
 
     for sheet_name in wb.sheetnames:
         ws = wb[sheet_name]
         print(f'  📄 Sheet: {sheet_name}')
-
         for row in range(START_ROW, ws.max_row + 1):
             cell = ws[f'{COLUMN}{row}']
             old_value = cell.value
@@ -105,15 +97,29 @@ def main():
                 total_edit += 1
                 print(f'     ✔ {COLUMN}{row}: "{old_value}" → "{new_value}"')
 
-    wb.save(DST_FILE)
-    print(f'\n✅ Đã lưu {DST_FILE}. Tổng số ô sửa: {total_edit}')
+    wb.save(tmp_file)
+    print(f'\n✅ Đã sửa {total_edit} ô trong file tạm.')
 
-    # 🔍 Chạy kiểm tra an toàn
-    ok = verify_only_column_b_changed(SRC_FILE, DST_FILE, COLUMN)
+    # 3️⃣ Kiểm tra an toàn (chỉ cột B thay đổi)
+    if not verify_only_column_b_changed(src_file, tmp_file, COLUMN):
+        os.remove(tmp_file)
+        raise SystemExit('❌ Kiểm tra thất bại, hủy thao tác!')
 
-    if not ok:
-        raise SystemExit('❌ Kiểm tra thất bại: có ô ngoài cột B bị thay đổi!')
-    print('\n🎉 Hoàn tất thành công!')
+    # 4️⃣ Tạo tên backup có timestamp nếu file old đã tồn tại
+    backup_file = os.path.join(DATA_DIR, f'{BACKUP_PREFIX}.xlsx')
+    if os.path.exists(backup_file):
+        ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+        backup_file = os.path.join(DATA_DIR, f'{BACKUP_PREFIX}_{ts}.xlsx')
+
+    # 5️⃣ Đổi tên file gốc → old
+    shutil.move(src_file, backup_file)
+    print(f'\n📦 Đã backup file gốc → {backup_file}')
+
+    # 6️⃣ Đổi tên file tạm → tên gốc
+    shutil.move(tmp_file, src_file)
+    print(f'🔄 File chuẩn hóa đã thay thế → {src_file}')
+
+    print('\n🎉 Hoàn tất!')
 
 
 if __name__ == '__main__':
