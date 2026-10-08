@@ -259,12 +259,16 @@ def build_chat_html():
                     </div>
                 </div>
             </div>
-            <div class="chat-quick-replies hidden" id="chatQuickReplies">
-                <button class="chat-quick-btn" type="button" data-reply="Đã nhận được, em đợi admin 1-2 phút nhé!">Đã nhận, chờ 1-2 phút</button>
-                <button class="chat-quick-btn" type="button" data-reply="Admin đã xác nhận thanh toán. Tài khoản được gia hạn rồi em nhé!">Đã xác nhận thanh toán</button>
-                <button class="chat-quick-btn" type="button" data-reply="Em gửi giúp admin ảnh chụp biên lai chuyển khoản nhé.">Xin ảnh biên lai</button>
-                <button class="chat-quick-btn" type="button" data-reply="Cảm ơn em đã ủng hộ. Chúc em học tốt!">Cảm ơn</button>
-            </div>
+          <div class="chat-quick-replies hidden" id="chatQuickReplies">
+    <button class="chat-quick-btn" type="button" data-reply="Chào bạn, chúc bạn ngày mới học vui!">Chào hỏi</button>
+    <button class="chat-quick-btn" type="button" data-reply="Tài khoản sắp hết hạn, gia hạn để học tiếp nhé bạn!">Nhắc hết hạn</button>
+    <button class="chat-quick-btn" type="button" data-reply="Đã gia hạn cho bạn rồi, học vui nha!">Đã gia hạn</button>
+    <button class="chat-quick-btn" type="button" data-reply="Nhớ luyện viết mỗi ngày nhé bạn!">Nhắc luyện viết</button>
+    <button class="chat-quick-btn" type="button" data-reply="Mỗi ngày 10 từ, bạn sẽ giỏi nhanh thôi!">Mẹo học</button>
+    <button class="chat-quick-btn" type="button" data-reply="Bạn học chăm quá, cố lên nhé!">Động viên</button>
+    <button class="chat-quick-btn" type="button" data-reply="Cảm ơn bạn đã đồng hành cùng mình!">Cảm ơn</button>
+    <button class="chat-quick-btn" type="button" data-reply="Cần gì cứ nhắn mình nhé bạn!">Hỗ trợ</button>
+</div>
             <div class="chat-footer-row">
                 <textarea id="chatInput" placeholder="Nhập tin nhắn..." rows="1" maxlength="1000"></textarea>
                 <button class="chat-send-btn" id="chatSendBtn" type="button" disabled><i class="fas fa-paper-plane"></i></button>
