@@ -8933,6 +8933,13 @@ body.pf-assemble-active #pfInputMode { display: none !important; }
 body.pf-assemble-active #pfPreview { display: none !important; }
 body.pf-assemble-active .practice-full-input { display: none !important; }
 
+/* ⭐ Khi bật chế độ ghép từ → ẩn "Chấm điểm" + "Xem đáp án" */
+body.pf-assemble-active #pfHintBtn,
+body.pf-assemble-active #pfRevealBtn,
+body.pf-assemble-active .reveal-actions {
+    display: none !important;
+}
+
 @media (max-width: 500px) {
     .pf-word {
         padding: .35rem .7rem;
@@ -28201,22 +28208,12 @@ window.gradeWithAPI = gradeWithAPI;
     var pfAssembleCorrectWords = [];
 
     /* ─────────────────────────────────────────────────── */
-    /* Tách đáp án thành các "từ" — ưu tiên theo pinyin    */
+    /* Tách đáp án thành TỪNG KÝ TỰ Hán (không dùng pinyin) */
     /* ─────────────────────────────────────────────────── */
     function pfSplitIntoWords(zh, pinyin) {
         if (!zh) return [];
 
-        // Thử tách theo pinyin trước (nếu hàm splitByPinyin có sẵn)
-        if (typeof splitByPinyin === 'function' && pinyin) {
-            try {
-                var phrases = splitByPinyin(zh, pinyin);
-                if (phrases && phrases.length > 1) {
-                    return phrases.map(function(p) { return p.text; });
-                }
-            } catch(e) {}
-        }
-
-        // Fallback: tách từng ký tự Hán
+        // ⭐ Luôn tách từng ký tự Hán riêng lẻ
         var words = [];
         for (var i = 0; i < zh.length; i++) {
             var c = zh[i];
@@ -28513,6 +28510,7 @@ window.gradeWithAPI = gradeWithAPI;
             return r;
         };
         window.loadPracticeFull.__assemblePatched = true;
+        console.log('[Assemble] Đã hook loadPracticeFull');
     }
 
     /* ─────────────────────────────────────────────────── */
