@@ -13132,13 +13132,20 @@ function maybeShowOnboarding() {
     var cfg = getOnboardingConfig();
     if (!cfg) return;
 
-    var mainContent = $('mainContent');
-    if (!mainContent || mainContent.style.display === 'none') {
-        setTimeout(maybeShowOnboarding, 300);
+    // ⭐ FIX: Đảm bảo DATA đã load xong trước khi xử lý
+    if (typeof RAW_DATA === 'undefined' || !RAW_DATA || RAW_DATA.length === 0) {
+        if (window.__dataLoadPromise) {
+            window.__dataLoadPromise.then(function() {
+                setTimeout(maybeShowOnboarding, 100);
+            });
+        } else {
+            setTimeout(maybeShowOnboarding, 300);
+        }
         return;
     }
 
-    if (typeof RAW_DATA === 'undefined' || !RAW_DATA || RAW_DATA.length === 0) {
+    var mainContent = $('mainContent');
+    if (!mainContent || mainContent.style.display === 'none') {
         setTimeout(maybeShowOnboarding, 300);
         return;
     }
@@ -13147,18 +13154,26 @@ function maybeShowOnboarding() {
     if (saved && Array.isArray(saved.topics) && saved.topics.length > 0) {
         window.__onboardingAutoPicked = !!saved.auto_picked;
 
-        var existingBanner = $('onboardingActiveBanner');
-        var override = window.__onboardingOverride;
+        // ⭐ FIX: LUÔN gọi applyOnboardingSelection nếu override CHƯA được set
+        // (không phụ thuộc vào banner có tồn tại hay không)
+        var hasOverride = window.__onboardingOverride 
+                       && Array.isArray(window.__onboardingOverride) 
+                       && window.__onboardingOverride.length > 0;
 
-        if (!existingBanner || !override || override.length === 0) {
+        if (!hasOverride) {
+            // Chưa có override → áp dụng lại selection đã lưu
             applyOnboardingSelection(saved.topics, false);
         } else {
-            showOnboardingActiveBanner(saved.topics, override.length);
+            // Đã có override (do refreshApp / login lại) → chỉ vẽ lại banner
+            var existingBanner = $('onboardingActiveBanner');
+            if (!existingBanner) {
+                showOnboardingActiveBanner(saved.topics, window.__onboardingOverride.length);
+            }
         }
         return;
     }
 
-    /* ⭐ BƯỚC 1: CHƯA CÓ SELECTION → ÁP DỤNG MẶC ĐỊNH TRƯỚC (để có câu hiển thị) */
+    /* ⭐ BƯỚC 1: CHƯA CÓ SELECTION → ÁP DỤNG MẶC ĐỊNH TRƯỚC */
     var allTopics = getAvailableTopicsForTier();
     if (allTopics.length > 0) {
         var isLimitedTier = (info.tier === 'demo'
