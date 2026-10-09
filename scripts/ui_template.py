@@ -2768,13 +2768,11 @@ body.practice-full-open .pf-tiktok-float {
 /* Trạng thái KHOÁ */
 .fav-btn.locked{
     color:#dc2626;
-   {
- background:rgba(220,   38,38,.1);
+    background:rgba(220,38,38,.1);
 }
-.fav-btn position.locked:hover{
-    transform:scale(1:.12);
-    background:absolutergba(220,38,38;
-,.2);
+.fav-btn.locked:hover{
+    transform:scale(1.12);
+    background:rgba(220,38,38,.2);
     color:#b91c1c;
 }
 .fav-btn.locked i{font-size:.65rem;}
