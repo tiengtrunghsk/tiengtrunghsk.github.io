@@ -29789,7 +29789,7 @@ window.__switchRawData = function(datasetId) {
 
 
 <script>
-/* FIX.PY - Lazy load preview + full data tu JSON (Co thong báo load) */
+/* FIX.PY - Lazy load preview + full data tu JSON (Co thong bao loading) */
 (function() {
     'use strict';
     var NEW_IDS = ["1k-cau-giao-tiep"];
@@ -29798,24 +29798,24 @@ window.__switchRawData = function(datasetId) {
     window.__fixpyFullLoaded = false;
     window.__fixpyMeta = {"tu-vung":{"id":"tu-vung","name":"11000+ Từ vựng HSK","icon":"fa-book","color":"#f59e0b","count":11747,"source":"tu_vung_hsk.xlsx","type":"premium","group":"fixpy"},"1k-cau-giao-tiep":{"id":"1k-cau-giao-tiep","name":"1K+ Câu giao tiếp","icon":"fa-comments","color":"#0891b2","count":1060,"source":"1K+_Câu_giao_tiếp.xlsx","type":"main","group":"fixpy"}};
     window.__fixpyPendingSwitch = null;
-    /* Hàm hiển thị thông báo trạng thái cho người dùng */
-    function showFixToast(msg, isError) {
-        if (typeof showSearchToast === 'function') {
-            showSearchToast(msg);
-            return;
-        }
+    /* Hàm hiển thị thông báo trực quan */
+    function showFixToast(msg, isError, duration) {
         var existing = document.getElementById('fixToastBanner');
         if (existing) existing.remove();
         var toast = document.createElement('div');
         toast.id = 'fixToastBanner';
-        toast.style.cssText = 'position:fixed; bottom:20px; right:20px; z-index:99999; background:' + (isError ? '#dc2626' : '#4f46e5') + '; color:#fff; padding:10px 16px; border-radius:8px; font-size:14px; box-shadow:0 4px 12px rgba(0,0,0,0.2); transition:opacity 0.3s;';
-        toast.textContent = msg;
+        toast.style.cssText = 'position:fixed; bottom:24px; right:24px; z-index:999999; background:' + (isError ? '#dc2626' : '#2563eb') + '; color:#fff; padding:12px 20px; border-radius:12px; font-size:14px; font-weight:600; box-shadow:0 6px 20px rgba(0,0,0,0.25); display:flex; align-items:center; gap:8px; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);';
+        toast.innerHTML = '<i class="fas ' + (isError ? 'fa-exclamation-circle' : 'fa-spinner fa-spin') + '"></i><span>' + msg + '</span>';
         document.body.appendChild(toast);
-        setTimeout(function() {
-            toast.style.opacity = '0';
-            setTimeout(function() { toast.remove(); }, 300);
-        }, 3000);
+        if (duration) {
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                setTimeout(function() { toast.remove(); }, 300);
+            }, duration);
+        }
     }
+    /* Hiển thị thông báo đang tải ngầm ban đầu */
+    showFixToast('Đang tải dữ liệu trang web...', false, null);
     /* 1. LOAD NHANH PREVIEW (1/10 data) TRUOC DE GIAO DIEN HIEN THI NGAY */
     (function() {
         fetch('data/fixpy_preview.json?t=' + Math.floor(Date.now() / 60000))
@@ -29843,7 +29843,7 @@ window.__switchRawData = function(datasetId) {
                 window.__fixpyFullLoaded = true;
                 console.log('[fix.py] FULL data loaded');
                 
-                /* Nếu người dùng đã bấm chuyển tab trước đó, giờ load xong thì tự động chuyển và thông báo */
+                /* Nếu người dùng đã bấm chuyển tab trước đó, giờ load xong thì tự động chuyển và thông báo thành công */
                 if (window.__fixpyPendingSwitch) {
                     var targetId = window.__fixpyPendingSwitch;
                     window.__fixpyPendingSwitch = null;
@@ -29851,13 +29851,13 @@ window.__switchRawData = function(datasetId) {
                         window.__switchRawData(targetId);
                         if (typeof applyFilter === 'function') applyFilter();
                         if (typeof updateResultCount === 'function') updateResultCount();
-                        showFixToast('Đã tải xong toàn bộ dữ liệu!');
                     }
                 }
+                showFixToast('Đã sẵn sàng toàn bộ dữ liệu!', false, 2500);
             })
             .catch(function(e) {
                 console.error('[fix.py] full data load error:', e);
-                showFixToast('Lỗi tải dữ liệu đầy đủ!', true);
+                showFixToast('Lỗi tải dữ liệu đầy đủ!', true, 4000);
             });
     })();
 
@@ -29899,10 +29899,10 @@ window.__switchRawData = function(datasetId) {
         }
         window.__switchRawData = function(datasetId) {
             if (window.FIXPY_DATASETS && window.FIXPY_DATASETS[datasetId]) {
-                /* Nếu file full chưa tải xong, thông báo ngay cho người dùng biết */
+                /* Nếu file full chưa tải xong mà người dùng bấm đổi tab */
                 if (!window.__fixpyFullLoaded && datasetId !== 'tonghop') {
                     window.__fixpyPendingSwitch = datasetId;
-                    showFixToast('Đang tải dữ liệu đầy đủ, vui lòng đợi giây lát...');
+                    showFixToast('Đang tải dữ liệu đầy đủ, vui lòng đợi giây lát...', false, null);
                     RAW_DATA = window.FIXPY_DATASETS[datasetId].data || [];
                     CURRENT_DATASET = datasetId;
                     return true;
@@ -30392,6 +30392,7 @@ window.__switchRawData = function(datasetId) {
         if (cnBtn && !cnBtn.__fixedBind) {
             cnBtn.__fixedBind = true;
             cnBtn.addEventListener('click', function(e) {
+                e.stopImmediateIconPropagation();
                 e.stopImmediatePropagation();
                 e.stopPropagation();
                 var sub = document.getElementById('dsSubWrap');
