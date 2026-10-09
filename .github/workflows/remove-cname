@@ -1,0 +1,21 @@
+name: Remove CNAME
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  remove:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          if [ -f CNAME ]; then
+            git rm CNAME
+            git config user.name "bot"
+            git config user.email "bot@users.noreply.github.com"
+            git commit -m "Remove CNAME"
+            git push
+          fi
