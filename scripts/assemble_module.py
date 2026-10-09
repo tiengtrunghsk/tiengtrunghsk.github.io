@@ -193,8 +193,6 @@ body.pf-assemble-active .pf-assemble-mode {
     color: #b45309;
     padding: clamp(.4rem, .8vh, .55rem) clamp(.7rem, 1.3vw, .95rem);
 }
-
-/* Khi đang đếm ngược: chỉ hiện badge số, ẩn icon + label */
 .pf-assemble-btn.auto-shuffle .pf-assemble-icon {
     display: none;
 }
@@ -204,7 +202,6 @@ body.pf-assemble-active .pf-assemble-mode {
 .pf-assemble-btn.auto-shuffle .pf-shuffle-countdown {
     display: inline-flex;
 }
-
 .pf-assemble-btn.auto-shuffle:hover {
     border-color: #d97706;
     color: #92400e;
@@ -577,10 +574,10 @@ def build_assemble_html():
         '    </div>\n'
         '    <div class="pf-assemble-pool" id="pfAssemblePool"></div>\n'
         '    <div class="pf-assemble-actions">\n'
-        '        <button type="button" class="pf-assemble-btn auto-shuffle" id="pfAssembleShuffleBtn" title="Xáo trộn - sau 5s sẽ tự động xáo lại">\n'
+        '        <button type="button" class="pf-assemble-btn auto-shuffle" id="pfAssembleShuffleBtn" title="Xáo trộn - sau 10s sẽ tự động xáo lại">\n'
         '            <i class="fas fa-random pf-assemble-icon"></i>\n'
         '            <span class="pf-shuffle-label">Xáo trộn</span>\n'
-        '            <span class="pf-shuffle-countdown" id="pfShuffleCountdown">5</span>\n'
+        '            <span class="pf-shuffle-countdown" id="pfShuffleCountdown">10</span>\n'
         '        </button>\n'
         '        <button type="button" class="pf-assemble-btn" id="pfAssembleClearBtn">\n'
         '            <i class="fas fa-undo-alt"></i> Xóa hết\n'
@@ -684,8 +681,9 @@ _JS_PART_1 = r"""
 
     var pfAutoShuffleTimer = null;
     var pfAutoShuffleCountdown = null;
-    var pfAutoShuffleRemain = 5;
-    var AUTO_SHUFFLE_SECONDS = 5;
+    var pfAutoShuffleRemain = 10;
+    var AUTO_SHUFFLE_SECONDS = 10;
+    var PF_AUTO_SHUFFLE_PREF_KEY = 'pfAutoShufflePref';
 
     function pfSplitIntoWords(zh) {
         if (!zh) return [];
@@ -704,6 +702,20 @@ _JS_PART_1 = r"""
             var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
         }
         return a;
+    }
+
+    function pfGetAutoShufflePref() {
+        try {
+            return localStorage.getItem(PF_AUTO_SHUFFLE_PREF_KEY) === '1';
+        } catch(e) {
+            return false;
+        }
+    }
+
+    function pfSetAutoShufflePref(val) {
+        try {
+            localStorage.setItem(PF_AUTO_SHUFFLE_PREF_KEY, val ? '1' : '0');
+        } catch(e) {}
     }
 
     function pfBuildAssembleWords() {
@@ -911,9 +923,11 @@ _JS_PART_1 = r"""
     function pfToggleAutoShuffle() {
         if (pfAutoShuffleTimer) {
             pfStopAutoShuffle();
+            pfSetAutoShufflePref(false);
         } else {
             pfStartAutoShuffle();
             pfDoShuffle();
+            pfSetAutoShufflePref(true);
         }
     }
 """
@@ -1069,6 +1083,12 @@ _JS_PART_2 = r"""
         if (statusEl) {
             statusEl.textContent = '';
             statusEl.className = 'practice-full-status';
+        }
+        // Neu user da tung bat auto-shuffle -> tu bat lai
+        if (pfGetAutoShufflePref()
+            && !pfAutoShuffleTimer
+            && pfAssembleWords.length > 0) {
+            pfStartAutoShuffle();
         }
     }
 """
@@ -1349,7 +1369,8 @@ _JS_PART_4 = r"""
         reset: pfResetAssemble,
         toggle: pfToggleAssembleMode,
         isAutoShuffle: function() { return !!pfAutoShuffleTimer; },
-        toggleAutoShuffle: pfToggleAutoShuffle
+        toggleAutoShuffle: pfToggleAutoShuffle,
+        getAutoShufflePref: pfGetAutoShufflePref
     };
 
 })();
