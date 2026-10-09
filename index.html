@@ -29789,28 +29789,49 @@ window.__switchRawData = function(datasetId) {
 
 
 <script>
-/* FIX.PY - Lazy load data tu JSON */
+/* FIX.PY - Lazy load preview + full data tu JSON */
 (function() {
     'use strict';
     var NEW_IDS = ["1k-cau-giao-tiep"];
 
     window.FIXPY_DATASETS = {};
     window.__fixpyDataLoaded = false;
-    window.__fixpyMeta = {"1k-cau-giao-tiep":{"id":"1k-cau-giao-tiep","name":"1K+ Câu giao tiếp","icon":"fa-comments","color":"#0891b2","count":1060,"source":"1K+_Câu_giao_tiếp.xlsx","type":"main","group":"fixpy"},"tu-vung":{"id":"tu-vung","name":"11000+ Từ vựng HSK","icon":"fa-book","color":"#f59e0b","count":11747,"source":"tu_vung_hsk.xlsx","type":"premium","group":"fixpy"}};
+    window.__fixpyMeta = {"tu-vung":{"id":"tu-vung","name":"11000+ Từ vựng HSK","icon":"fa-book","color":"#f59e0b","count":11747,"source":"tu_vung_hsk.xlsx","type":"premium","group":"fixpy"},"1k-cau-giao-tiep":{"id":"1k-cau-giao-tiep","name":"1K+ Câu giao tiếp","icon":"fa-comments","color":"#0891b2","count":1060,"source":"1K+_Câu_giao_tiếp.xlsx","type":"main","group":"fixpy"}};
 
+    /* 1. LOAD NHANH PREVIEW (1/10 data) TRUOC DE GIAO DIEN HIEN THI NGAY */
     (function() {
-        fetch('data/fixpy_datasets.json?t=' + Math.floor(Date.now() / 60000))
+        fetch('data/fixpy_preview.json?t=' + Math.floor(Date.now() / 60000))
             .then(function(r) { return r.ok ? r.json() : {}; })
             .then(function(d) {
-                window.FIXPY_DATASETS = d || {};
-                window.__fixpyDataLoaded = true;
-                console.log('[fix.py] loaded', Object.keys(d).length, 'datasets');
+                if (!window.__fixpyFullLoaded) {
+                    window.FIXPY_DATASETS = d || {};
+                }
+                console.log('[fix.py] preview loaded', Object.keys(d).length, 'datasets');
                 if (typeof window.__fixpyOnDataReady === 'function') {
                     window.__fixpyOnDataReady();
                 }
             })
             .catch(function(e) {
-                console.error('[fix.py] load error:', e);
+                console.error('[fix.py] preview load error:', e);
+            });
+    })();
+
+    /* 2. LOAD NGẦM TOÀN BỘ DỮ LIỆU ĐẦY ĐỦ PHÍA SAU */
+    window.__fixpyFullLoaded = false;
+    (function() {
+        fetch('data/fixpy_datasets.json?t=' + Math.floor(Date.now() / 60000))
+            .then(function(r) { return r.ok ? r.json() : {}; })
+            .then(function(d) {
+                window.FIXPY_DATASETS = d || {};
+                window.__fixpyFullLoaded = true;
+                window.__fixpyDataLoaded = true;
+                console.log('[fix.py] FULL data loaded', Object.keys(d).length, 'datasets');
+                if (typeof window.__fixpyOnDataReady === 'function') {
+                    window.__fixpyOnDataReady();
+                }
+            })
+            .catch(function(e) {
+                console.error('[fix.py] full data load error:', e);
                 window.__fixpyDataLoaded = true;
             });
     })();
@@ -29853,13 +29874,6 @@ window.__switchRawData = function(datasetId) {
         }
         window.__switchRawData = function(datasetId) {
             if (window.FIXPY_DATASETS && window.FIXPY_DATASETS[datasetId]) {
-                if (!window.__fixpyDataLoaded) {
-                    console.log('[fix.py] data chua load, doi:', datasetId);
-                    if (!window.__fixpyPendingSwitch) window.__fixpyPendingSwitch = [];
-                    window.__fixpyPendingSwitch.push(datasetId);
-                    CURRENT_DATASET = datasetId;
-                    return true;
-                }
                 RAW_DATA = window.FIXPY_DATASETS[datasetId].data || [];
                 CURRENT_DATASET = datasetId;
                 console.log('[fix.py] switch FIXPY:', datasetId, '->', RAW_DATA.length, 'cau');
@@ -29917,7 +29931,6 @@ window.__switchRawData = function(datasetId) {
                     || (typeof getLimitedData !== 'undefined' ? getLimitedData : null);
         if (typeof origGet !== 'function') return;
         window.getLimitedData = function() {
-            if (!window.__fixpyDataLoaded) return [];
             var currentDs = (typeof CURRENT_DATASET !== 'undefined')
                             ? CURRENT_DATASET : 'tonghop';
             if (currentDs === 'tonghop') {
@@ -30006,7 +30019,6 @@ window.__switchRawData = function(datasetId) {
             return;
         }
         window.applyFilter = function() {
-            if (!window.__fixpyDataLoaded) return;
             var curDs = (typeof CURRENT_DATASET !== 'undefined')
                         ? CURRENT_DATASET : 'tonghop';
             if (curDs === 'tonghop') {
@@ -30061,7 +30073,6 @@ window.__switchRawData = function(datasetId) {
             return;
         }
         window.pfApplyFilter = function() {
-            if (!window.__fixpyDataLoaded) return;
             var curDs = (typeof CURRENT_DATASET !== 'undefined')
                         ? CURRENT_DATASET : 'tonghop';
             if (curDs === 'tonghop') {
@@ -30380,7 +30391,6 @@ window.__switchRawData = function(datasetId) {
                         b.classList.remove('active');
                     });
                     this.classList.add('active');
-                    /* ⭐ VẼ LẠI SUB BUTTONS VỚI ICON KHÓA */
                     if (typeof initDatasetSelector === 'function') {
                         try { initDatasetSelector(); } catch(err) {}
                     }
@@ -31888,36 +31898,6 @@ window.__SIMILAR_CHARS__ = {"版": {"similar": ["板", "饭"], "diff": "版=bả
                 '<i class="fas fa-crown"></i> ' + btnLabel +
             '</button>';
         main.insertBefore(banner, main.firstChild);
-    }
-
-    function patchSubjectLock() {
-        if (window.__vocabSubjectLockPatched) return;
-        if (typeof window.buildFilters !== 'function') {
-            setTimeout(patchSubjectLock, 200);
-            return;
-        }
-        var orig = window.buildFilters;
-        window.buildFilters = function() {
-            var result = orig.apply(this, arguments);
-            try {
-                var sf = document.getElementById('subjectFilter');
-                if (!sf) return result;
-                if (_isVocabMode()) {
-                    sf.disabled = true;
-                    sf.value = '';
-                    sf.style.opacity = '0.5';
-                    sf.style.cursor = 'not-allowed';
-                    sf.title = 'Khong kha dung cho Tu vung';
-                } else {
-                    sf.disabled = false;
-                    sf.style.opacity = '';
-                    sf.style.cursor = '';
-                    sf.title = '';
-                }
-            } catch(e) {}
-            return result;
-        };
-        window.__vocabSubjectLockPatched = true;
     }
 
     function watchVocabMode() {
