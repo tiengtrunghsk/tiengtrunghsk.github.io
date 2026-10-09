@@ -1,18 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-ASSEMBLE MODULE — Chế độ "Ghép từ" cho Practice Full.
-Module độc lập, không đụng vào mã gốc.
+ASSEMBLE MODULE - Che do Ghep tu cho Practice Full.
+Module doc lap, khong dung vao ma goc.
 
-Đặc điểm:
-  - Tap pool → chèn từ vào VỊ TRÍ CON TRỎ (không phải cuối)
-  - Tap vào ô đáp án → đặt con trỏ ở vị trí tap
-  - Tap vào từ trong ô đáp án → đưa từ về pool
-  - Tap giữa 2 từ → chèn con trỏ vào giữa
-  - Khi bật mode → ẩn nút "Chấm điểm" + "Xem đáp án"
-  - Nút toggle có label "Ghép từ" ↔ "Gõ tự do" + badge "MỚI"
-  - Nút Random + Voice gộp vào 1 nút Settings ⚙️
-
-Cách dùng trong convert.py:
+Cach dung trong convert.py:
     from assemble_module import (
         build_assemble_css,
         build_assemble_html,
@@ -28,14 +19,9 @@ Cách dùng trong convert.py:
 import re
 
 
-# ═══════════════════════════════════════════════════════════════
-# CSS
-# ═══════════════════════════════════════════════════════════════
 def build_assemble_css():
     return r"""
-/* ═══════════════════════════════════════════════════════════ */
-/* GHÉP TỪ (Word Assembly) — chế độ luyện dịch nâng cao        */
-/* ═══════════════════════════════════════════════════════════ */
+/* GHEP TU - che do luyen dich nang cao */
 .pf-assemble-mode {
     display: none;
     flex-direction: column;
@@ -46,7 +32,7 @@ body.pf-assemble-active .pf-assemble-mode {
     display: flex;
 }
 
-/* Ô "Câu trả lời" */
+/* O cau tra loi */
 .pf-assemble-answer {
     min-height: clamp(56px, 8vh, 72px);
     padding: clamp(.5rem, 1vh, .75rem) clamp(.6rem, 1.2vw, .9rem);
@@ -101,7 +87,7 @@ body.pf-assemble-active .pf-assemble-mode {
     pointer-events: none;
 }
 
-/* Ô "Từ gợi ý" */
+/* O tu goi y */
 .pf-assemble-pool {
     min-height: clamp(56px, 8vh, 72px);
     padding: clamp(.5rem, 1vh, .75rem) clamp(.6rem, 1.2vw, .9rem);
@@ -115,7 +101,7 @@ body.pf-assemble-active .pf-assemble-mode {
     justify-content: center;
 }
 
-/* Nút từ — dùng chung cho cả 2 ô */
+/* Nut tu */
 .pf-word {
     font-family: var(--font-zh, 'PingFang SC', sans-serif);
     font-size: clamp(1.1rem, 2vw, 1.35rem);
@@ -150,7 +136,6 @@ body.pf-assemble-active .pf-assemble-mode {
     transform: scale(.92);
 }
 
-/* Nút từ ở ô đáp án — màu khác */
 .pf-assemble-answer .pf-word {
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
     color: #fff;
@@ -168,7 +153,7 @@ body.pf-assemble-active .pf-assemble-mode {
     transform: translateY(-2px) scale(1.04);
 }
 
-/* Nút hành động */
+/* Nut hanh dong */
 .pf-assemble-actions {
     display: flex;
     gap: clamp(.4rem, .8vw, .6rem);
@@ -207,21 +192,17 @@ body.pf-assemble-active .pf-assemble-mode {
     box-shadow: 0 6px 18px rgba(124,58,237,.5);
 }
 
-/* Khi bật chế độ ghép từ → ẩn input gõ tự do */
 body.pf-assemble-active #pfInputMode { display: none !important; }
 body.pf-assemble-active #pfPreview { display: none !important; }
 body.pf-assemble-active .practice-full-input { display: none !important; }
 
-/* Ẩn "Chấm điểm" + "Xem đáp án" khi bật ghép từ */
 body.pf-assemble-active #pfHintBtn,
 body.pf-assemble-active #pfRevealBtn,
 body.pf-assemble-active .reveal-actions {
     display: none !important;
 }
 
-/* ═══════════════════════════════════════════════════════════ */
-/* CON TRỎ INSERT — vạch dọc nhấp nháy giữa các từ             */
-/* ═══════════════════════════════════════════════════════════ */
+/* Con tro insert */
 .pf-insert-cursor {
     display: inline-block;
     width: 3px;
@@ -245,7 +226,6 @@ body.pf-assemble-active .reveal-actions {
     51%, 100% { opacity: .2; }
 }
 
-/* Vùng click giữa 2 slot để chèn con trỏ */
 .pf-insert-gap {
     display: inline-block;
     width: 6px;
@@ -268,14 +248,11 @@ body.pf-assemble-active .reveal-actions {
     border-radius: 1px;
 }
 
-/* Ô đáp án khi trống + có con trỏ */
 .pf-assemble-answer .pf-insert-cursor.only {
     height: 2em;
 }
 
-/* ═══════════════════════════════════════════════════════════ */
-/* NÚT TOGGLE GHÉP TỪ — có text label                          */
-/* ═══════════════════════════════════════════════════════════ */
+/* Nut toggle ghep tu */
 .pf-nav-icon.mini-nav.assemble-toggle.with-label {
     width: auto !important;
     min-width: auto !important;
@@ -340,7 +317,7 @@ body.pf-assemble-active .reveal-actions {
     box-shadow: 0 4px 14px rgba(129,140,248,.55);
 }
 
-/* Badge "MỚI" */
+/* Badge MOI */
 .pf-nav-icon.mini-nav.assemble-toggle .assemble-new-badge {
     position: absolute;
     top: -8px;
@@ -373,9 +350,7 @@ body.pf-assemble-active .reveal-actions {
                 0 0 0 2px var(--surface-2);
 }
 
-/* ═══════════════════════════════════════════════════════════ */
-/* NÚT CÀI ĐẶT GỘP (Random + Voice)                            */
-/* ═══════════════════════════════════════════════════════════ */
+/* Nut cai dat gop */
 .pf-settings-wrap {
     position: relative;
     display: inline-flex;
@@ -508,7 +483,6 @@ body.pf-assemble-active .reveal-actions {
     display: block;
 }
 
-/* ─── Responsive ─── */
 @media (max-width: 500px) {
     .pf-word {
         padding: .35rem .7rem;
@@ -558,50 +532,36 @@ body.pf-assemble-active .reveal-actions {
 """
 
 
-# ═══════════════════════════════════════════════════════════════
-# HTML fragment
-# ═══════════════════════════════════════════════════════════════
 def build_assemble_html():
-    return r"""<!-- ASSEMBLE MODE -->
-<div class="pf-assemble-mode" id="pfAssembleMode">
-    <div class="pf-assemble-answer" id="pfAssembleAnswer">
-        <span class="pf-assemble-hint">Bấm từ bên dưới để ghép câu</span>
-    </div>
-    <div class="pf-assemble-pool" id="pfAssemblePool"></div>
-    <div class="pf-assemble-actions">
-        <button type="button" class="pf-assemble-btn" id="pfAssembleShuffleBtn">
-            <i class="fas fa-random"></i> Xáo trộn
-        </button>
-        <button type="button" class="pf-assemble-btn" id="pfAssembleClearBtn">
-            <i class="fas fa-undo-alt"></i> Xóa hết
-        </button>
-        <button type="button" class="pf-assemble-btn primary" id="pfAssembleHintBtn">
-            <i class="fas fa-lightbulb"></i> Gợi ý
-        </button>
-    </div>
-</div>
-"""
+    return (
+        '<div class="pf-assemble-mode" id="pfAssembleMode">\n'
+        '    <div class="pf-assemble-answer" id="pfAssembleAnswer">\n'
+        '        <span class="pf-assemble-hint">Bam tu ben duoi de ghep cau</span>\n'
+        '    </div>\n'
+        '    <div class="pf-assemble-pool" id="pfAssemblePool"></div>\n'
+        '    <div class="pf-assemble-actions">\n'
+        '        <button type="button" class="pf-assemble-btn" id="pfAssembleShuffleBtn">\n'
+        '            <i class="fas fa-random"></i> Xao tron\n'
+        '        </button>\n'
+        '        <button type="button" class="pf-assemble-btn" id="pfAssembleClearBtn">\n'
+        '            <i class="fas fa-undo-alt"></i> Xoa het\n'
+        '        </button>\n'
+        '        <button type="button" class="pf-assemble-btn primary" id="pfAssembleHintBtn">\n'
+        '            <i class="fas fa-lightbulb"></i> Goi y\n'
+        '        </button>\n'
+        '    </div>\n'
+        '</div>\n'
+    )
 
 
-# ═══════════════════════════════════════════════════════════════
-# HTML injection
-# ═══════════════════════════════════════════════════════════════
-def inject_assemble_html(ui_html: str) -> str:
-    """
-    Chèn vào ui_html:
-      1. Nút toggle "Ghép từ" (có text label) vào mini-group
-      2. GỘP nút Random + Voice thành 1 nút Settings ⚙️
-      3. Khối pf-assemble-mode sau char-preview
-    """
-
-    # ── 1. Nút toggle "Ghép từ" có text vào mini-group ──
+def inject_assemble_html(ui_html):
     toggle_btn = (
         '<button class="pf-nav-icon mini-nav assemble-toggle with-label" '
         'id="pfAssembleToggleBtn" type="button" '
-        'title="Chuyển sang chế độ Ghép từ" aria-label="Chế độ Ghép từ">'
+        'title="Chuyen sang che do Ghep tu" aria-label="Che do Ghep tu">'
         '<i class="fas fa-puzzle-piece"></i>'
-        '<span class="assemble-toggle-label">Ghép từ</span>'
-        '<span class="assemble-new-badge">MỚI</span>'
+        '<span class="assemble-toggle-label">Ghep tu</span>'
+        '<span class="assemble-new-badge">MOI</span>'
         '</button>'
     )
 
@@ -613,11 +573,10 @@ def inject_assemble_html(ui_html: str) -> str:
             ui_html,
             count=1,
         )
-        print("✅ [assemble] Đã chèn nút toggle 'Ghép từ' vào mini-group")
+        print("[assemble] Da chen nut toggle Ghep tu vao mini-group")
     else:
-        print("⚠️  [assemble] Không tìm thấy .mini-group để chèn nút toggle")
+        print("[assemble] CANH BAO: Khong tim thay .mini-group")
 
-    # ── 2. Gộp nút random + voice thành 1 nút settings ──
     combined_pattern = (
         r'(<button class="pf-nav-icon mini-nav random" id="pfRandomToggleBtn"[^>]*>.*?</button>)'
         r'\s*'
@@ -626,18 +585,18 @@ def inject_assemble_html(ui_html: str) -> str:
 
     settings_html = (
         '<div class="pf-settings-wrap" id="pfSettingsWrap">\n'
-        '        <button class="pf-nav-icon mini-nav settings-btn" id="pfSettingsBtn" type="button" title="Cài đặt" aria-label="Cài đặt">\n'
+        '        <button class="pf-nav-icon mini-nav settings-btn" id="pfSettingsBtn" type="button" title="Cai dat" aria-label="Cai dat">\n'
         '            <i class="fas fa-cog"></i>\n'
         '        </button>\n'
         '        <div class="pf-settings-menu" id="pfSettingsMenu">\n'
         '            <button type="button" class="pf-settings-item" id="pfSettingsRandomBtn">\n'
         '                <i class="fas fa-dice"></i>\n'
-        '                <span class="pf-settings-label">Câu ngẫu nhiên</span>\n'
+        '                <span class="pf-settings-label">Cau ngau nhien</span>\n'
         '                <span class="pf-settings-state" id="pfSettingsRandomState">OFF</span>\n'
         '            </button>\n'
         '            <button type="button" class="pf-settings-item" id="pfSettingsVoiceBtn">\n'
         '                <i class="fas fa-headphones"></i>\n'
-        '                <span class="pf-settings-label">Giọng đọc</span>\n'
+        '                <span class="pf-settings-label">Giong doc</span>\n'
         '                <i class="fas fa-chevron-right" style="font-size:.7rem;opacity:.5;margin-left:auto;width:auto"></i>\n'
         '            </button>\n'
         '        </div>\n'
@@ -653,16 +612,13 @@ def inject_assemble_html(ui_html: str) -> str:
             count=1,
             flags=re.DOTALL
         )
-        print("✅ [assemble] Đã gộp nút Random + Voice thành 1 nút Settings")
+        print("[assemble] Da gop nut Random + Voice thanh 1 nut Settings")
     else:
-        print("⚠️  [assemble] Không tìm thấy 2 nút random+voice để gộp")
+        print("[assemble] CANH BAO: Khong tim thay 2 nut random+voice")
 
-    # ── 3. Khối pf-assemble-mode sau char-preview ──
     assemble_block = build_assemble_html()
 
-    char_preview_pattern = (
-        r'(<div class="char-preview" id="pfPreview"></div>)'
-    )
+    char_preview_pattern = r'(<div class="char-preview" id="pfPreview"></div>)'
     if re.search(char_preview_pattern, ui_html):
         ui_html = re.sub(
             char_preview_pattern,
@@ -670,33 +626,25 @@ def inject_assemble_html(ui_html: str) -> str:
             ui_html,
             count=1,
         )
-        print("✅ [assemble] Đã chèn khối ghép từ sau char-preview")
+        print("[assemble] Da chen khoi ghep tu sau char-preview")
     else:
-        print("⚠️  [assemble] Không tìm thấy .char-preview để chèn khối ghép từ")
+        print("[assemble] CANH BAO: Khong tim thay .char-preview")
 
     return ui_html
 
 
-# ═══════════════════════════════════════════════════════════════
-# JS
-# ═══════════════════════════════════════════════════════════════
 def build_assemble_js():
     return r"""
-/* ═══════════════════════════════════════════════════════════ */
-/* GHÉP TỪ (Word Assembly) — chèn từ vào vị trí bất kỳ         */
-/* ═══════════════════════════════════════════════════════════ */
+/* GHEP TU - chen tu vao vi tri bat ky */
 (function() {
     'use strict';
 
     var pfAssembleMode = false;
     var pfAssembleWords = [];
-    var pfAssembleAnswerIdx = [];   // mảng các poolIdx đã chọn, theo thứ tự
+    var pfAssembleAnswerIdx = [];
     var pfAssembleCorrectWords = [];
-    var pfInsertPos = 0;            // vị trí con trỏ (0..answerIdx.length)
+    var pfInsertPos = 0;
 
-    /* ─────────────────────────────────────────────────── */
-    /* Tách đáp án thành TỪNG KÝ TỰ Hán                     */
-    /* ─────────────────────────────────────────────────── */
     function pfSplitIntoWords(zh) {
         if (!zh) return [];
         var words = [];
@@ -707,9 +655,6 @@ def build_assemble_js():
         return words;
     }
 
-    /* ─────────────────────────────────────────────────── */
-    /* Shuffle (Fisher-Yates)                              */
-    /* ─────────────────────────────────────────────────── */
     function pfShuffleArray(arr) {
         var a = arr.slice();
         for (var i = a.length - 1; i > 0; i--) {
@@ -719,9 +664,6 @@ def build_assemble_js():
         return a;
     }
 
-    /* ─────────────────────────────────────────────────── */
-    /* Tạo bộ từ xáo trộn cho câu hiện tại                 */
-    /* ─────────────────────────────────────────────────── */
     function pfBuildAssembleWords() {
         var answer = (typeof pfCurrentAnswer !== 'undefined') ? pfCurrentAnswer : '';
         pfAssembleCorrectWords = pfSplitIntoWords(answer);
@@ -733,7 +675,6 @@ def build_assemble_js():
             return;
         }
 
-        // Xáo trộn, đảm bảo không trùng thứ tự gốc
         var shuffled = pfShuffleArray(pfAssembleCorrectWords);
         var tries = 0;
         while (tries < 15
@@ -748,9 +689,6 @@ def build_assemble_js():
         pfInsertPos = 0;
     }
 
-    /* ─────────────────────────────────────────────────── */
-    /* Kiểm tra trạng thái ghép                            */
-    /* ─────────────────────────────────────────────────── */
     function pfCheckAssembleStatus() {
         var n = pfAssembleAnswerIdx.length;
         var total = pfAssembleCorrectWords.length;
@@ -774,9 +712,6 @@ def build_assemble_js():
         return 'correct';
     }
 
-    /* ─────────────────────────────────────────────────── */
-    /* Render ô đáp án + pool                              */
-    /* ─────────────────────────────────────────────────── */
     function pfRenderAssemble() {
         var answerEl = document.getElementById('pfAssembleAnswer');
         var poolEl   = document.getElementById('pfAssemblePool');
@@ -786,18 +721,15 @@ def build_assemble_js():
             ? escapeHtml
             : function(s) { return String(s); };
 
-        // ═══ Ô ĐÁP ÁN ═══
         answerEl.innerHTML = '';
 
         if (pfAssembleAnswerIdx.length === 0) {
-            // Chưa có từ nào → hiện con trỏ đứng giữa + hint
             answerEl.innerHTML =
                 '<span class="pf-insert-cursor only" data-gap="0"></span>' +
                 '<span class="pf-assemble-hint" style="margin-left:.5rem">' +
-                'Chọn từ bên dưới để ghép câu' +
+                'Chon tu ben duoi de ghep cau' +
                 '</span>';
         } else {
-            // Duyệt qua các vị trí: 0..n
             for (var pos = 0; pos <= pfAssembleAnswerIdx.length; pos++) {
                 var gap = document.createElement('span');
                 gap.className = 'pf-insert-gap';
@@ -841,7 +773,6 @@ def build_assemble_js():
             }
         }
 
-        // ═══ Ô POOL ═══
         var poolHtml = '';
         pfAssembleWords.forEach(function(word, idx) {
             var isUsed = pfAssembleAnswerIdx.indexOf(idx) !== -1;
@@ -862,16 +793,12 @@ def build_assemble_js():
             });
         });
 
-        // ═══ Trạng thái border ═══
         answerEl.classList.remove('correct', 'wrong');
         var status = pfCheckAssembleStatus();
         if (status === 'correct') answerEl.classList.add('correct');
         else if (status === 'wrong') answerEl.classList.add('wrong');
     }
 
-    /* ─────────────────────────────────────────────────── */
-    /* Đặt con trỏ vào vị trí bất kỳ                       */
-    /* ─────────────────────────────────────────────────── */
     function pfSetCursor(pos) {
         if (pos < 0) pos = 0;
         if (pos > pfAssembleAnswerIdx.length) pos = pfAssembleAnswerIdx.length;
@@ -879,9 +806,6 @@ def build_assemble_js():
         pfRenderAssemble();
     }
 
-    /* ─────────────────────────────────────────────────── */
-    /* Tap từ ở pool → chèn vào vị trí con trỏ             */
-    /* ─────────────────────────────────────────────────── */
     function pfPickWord(poolIdx) {
         if (pfAssembleAnswerIdx.indexOf(poolIdx) !== -1) return;
 
@@ -897,9 +821,6 @@ def build_assemble_js():
         }
     }
 
-    /* ─────────────────────────────────────────────────── */
-    /* Tap từ trong ô đáp án → đưa về pool                 */
-    /* ─────────────────────────────────────────────────── */
     function pfUnpickWord(pos) {
         if (pos < 0 || pos >= pfAssembleAnswerIdx.length) return;
 
@@ -917,9 +838,6 @@ def build_assemble_js():
         pfUpdateStatusText();
     }
 
-    /* ─────────────────────────────────────────────────── */
-    /* Cập nhật text trạng thái                            */
-    /* ─────────────────────────────────────────────────── */
     function pfUpdateStatusText() {
         var statusEl = document.getElementById('pfStatus');
         if (!statusEl) return;
@@ -931,24 +849,21 @@ def build_assemble_js():
         } else if (status === 'incomplete') {
             var n = pfAssembleAnswerIdx.length;
             var total = pfAssembleCorrectWords.length;
-            statusEl.textContent = 'Đang ghép... (' + n + '/' + total + ')';
+            statusEl.textContent = 'Dang ghep... (' + n + '/' + total + ')';
             statusEl.className = 'practice-full-status';
         } else if (status === 'wrong') {
-            statusEl.textContent = 'Sai vị trí';
+            statusEl.textContent = 'Sai vi tri';
             statusEl.className = 'practice-full-status wrong';
         } else if (status === 'correct') {
-            statusEl.textContent = 'ĐÚNG';
+            statusEl.textContent = 'DUNG';
             statusEl.className = 'practice-full-status correct';
         }
     }
 
-    /* ─────────────────────────────────────────────────── */
-    /* Callback khi ghép đúng                              */
-    /* ─────────────────────────────────────────────────── */
     function pfOnAssembleCorrect() {
         var statusEl = document.getElementById('pfStatus');
         if (statusEl) {
-            statusEl.textContent = 'ĐÚNG';
+            statusEl.textContent = 'DUNG';
             statusEl.className = 'practice-full-status correct';
         }
 
@@ -968,9 +883,6 @@ def build_assemble_js():
         }
     }
 
-    /* ─────────────────────────────────────────────────── */
-    /* Reset                                               */
-    /* ─────────────────────────────────────────────────── */
     function pfResetAssemble() {
         pfBuildAssembleWords();
         pfRenderAssemble();
@@ -981,9 +893,6 @@ def build_assemble_js():
         }
     }
 
-    /* ─────────────────────────────────────────────────── */
-    /* Cập nhật UI nút toggle                              */
-    /* ─────────────────────────────────────────────────── */
     function pfUpdateToggleBtnUI() {
         var btn = document.getElementById('pfAssembleToggleBtn');
         if (!btn) return;
@@ -995,20 +904,17 @@ def build_assemble_js():
 
         if (pfAssembleMode) {
             if (icon) icon.className = 'fas fa-keyboard';
-            if (label) label.textContent = 'Gõ tự do';
-            btn.title = 'Chuyển về chế độ Gõ tự do';
-            btn.setAttribute('aria-label', 'Chuyển về chế độ Gõ tự do');
+            if (label) label.textContent = 'Go tu do';
+            btn.title = 'Chuyen ve che do Go tu do';
+            btn.setAttribute('aria-label', 'Chuyen ve che do Go tu do');
         } else {
             if (icon) icon.className = 'fas fa-puzzle-piece';
-            if (label) label.textContent = 'Ghép từ';
-            btn.title = 'Chuyển sang chế độ Ghép từ';
-            btn.setAttribute('aria-label', 'Chế độ Ghép từ');
+            if (label) label.textContent = 'Ghep tu';
+            btn.title = 'Chuyen sang che do Ghep tu';
+            btn.setAttribute('aria-label', 'Che do Ghep tu');
         }
     }
 
-    /* ─────────────────────────────────────────────────── */
-    /* Bật/tắt chế độ ghép từ                              */
-    /* ─────────────────────────────────────────────────── */
     function pfToggleAssembleMode() {
         pfAssembleMode = !pfAssembleMode;
 
@@ -1041,9 +947,6 @@ def build_assemble_js():
         } catch(e) {}
     }
 
-    /* ─────────────────────────────────────────────────── */
-    /* Hook loadPracticeFull để reset khi đổi câu          */
-    /* ─────────────────────────────────────────────────── */
     function patchLoadPracticeFull() {
         var orig = window.loadPracticeFull;
         if (typeof orig !== 'function' || orig.__assemblePatched) return;
@@ -1054,12 +957,9 @@ def build_assemble_js():
             return r;
         };
         window.loadPracticeFull.__assemblePatched = true;
-        console.log('[Assemble] Đã hook loadPracticeFull');
+        console.log('[Assemble] Da hook loadPracticeFull');
     }
 
-    /* ═══════════════════════════════════════════════════════════ */
-    /* NÚT CÀI ĐẶT GỘP (Random + Voice)                            */
-    /* ═══════════════════════════════════════════════════════════ */
     function initSettingsMenu() {
         var settingsWrap = document.getElementById('pfSettingsWrap');
         var settingsBtn = document.getElementById('pfSettingsBtn');
@@ -1158,9 +1058,6 @@ def build_assemble_js():
         window.__updateRandomSettingsUI = updateRandomStateUI;
     }
 
-    /* ─────────────────────────────────────────────────── */
-    /* Init                                                */
-    /* ─────────────────────────────────────────────────── */
     function initAssembleFeature() {
         patchLoadPracticeFull();
         initSettingsMenu();
@@ -1271,29 +1168,26 @@ def build_assemble_js():
 """
 
 
-# ═══════════════════════════════════════════════════════════════
-# Self-test
-# ═══════════════════════════════════════════════════════════════
 if __name__ == "__main__":
     css = build_assemble_css()
     html = build_assemble_html()
     js = build_assemble_js()
 
-    print(f"✅ CSS:  {len(css):>7} ký tự")
-    print(f"✅ HTML: {len(html):>6} ký tự")
-    print(f"✅ JS:   {len(js):>7} ký tự")
+    print("CSS:  %d ky tu" % len(css))
+    print("HTML: %d ky tu" % len(html))
+    print("JS:   %d ky tu" % len(js))
 
-    mock_ui = '''
-    <div class="mini-group">
-        <button class="pf-nav-icon mini-nav random" id="pfRandomToggleBtn" type="button">
-            <i class="fas fa-dice"></i>
-        </button>
-        <button class="pf-nav-icon mini-nav voice" id="pfVoiceBtn" type="button">
-            <i class="fas fa-headphones"></i>
-        </button>
-    </div>
-    <div class="char-preview" id="pfPreview"></div>
-    '''
+    mock_ui = (
+        '<div class="mini-group">\n'
+        '    <button class="pf-nav-icon mini-nav random" id="pfRandomToggleBtn" type="button">\n'
+        '        <i class="fas fa-dice"></i>\n'
+        '    </button>\n'
+        '    <button class="pf-nav-icon mini-nav voice" id="pfVoiceBtn" type="button">\n'
+        '        <i class="fas fa-headphones"></i>\n'
+        '    </button>\n'
+        '</div>\n'
+        '<div class="char-preview" id="pfPreview"></div>\n'
+    )
     result = inject_assemble_html(mock_ui)
     assert 'pfAssembleToggleBtn' in result
     assert 'assemble-toggle-label' in result
@@ -1301,5 +1195,5 @@ if __name__ == "__main__":
     assert 'pfAssembleMode' in result
     assert 'pfSettingsBtn' in result
     assert 'pfSettingsMenu' in result
-    print("✅ Inject HTML OK")
-    print("\n🎉 Module sẵn sàng dùng!")
+    print("Inject HTML OK")
+    print("Module san sang dung")
