@@ -1674,29 +1674,30 @@ def main():
             json.dump(datasets_dict, _f, ensure_ascii=False, separators=(",", ":"))
         _size_kb = os.path.getsize(_fixpy_path) / 1024
         print("   [OK] Ghi data/fixpy_datasets.json (" + f"{_size_kb:.1f}" + " KB)")
-        # ⭐ Ghi file preview: 1/10 data đầu của mỗi dataset
-_preview_dict = {}
-for _ds_id, _ds in datasets_dict.items():
-    _full = _ds.get("data", [])
-    _n = max(1, len(_full) // 10)
-    _preview_dict[_ds_id] = {
-        "id": _ds["id"],
-        "name": _ds["name"],
-        "icon": _ds["icon"],
-        "color": _ds["color"],
-        "count": _ds["count"],
-        "source": _ds["source"],
-        "type": _ds.get("type", "main"),
-        "group": _ds.get("group", "fixpy"),
-        "data": _full[:_n],           # chỉ 1/10
-        "preview": True,
-    }
 
-_preview_path = os.path.join("data", "fixpy_preview.json")
-with open(_preview_path, "w", encoding="utf-8") as _f:
-    json.dump(_preview_dict, _f, ensure_ascii=False, separators=(",", ":"))
-_prev_kb = os.path.getsize(_preview_path) / 1024
-print(f"   Ghi data/fixpy_preview.json ({_prev_kb:.1f} KB) - b chi 1/10 data")
+        # Ghi file preview: 1/10 data cua moi dataset
+        _preview_dict = {}
+        for _ds_id, _ds in datasets_dict.items():
+            _full = _ds.get("data", [])
+            _n = max(1, len(_full) // 10)
+            _preview_dict[_ds_id] = {
+                "id": _ds["id"],
+                "name": _ds["name"],
+                "icon": _ds["icon"],
+                "color": _ds["color"],
+                "count": _ds["count"],
+                "source": _ds["source"],
+                "type": _ds.get("type", "main"),
+                "group": _ds.get("group", "fixpy"),
+                "data": _full[:_n],
+                "preview": True,
+            }
+
+        _preview_path = os.path.join("data", "fixpy_preview.json")
+        with open(_preview_path, "w", encoding="utf-8") as _f:
+            json.dump(_preview_dict, _f, ensure_ascii=False, separators=(",", ":"))
+        _prev_kb = os.path.getsize(_preview_path) / 1024
+        print(f"   Ghi data/fixpy_preview.json ({_prev_kb:.1f} KB) - chi 1/10 data")
 
         print("")
         print("=" * 62)
@@ -1766,8 +1767,8 @@ print(f"   Ghi data/fixpy_preview.json ({_prev_kb:.1f} KB) - b chi 1/10 data")
     print("")
     print("[PATCH 3] CSS layout...")
     css = build_layout_css(all_new, add_vocab)
-    pat_style = re.compile(r'(\s*)(</style>)', re.MULTILINE)
-    html, n = pat_style.subn(
+    pat_.dstyle = re.compile(r'(\sumps*)(</style>)', re.MULT([ILINE)
+    html, n = patds_style.subn(
         lambda m: m.group(1) + css + m.group(1) + m.group(2),
         html, count=1
     )
@@ -1779,7 +1780,7 @@ print(f"   Ghi data/fixpy_preview.json ({_prev_kb:.1f} KB) - b chi 1/10 data")
     print("")
     print("[PATCH 4] JS binding...")
 
-    ids_js = json.dumps([ds["id"] for ds in all_new])
+    ids_js = json["id"] for ds in all_new])
 
     datasets_dict = {}
     for ds in all_new:
@@ -1809,6 +1810,30 @@ print(f"   Ghi data/fixpy_preview.json ({_prev_kb:.1f} KB) - b chi 1/10 data")
         json.dump(datasets_dict, _f, ensure_ascii=False, separators=(",", ":"))
     _size_kb = os.path.getsize(_fixpy_path) / 1024
     print(f"   Ghi data/fixpy_datasets.json ({_size_kb:.1f} KB)")
+
+    # Ghi file preview: 1/10 data cua moi dataset
+    _preview_dict = {}
+    for _ds_id, _ds in datasets_dict.items():
+        _full = _ds.get("data", [])
+        _n = max(1, len(_full) // 10)
+        _preview_dict[_ds_id] = {
+            "id": _ds["id"],
+            "name": _ds["name"],
+            "icon": _ds["icon"],
+            "color": _ds["color"],
+            "count": _ds["count"],
+            "source": _ds["source"],
+            "type": _ds.get("type", "main"),
+            "group": _ds.get("group", "fixpy"),
+            "data": _full[:_n],
+            "preview": True,
+        }
+
+    _preview_path = os.path.join("data", "fixpy_preview.json")
+    with open(_preview_path, "w", encoding="utf-8") as _f:
+        json.dump(_preview_dict, _f, ensure_ascii=False, separators=(",", ":"))
+    _prev_kb = os.path.getsize(_preview_path) / 1024
+    print(f"   Ghi data/fixpy_preview.json ({_prev_kb:.1f} KB) - chi 1/10 data")
 
     datasets_meta = {}
     for _id, _ds in datasets_dict.items():
