@@ -852,18 +852,47 @@ def build_js_override(ids_js, datasets_meta_json):
     add("    window.__fixpyMeta = " + datasets_meta_json + ";")
     add("")
     add("    (function() {")
-    add("        fetch('data/fixpy_datasets.json?t=' + Math.floor(Date.now() / 60000))")
+    add("        // ⭐ Bước 1: Load preview (1/10 data) - nhanh")
+    add("        fetch('data/fixpy_preview.json?t=' + Math.floor(Date.now() / 60000))")
     add("            .then(function(r) { return r.ok ? r.json() : {}; })")
     add("            .then(function(d) {")
     add("                window.FIXPY_DATASETS = d || {};")
     add("                window.__fixpyDataLoaded = true;")
-    add("                console.log('[fix.py] loaded', Object.keys(d).length, 'datasets');")
+    add("                window.__fixpyFullLoaded = false;")
+    add("                console.log('[fix.py] loaded PREVIEW:', Object.keys(d).length, 'datasets');")
     add("                if (typeof window.__fixpyOnDataReady === 'function') {")
     add("                    window.__fixpyOnDataReady();")
     add("                }")
+    add("                // ⭐ Bước 2: Load full data o background")
+    add("                setTimeout(function() {")
+    add("                    fetch('data/fixpy_datasets.json?t=' + Math.floor(Date.now() / 60000))")
+    add("                        .then(function(r) { return r.ok ? r.json() : {}; })")
+    add("                        .then(function(full) {")
+    add("                            Object.keys(full).forEach(function(id) {")
+    add("                                if (window.FIXPY_DATASETS[id]) {")
+    add("                                    window.FIXPY_DATASETS[id].data = full[id].data || [];")
+    add("                                    window.FIXPY_DATASETS[id].count = full[id].count || window.FIXPY_DATASETS[id].count;")
+    add("                                    window.FIXPY_DATASETS[id].preview = false;")
+    add("                                }")
+    add("                            });")
+    add("                            window.__fixpyFullLoaded = true;")
+    add("                            console.log('[fix.py] loaded FULL:', Object.keys(full).length, 'datasets');")
+    add("                            // Neu dang o tab FIXPY -> refresh data")
+    add("                            var curDs = (typeof CURRENT_DATASET !== 'undefined') ? CURRENT_DATASET : 'tonghop';")
+    add("                            if (window.FIXPY_DATASETS[curDs] && window.FIXPY_DATASETS[curDs].data) {")
+    add("                                RAW_DATA = window.FIXPY_DATASETS[curDs].data;")
+    add("                                if (typeof applyFilter === 'function') applyFilter();")
+    add("                                if (typeof updateResultCount === 'function') updateResultCount();")
+    add("                                console.log('[fix.py] refreshed', curDs, '->', RAW_DATA.length, 'cau');")
+    add("                            }")
+    add("                        })")
+    add("                        .catch(function(e) {")
+    add("                            console.error('[fix.py] full load error:', e);")
+    add("                        });")
+    add("                }, 500);   // Doi 500ms truoc khi fetch full")
     add("            })")
     add("            .catch(function(e) {")
-    add("                console.error('[fix.py] load error:', e);")
+    add("                console.error('[fix.py] preview load error:', e);")
     add("                window.__fixpyDataLoaded = true;")
     add("            });")
     add("    })();")
@@ -1645,6 +1674,29 @@ def main():
             json.dump(datasets_dict, _f, ensure_ascii=False, separators=(",", ":"))
         _size_kb = os.path.getsize(_fixpy_path) / 1024
         print("   [OK] Ghi data/fixpy_datasets.json (" + f"{_size_kb:.1f}" + " KB)")
+        # ⭐ Ghi file preview: 1/10 data đầu của mỗi dataset
+_preview_dict = {}
+for _ds_id, _ds in datasets_dict.items():
+    _full = _ds.get("data", [])
+    _n = max(1, len(_full) // 10)
+    _preview_dict[_ds_id] = {
+        "id": _ds["id"],
+        "name": _ds["name"],
+        "icon": _ds["icon"],
+        "color": _ds["color"],
+        "count": _ds["count"],
+        "source": _ds["source"],
+        "type": _ds.get("type", "main"),
+        "group": _ds.get("group", "fixpy"),
+        "data": _full[:_n],           # chỉ 1/10
+        "preview": True,
+    }
+
+_preview_path = os.path.join("data", "fixpy_preview.json")
+with open(_preview_path, "w", encoding="utf-8") as _f:
+    json.dump(_preview_dict, _f, ensure_ascii=False, separators=(",", ":"))
+_prev_kb = os.path.getsize(_preview_path) / 1024
+print(f"   Ghi data/fixpy_preview.json ({_prev_kb:.1f} KB) - b chi 1/10 data")
 
         print("")
         print("=" * 62)
