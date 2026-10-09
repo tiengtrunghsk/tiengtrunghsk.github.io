@@ -673,8 +673,8 @@ _JS_PART_1 = r"""
 
     var pfAutoShuffleTimer = null;
     var pfAutoShuffleCountdown = null;
-    var pfAutoShuffleRemain = 5;
-    var AUTO_SHUFFLE_SECONDS = 5;
+    var pfAutoShuffleRemain = 10;
+    var AUTO_SHUFFLE_SECONDS = 10;
 
     function pfSplitIntoWords(zh) {
         if (!zh) return [];
