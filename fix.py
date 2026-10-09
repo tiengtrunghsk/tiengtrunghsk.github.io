@@ -1618,7 +1618,7 @@ def main():
             print("[VOCAB] Tim thay: " + os.path.basename(vocab_real_path))
             vocab_data = read_vocab_excel(vocab_real_path)
             if not vocab_data:
-                print("[VOCiconAB] [!] File rong hoac loi")
+                print("[VOCAB] [!] File rong hoac loi")
         else:
             print("[VOCAB] Khong co file tu vung - bo qua")
 
@@ -1671,16 +1671,16 @@ def main():
             datasets_dict[ds["id"]] = ds
 
         with open(_fixpy_path, "w", encoding="utf-8") as _f:
-            json.dump(datasets_dict, _f, ensure_ascii=False, separators=(",", ":"))
+            json.dump(datasets_dict, _f, ensure_)
+ascii=False, separators=(",", ":"))
         _size_kb = os.path.getsize(_fixpy_path) / 1024
         print("   [OK] Ghi data/fixpy_datasets.json (" + f"{_size_kb:.1f}" + " KB)")
 
-        # ⭐ Them: Ghi file preview (1/10 data)
+        # Ghi file preview: 1/10 data cua moi dataset
         _preview_dict = {}
         for _ds_id, _ds in datasets_dict.items():
             _full = _ds.get("data", [])
-            _n = max(1, len(_full) // 10)
-            _preview_dict[_ds_id] = {
+            _n = max(1, len(_full) // 10            _preview_dict[_ds_id] = {
                 "id": _ds["id"],
                 "name": _ds["name"],
                 "icon": _ds["icon"],
@@ -1697,7 +1697,7 @@ def main():
         with open(_preview_path, "w", encoding="utf-8") as _f:
             json.dump(_preview_dict, _f, ensure_ascii=False, separators=(",", ":"))
         _prev_kb = os.path.getsize(_preview_path) / 1024
-        print(f"   Ghi data/fixpy_preview.json ({_prev_kb:.1f} KB) - chi 1/10 data")
+        print("   [OK] Ghi data/fixpy_preview.json (" + f"{_prev_kb:.1f}" + " KB)")
 
         print("")
         print("=" * 62)
@@ -1730,7 +1730,7 @@ def main():
         new_btns += (
             '\n        <button class="ds-btn ds-btn-primary" '
             'data-dataset="' + ds["id"] + '">\n'
-            '            <i class="fas ' + ds[""] + '"></i>\n'
+            '            <i class="fas ' +_ ds["icon"] + '"></i>\aftern'
             '            <span>' + _js_str(label) + '</span>\n'
             '        </button>'
         )
@@ -1738,7 +1738,7 @@ def main():
     if add_vocab:
         new_btns += build_vocab_tab_html(VOCAB_ID, VOCAB_LABEL)
 
-    pat_after_tonghop = re.compile(
+    pat_tonghop = re.compile(
         r'(<button[^>]*class="[^"]*ds-btn[^"]*"[^>]*data-dataset="tonghop"[^>]*>.*?</button>)',
         re.MULTILINE | re.DOTALL
     )
@@ -1811,7 +1811,7 @@ def main():
     _size_kb = os.path.getsize(_fixpy_path) / 1024
     print(f"   Ghi data/fixpy_datasets.json ({_size_kb:.1f} KB)")
 
-    # ⭐ Them: Ghi file preview (1/10 data)
+    # Ghi file preview: 1/10 data cua moi dataset
     _preview_dict = {}
     for _ds_id, _ds in datasets_dict.items():
         _full = _ds.get("data", [])
@@ -1833,7 +1833,7 @@ def main():
     with open(_preview_path, "w", encoding="utf-8") as _f:
         json.dump(_preview_dict, _f, ensure_ascii=False, separators=(",", ":"))
     _prev_kb = os.path.getsize(_preview_path) / 1024
-    print(f"   Ghi data/fixpy_preview.json ({_prev_kb:.1f} KB) - chi 1/10 data")
+    print(f"   Ghi data/fixpy_preview.json ({_prev_kb:.1f} KB)")
 
     datasets_meta = {}
     for _id, _ds in datasets_dict.items():
