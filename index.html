@@ -29799,18 +29799,47 @@ window.__switchRawData = function(datasetId) {
     window.__fixpyMeta = {"1k-cau-giao-tiep":{"id":"1k-cau-giao-tiep","name":"1K+ Câu giao tiếp","icon":"fa-comments","color":"#0891b2","count":1060,"source":"1K+_Câu_giao_tiếp.xlsx","type":"main","group":"fixpy"},"tu-vung":{"id":"tu-vung","name":"11000+ Từ vựng HSK","icon":"fa-book","color":"#f59e0b","count":11747,"source":"tu_vung_hsk.xlsx","type":"premium","group":"fixpy"}};
 
     (function() {
-        fetch('data/fixpy_datasets.json?t=' + Math.floor(Date.now() / 60000))
+        // ⭐ Bước 1: Load preview (1/10 data) - nhanh
+        fetch('data/fixpy_preview.json?t=' + Math.floor(Date.now() / 60000))
             .then(function(r) { return r.ok ? r.json() : {}; })
             .then(function(d) {
                 window.FIXPY_DATASETS = d || {};
                 window.__fixpyDataLoaded = true;
-                console.log('[fix.py] loaded', Object.keys(d).length, 'datasets');
+                window.__fixpyFullLoaded = false;
+                console.log('[fix.py] loaded PREVIEW:', Object.keys(d).length, 'datasets');
                 if (typeof window.__fixpyOnDataReady === 'function') {
                     window.__fixpyOnDataReady();
                 }
+                // ⭐ Bước 2: Load full data o background
+                setTimeout(function() {
+                    fetch('data/fixpy_datasets.json?t=' + Math.floor(Date.now() / 60000))
+                        .then(function(r) { return r.ok ? r.json() : {}; })
+                        .then(function(full) {
+                            Object.keys(full).forEach(function(id) {
+                                if (window.FIXPY_DATASETS[id]) {
+                                    window.FIXPY_DATASETS[id].data = full[id].data || [];
+                                    window.FIXPY_DATASETS[id].count = full[id].count || window.FIXPY_DATASETS[id].count;
+                                    window.FIXPY_DATASETS[id].preview = false;
+                                }
+                            });
+                            window.__fixpyFullLoaded = true;
+                            console.log('[fix.py] loaded FULL:', Object.keys(full).length, 'datasets');
+                            // Neu dang o tab FIXPY -> refresh data
+                            var curDs = (typeof CURRENT_DATASET !== 'undefined') ? CURRENT_DATASET : 'tonghop';
+                            if (window.FIXPY_DATASETS[curDs] && window.FIXPY_DATASETS[curDs].data) {
+                                RAW_DATA = window.FIXPY_DATASETS[curDs].data;
+                                if (typeof applyFilter === 'function') applyFilter();
+                                if (typeof updateResultCount === 'function') updateResultCount();
+                                console.log('[fix.py] refreshed', curDs, '->', RAW_DATA.length, 'cau');
+                            }
+                        })
+                        .catch(function(e) {
+                            console.error('[fix.py] full load error:', e);
+                        });
+                }, 500);   // Doi 500ms truoc khi fetch full
             })
             .catch(function(e) {
-                console.error('[fix.py] load error:', e);
+                console.error('[fix.py] preview load error:', e);
                 window.__fixpyDataLoaded = true;
             });
     })();
