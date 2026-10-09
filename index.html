@@ -13643,7 +13643,6 @@ function maybeShowOnboarding() {
     var cfg = getOnboardingConfig();
     if (!cfg) return;
 
-    // Đợi data load xong
     if (typeof RAW_DATA === 'undefined' || !RAW_DATA || RAW_DATA.length === 0) {
         setTimeout(maybeShowOnboarding, 300);
         return;
@@ -13655,15 +13654,27 @@ function maybeShowOnboarding() {
         return;
     }
 
-    // ⭐ Nếu đã có selection cũ → apply luôn, không hiện modal
+    // Neu da co override roi -> chi can goi applyFilter de render
+    if (window.__onboardingOverride
+        && Array.isArray(window.__onboardingOverride)
+        && window.__onboardingOverride.length > 0) {
+        if (typeof applyFilter === 'function') applyFilter();
+        if (typeof updateResultCount === 'function') updateResultCount();
+        return;
+    }
+
+    // Co selection cu -> apply + render lai
     var saved = loadOnboardingSelection();
     if (saved && Array.isArray(saved.topics) && saved.topics.length > 0) {
         window.__onboardingAutoPicked = !!saved.auto_picked;
         applyOnboardingSelection(saved.topics, false);
+        // FIX: goi applyFilter sau khi apply
+        if (typeof applyFilter === 'function') applyFilter();
+        if (typeof updateResultCount === 'function') updateResultCount();
         return;
     }
 
-    // ⭐ Chưa có selection → hiện modal
+    // Chua co selection -> hien modal
     showOnboardingModal();
 }
 
