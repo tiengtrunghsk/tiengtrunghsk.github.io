@@ -13559,6 +13559,9 @@ function getOnboardingConfig() {
 
     var info = getTierInfo();
     var tier = info.tier;
+    // ⭐ Bỏ onboarding cho active + admin
+    if (tier === 'active') return null;
+    if (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'admin') return null;
 
     var configKey = tier;
     if (tier === 'expired') configKey = 'demo';
@@ -13637,8 +13640,14 @@ function saveOnboardingSelection(topics, autoPicked) {
 /* ═══════════════════════════════════════════════════════════ */
 function maybeShowOnboarding() {
     var info = getTierInfo();
+
+    // ⭐ Bỏ onboarding cho active + admin
+    if (info.tier === 'active') return;
+    if (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'admin') return;
+
+    // Chỉ demo / trial / expired mới cần chọn chủ đề
     if (info.tier !== 'demo' && info.tier !== 'trial'
-        && info.tier !== 'active' && info.tier !== 'expired') return;
+        && info.tier !== 'expired') return;
 
     var cfg = getOnboardingConfig();
     if (!cfg) return;
