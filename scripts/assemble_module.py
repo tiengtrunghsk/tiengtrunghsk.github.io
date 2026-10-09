@@ -65,7 +65,7 @@ body.pf-assemble-active .pf-assemble-mode {
     font-size: clamp(.68rem, .82vw, .78rem);
 }
 
-/* ⭐ TU VUNG - IN DAM, NOI BAT, CLICKABLE */
+/* ⭐ TU VUNG - IN DAM, NOI BAT, CLICKABLE -> mo modal */
 .pf-assemble-info .pf-info-word {
     font-family: var(--font-zh, 'PingFang SC', sans-serif);
     font-size: clamp(1.15rem, 1.6vw, 1.35rem);
@@ -124,7 +124,7 @@ body.pf-assemble-active .pf-assemble-mode {
     color: #fff;
 }
 
-/* ⭐ CAU VI DU ZH - KHONG CLICKABLE, MO HON */
+/* ⭐ CAU VI DU ZH - KHONG co nen/vien, click -> doc TTS */
 .pf-assemble-info .pf-info-example {
     font-family: var(--font-zh, 'PingFang SC', sans-serif);
     font-size: clamp(.85rem, 1.1vw, .95rem);
@@ -133,7 +133,40 @@ body.pf-assemble-active .pf-assemble-mode {
     white-space: nowrap;
     flex-shrink: 0;
     opacity: .85;
-    padding: .1rem .2rem;
+    padding: .15rem .35rem;
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: all .15s ease;
+    border: 1.5px solid transparent;
+}
+.pf-assemble-info .pf-info-example:hover {
+    background: var(--surface-2);
+    border-color: var(--border);
+    opacity: 1;
+    color: var(--text);
+}
+.pf-assemble-info .pf-info-example:active {
+    transform: scale(.97);
+}
+.pf-assemble-info .pf-info-example::after {
+    content: '\f028';
+    font-family: 'Font Awesome 6 Free', 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: .75em;
+    margin-left: .3rem;
+    color: var(--text-3);
+    opacity: 0;
+    transition: opacity .15s ease;
+}
+.pf-assemble-info .pf-info-example:hover::after {
+    opacity: 1;
+    color: var(--primary);
+}
+[data-theme="dark"] .pf-assemble-info .pf-info-example:hover {
+    background: var(--surface-2);
+    color: var(--text);
 }
 
 .pf-assemble-info .pf-info-pinyin {
@@ -634,7 +667,6 @@ body.pf-assemble-active .reveal-actions {
     display: block;
 }
 
-/* ⭐ DESKTOP: info bar 1 hang, khong wrap */
 @media (min-width: 501px) {
     .pf-assemble-info {
         flex-wrap: nowrap;
@@ -1148,7 +1180,7 @@ _JS_PART_1 = r"""
 
 
 _JS_PART_2 = r"""
-    /* ⭐ RENDER INFO BAR - chi hien khi bat nut Goi y */
+    /* ⭐ RENDER INFO BAR - tu vung click -> modal, cau VD click -> doc */
     function pfRenderInfo() {
         var infoEl = document.getElementById('pfAssembleInfo');
         if (!infoEl) return;
@@ -1187,7 +1219,7 @@ _JS_PART_2 = r"""
                     '</span>';
         }
 
-        /* 3. TU VUNG (zh) - IN DAM, CLICKABLE -> modal meo nho */
+        /* 3. TU VUNG - IN DAM, CLICKABLE -> modal meo nho */
         if (currentItem.zh) {
             html += '<span class="pf-info-word" ' +
                     'data-mnemonic-char="' + escHtml(currentItem.zh) + '" ' +
@@ -1197,9 +1229,12 @@ _JS_PART_2 = r"""
                     '</span>';
         }
 
-        /* 4. CAU VI DU ZH - KHONG clickable */
+        /* 4. CAU VI DU - click -> DOC TTS */
         if (currentItem.vi_du_zh) {
-            html += '<span class="pf-info-example">' +
+            html += '<span class="pf-info-example" ' +
+                    'data-tts-text="' + escHtml(currentItem.vi_du_zh) + '" ' +
+                    'title="Bấm để đọc câu" ' +
+                    'role="button" tabindex="0">' +
                     escHtml(currentItem.vi_du_zh) +
                     '</span>';
         }
@@ -1418,6 +1453,46 @@ _JS_PART_2 = r"""
 
 
 _JS_PART_3 = r"""
+    /* ⭐ Doc cau bang TTS - tu dong tim ham co san */
+    function pfSpeakText(text) {
+        if (!text) return;
+
+        /* Uu tien: cac ham TTS pho bien */
+        var candidates = [
+            'speakText', 'speak', 'speakChinese', 'speakZh',
+            'playAudio', 'playVoice', 'readText', 'read',
+            'ttsSpeak', 'speakSentence'
+        ];
+        for (var i = 0; i < candidates.length; i++) {
+            var fnName = candidates[i];
+            if (typeof window[fnName] === 'function') {
+                try {
+                    window[fnName](text);
+                    return;
+                } catch(err) {
+                    console.warn('[Assemble] ' + fnName + ' error:', err);
+                }
+            }
+        }
+
+        /* Fallback: Web Speech API */
+        if ('speechSynthesis' in window) {
+            try {
+                window.speechSynthesis.cancel();
+                var u = new SpeechSynthesisUtterance(text);
+                u.lang = 'zh-CN';
+                u.rate = 0.9;
+                u.pitch = 1.0;
+                window.speechSynthesis.speak(u);
+                return;
+            } catch(err) {
+                console.warn('[Assemble] speechSynthesis error:', err);
+            }
+        }
+
+        console.warn('[Assemble] Khong tim thay ham TTS nao');
+    }
+
     function pfUpdateToggleBtnUI() {
         var btn = document.getElementById('pfAssembleToggleBtn');
         if (!btn) return;
@@ -1670,11 +1745,12 @@ _JS_PART_4 = r"""
         }
     };
 
-    /* ⭐ Event delegation: bam tu vung -> mo modal meo nho */
+    /* ⭐ Event delegation: TU VUNG -> modal, CAU VI DU -> doc */
     function initMnemonicDelegation() {
         if (document.__mnemonicDelegated) return;
         document.__mnemonicDelegated = true;
 
+        /* 1. TU VUNG -> modal meo nho */
         document.addEventListener('click', function(e) {
             var wordEl = e.target.closest
                 ? e.target.closest('.pf-info-word[data-mnemonic-char]')
@@ -1688,16 +1764,41 @@ _JS_PART_4 = r"""
             }
         });
 
+        /* 2. CAU VI DU -> doc TTS */
+        document.addEventListener('click', function(e) {
+            var exEl = e.target.closest
+                ? e.target.closest('.pf-info-example[data-tts-text]')
+                : null;
+            if (!exEl) return;
+            e.stopPropagation();
+            e.preventDefault();
+            var text = exEl.getAttribute('data-tts-text');
+            if (text) pfSpeakText(text);
+        });
+
+        /* 3. Ho tro ban phim Enter/Space */
         document.addEventListener('keydown', function(e) {
             if (e.key !== 'Enter' && e.key !== ' ') return;
+
             var wordEl = e.target.closest
                 ? e.target.closest('.pf-info-word[data-mnemonic-char]')
                 : null;
-            if (!wordEl) return;
-            e.preventDefault();
-            var ch = wordEl.getAttribute('data-mnemonic-char');
-            if (ch && typeof window.pfShowMnemonicForWord === 'function') {
-                window.pfShowMnemonicForWord(ch, e);
+            if (wordEl) {
+                e.preventDefault();
+                var ch = wordEl.getAttribute('data-mnemonic-char');
+                if (ch && typeof window.pfShowMnemonicForWord === 'function') {
+                    window.pfShowMnemonicForWord(ch, e);
+                }
+                return;
+            }
+
+            var exEl = e.target.closest
+                ? e.target.closest('.pf-info-example[data-tts-text]')
+                : null;
+            if (exEl) {
+                e.preventDefault();
+                var text = exEl.getAttribute('data-tts-text');
+                if (text) pfSpeakText(text);
             }
         });
     }
@@ -1802,7 +1903,8 @@ _JS_PART_4 = r"""
         getAutoShufflePref: pfGetAutoShufflePref,
         toggleInfo: pfToggleInfo,
         isInfoVisible: function() { return pfInfoVisible; },
-        showMnemonicForWord: window.pfShowMnemonicForWord
+        showMnemonicForWord: window.pfShowMnemonicForWord,
+        speakText: pfSpeakText
     };
 
 })();
