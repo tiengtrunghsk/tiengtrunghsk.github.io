@@ -4599,9 +4599,18 @@ function maybeShowOnboarding() {
         return;
     }
 
-    // ⭐ LUÔN hiện modal — không check localStorage nữa
+    // ⭐ Nếu đã có selection cũ → apply luôn, không hiện modal
+    var saved = loadOnboardingSelection();
+    if (saved && Array.isArray(saved.topics) && saved.topics.length > 0) {
+        window.__onboardingAutoPicked = !!saved.auto_picked;
+        applyOnboardingSelection(saved.topics, false);
+        return;
+    }
+
+    // ⭐ Chưa có selection → hiện modal
     showOnboardingModal();
 }
+
 function showOnboardingModal() {
     var cfg = getOnboardingConfig();
     if (!cfg) return;
