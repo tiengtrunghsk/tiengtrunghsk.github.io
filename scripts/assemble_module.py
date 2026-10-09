@@ -15,6 +15,75 @@ def build_assemble_css():
 body.pf-assemble-active .pf-assemble-mode {
     display: flex;
 }
+.pf-assemble-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem .75rem;
+    margin-bottom: .5rem;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: clamp(.75rem, .9vw, .85rem);
+    color: var(--text-2);
+    transition: opacity .2s;
+}
+.pf-assemble-info:empty {
+    display: none;
+}
+.pf-assemble-info.pf-info-hidden {
+    display: none;
+}
+.pf-assemble-info .pf-info-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .2rem .55rem;
+    border-radius: 50px;
+    font-size: clamp(.62rem, .75vw, .72rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    background: var(--surface-2);
+    color: var(--text-3);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.pf-assemble-info .pf-info-tag.pf-info-hsk {
+    background: var(--surface-2);
+    color: var(--text);
+    border-color: var(--border-strong);
+    font-weight: 800;
+}
+.pf-assemble-info .pf-info-tag.pf-info-topic {
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: clamp(.68rem, .82vw, .78rem);
+}
+.pf-assemble-info .pf-info-word {
+    font-family: var(--font-zh, 'PingFang SC', sans-serif);
+    font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: .02em;
+    line-height: 1.3;
+}
+.pf-assemble-info .pf-info-pinyin {
+    font-style: italic;
+    color: var(--text-3);
+    font-size: clamp(.72rem, .85vw, .82rem);
+}
+.pf-assemble-info .pf-info-meaning {
+    color: var(--text-2);
+    font-weight: 500;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 .pf-assemble-answer {
     min-height: clamp(56px, 8vh, 72px);
     padding: clamp(.5rem, 1vh, .75rem) clamp(.6rem, 1.2vw, .9rem);
@@ -175,6 +244,12 @@ body.pf-assemble-active .pf-assemble-mode {
     background: var(--surface-2);
     color: var(--text);
     border-color: var(--border-strong);
+}
+.pf-assemble-btn.active {
+    background: var(--surface-2);
+    color: var(--text);
+    border-color: var(--border-strong);
+    box-shadow: 0 2px 8px rgba(15,23,42,.1);
 }
 .pf-assemble-btn.auto-shuffle {
     width: clamp(36px, 4vw, 42px);
@@ -490,6 +565,18 @@ body.pf-assemble-active .reveal-actions {
     display: block;
 }
 @media (max-width: 500px) {
+    .pf-assemble-info {
+        padding: .4rem .6rem;
+        gap: .35rem;
+    }
+    .pf-assemble-info .pf-info-word {
+        font-size: 1rem;
+    }
+    .pf-assemble-info .pf-info-meaning {
+        font-size: .72rem;
+        white-space: normal;
+        text-overflow: initial;
+    }
     .pf-word {
         padding: .4rem .75rem;
         font-size: 1.1rem;
@@ -549,6 +636,7 @@ body.pf-assemble-active .reveal-actions {
 def build_assemble_html():
     return (
         '<div class="pf-assemble-mode" id="pfAssembleMode">\n'
+        '    <div class="pf-assemble-info pf-info-hidden" id="pfAssembleInfo"></div>\n'
         '    <div class="pf-assemble-answer" id="pfAssembleAnswer">\n'
         '        <span class="pf-assemble-hint">Bấm từ bên dưới để ghép câu</span>\n'
         '    </div>\n'
@@ -657,6 +745,7 @@ _JS_PART_1 = r"""
     var pfAssembleAnswerIdx = [];
     var pfAssembleCorrectWords = [];
     var pfInsertPos = 0;
+    var pfInfoVisible = false;
 
     var pfAutoShuffleTimer = null;
     var pfAutoShuffleCountdown = null;
@@ -672,6 +761,19 @@ _JS_PART_1 = r"""
             if (/[\u4e00-\u9fa5]/.test(c)) words.push(c);
         }
         return words;
+    }
+
+    function pfFindCurrentItem() {
+        try {
+            if (typeof pfCurrentStt === 'undefined' || !pfCurrentStt) return null;
+            if (typeof RAW_DATA === 'undefined' || !Array.isArray(RAW_DATA)) return null;
+            for (var k = 0; k < RAW_DATA.length; k++) {
+                if (String(RAW_DATA[k].stt) === String(pfCurrentStt)) {
+                    return RAW_DATA[k];
+                }
+            }
+        } catch(e) {}
+        return null;
     }
 
     function pfShuffleArray(arr) {
@@ -697,9 +799,23 @@ _JS_PART_1 = r"""
         } catch(e) {}
     }
 
+    function pfGetAssembleSourceText() {
+        var currentItem = pfFindCurrentItem();
+        if (currentItem && currentItem.vi_du_zh
+            && String(currentItem.vi_du_zh).trim() !== '') {
+            return String(currentItem.vi_du_zh);
+        }
+        return (typeof pfCurrentAnswer !== 'undefined') ? pfCurrentAnswer : '';
+    }
+
+    function pfGetCurrentTestWords() {
+        return pfSplitIntoWords(pfGetAssembleSourceText());
+    }
+
     function pfBuildAssembleWords() {
-        var answer = (typeof pfCurrentAnswer !== 'undefined') ? pfCurrentAnswer : '';
-        pfAssembleCorrectWords = pfSplitIntoWords(answer);
+        // Luon tach tung ky tu Han rieng le
+        var sourceText = pfGetAssembleSourceText();
+        pfAssembleCorrectWords = pfSplitIntoWords(sourceText);
 
         if (pfAssembleCorrectWords.length === 0) {
             pfAssembleWords = [];
@@ -876,10 +992,8 @@ _JS_PART_1 = r"""
         if (status === 'correct') return;
 
         if (pfAssembleAnswerIdx.length === 0) {
-            // Chua chon tu nao -> xao toan bo pool
             pfAssembleWords = pfShuffleArray(pfAssembleWords);
         } else {
-            // Da chon vai tu -> chi xao cac slot CHUA dung
             var usedSet = {};
             pfAssembleAnswerIdx.forEach(function(i) { usedSet[i] = true; });
 
@@ -935,10 +1049,87 @@ _JS_PART_1 = r"""
 
 
 _JS_PART_2 = r"""
+    function pfRenderInfo() {
+        var infoEl = document.getElementById('pfAssembleInfo');
+        if (!infoEl) return;
+
+        var currentItem = pfFindCurrentItem();
+        if (!currentItem) {
+            infoEl.innerHTML = '';
+            infoEl.classList.add('pf-info-hidden');
+            return;
+        }
+
+        var escHtml = (typeof escapeHtml === 'function')
+            ? escapeHtml
+            : function(s) { return String(s); };
+
+        var html = '';
+
+        if (currentItem.hsk) {
+            html += '<span class="pf-info-tag pf-info-hsk">' +
+                    escHtml(currentItem.hsk) +
+                    '</span>';
+        }
+
+        if (currentItem.topic && currentItem.topic !== 'Từ vựng') {
+            html += '<span class="pf-info-tag pf-info-topic">' +
+                    escHtml(currentItem.topic) +
+                    '</span>';
+        }
+
+        if (currentItem.zh) {
+            html += '<span class="pf-info-word">' +
+                    escHtml(currentItem.zh) +
+                    '</span>';
+        }
+
+        if (currentItem.pinyin) {
+            html += '<span class="pf-info-pinyin">' +
+                    escHtml(currentItem.pinyin) +
+                    '</span>';
+        }
+
+        var meaning = currentItem.vi || '';
+        if (meaning && meaning !== currentItem.vi_du_vi) {
+            html += '<span class="pf-info-meaning">' +
+                    escHtml(meaning) +
+                    '</span>';
+        }
+
+        infoEl.innerHTML = html;
+
+        if (pfInfoVisible) {
+            infoEl.classList.remove('pf-info-hidden');
+        } else {
+            infoEl.classList.add('pf-info-hidden');
+        }
+    }
+
+    function pfToggleInfo() {
+        pfInfoVisible = !pfInfoVisible;
+        var hintBtn = document.getElementById('pfAssembleHintBtn');
+        if (hintBtn) {
+            hintBtn.classList.toggle('active', pfInfoVisible);
+        }
+        pfRenderInfo();
+    }
+
     function pfRenderAssemble() {
         var answerEl = document.getElementById('pfAssembleAnswer');
         var poolEl   = document.getElementById('pfAssemblePool');
         if (!answerEl || !poolEl) return;
+
+        pfRenderInfo();
+
+        if (pfAssembleCorrectWords.length < 2) {
+            answerEl.innerHTML =
+                '<span class="pf-assemble-hint">' +
+                'Câu này chỉ có 1 từ - chuyển sang chế độ Gõ tự do để làm' +
+                '</span>';
+            poolEl.innerHTML = '';
+            return;
+        }
 
         var escHtml = (typeof escapeHtml === 'function')
             ? escapeHtml
@@ -1078,6 +1269,9 @@ _JS_PART_2 = r"""
     }
 
     function pfResetAssemble() {
+        pfInfoVisible = false;
+        var hintBtn = document.getElementById('pfAssembleHintBtn');
+        if (hintBtn) hintBtn.classList.remove('active');
         pfBuildAssembleWords();
         pfRenderAssemble();
         var statusEl = document.getElementById('pfStatus');
@@ -1087,9 +1281,10 @@ _JS_PART_2 = r"""
         }
         if (pfGetAutoShufflePref()
             && !pfAutoShuffleTimer
-            && pfAssembleWords.length > 0) {
+            && pfAssembleWords.length >= 2) {
             pfStartAutoShuffle();
         }
+        pfUpdateToggleBtnUI();
     }
 """
 
@@ -1098,6 +1293,22 @@ _JS_PART_3 = r"""
     function pfUpdateToggleBtnUI() {
         var btn = document.getElementById('pfAssembleToggleBtn');
         if (!btn) return;
+
+        var testWords = pfGetCurrentTestWords();
+        var canAssemble = (testWords.length >= 2);
+
+        if (!canAssemble) {
+            btn.style.display = 'none';
+            if (pfAssembleMode) {
+                pfAssembleMode = false;
+                document.body.classList.remove('pf-assemble-active');
+                pfStopAutoShuffle();
+                try { localStorage.setItem('pfAssembleMode', '0'); } catch(e) {}
+            }
+            return;
+        } else {
+            btn.style.display = '';
+        }
 
         btn.classList.toggle('active', pfAssembleMode);
 
@@ -1118,8 +1329,24 @@ _JS_PART_3 = r"""
     }
 
     function pfToggleAssembleMode() {
-        pfAssembleMode = !pfAssembleMode;
+        if (!pfAssembleMode) {
+            var testWords = pfGetCurrentTestWords();
+            if (testWords.length < 2) {
+                var statusEl = document.getElementById('pfStatus');
+                if (statusEl) {
+                    statusEl.textContent = 'Câu này chỉ có 1 từ - không thể ghép';
+                    statusEl.className = 'practice-full-status';
+                    setTimeout(function() {
+                        if (statusEl.textContent === 'Câu này chỉ có 1 từ - không thể ghép') {
+                            statusEl.textContent = '';
+                        }
+                    }, 2000);
+                }
+                return;
+            }
+        }
 
+        pfAssembleMode = !pfAssembleMode;
         pfUpdateToggleBtnUI();
 
         var btn = document.getElementById('pfAssembleToggleBtn');
@@ -1134,10 +1361,10 @@ _JS_PART_3 = r"""
             pfResetAssemble();
         } else {
             pfStopAutoShuffle();
-            var statusEl = document.getElementById('pfStatus');
-            if (statusEl) {
-                statusEl.textContent = '';
-                statusEl.className = 'practice-full-status';
+            var statusEl2 = document.getElementById('pfStatus');
+            if (statusEl2) {
+                statusEl2.textContent = '';
+                statusEl2.className = 'practice-full-status';
             }
             setTimeout(function() {
                 var inp = document.getElementById('pfInput');
@@ -1156,6 +1383,7 @@ _JS_PART_3 = r"""
 
         window.loadPracticeFull = function(stt) {
             var r = orig.apply(this, arguments);
+            pfUpdateToggleBtnUI();
             if (pfAssembleMode) pfResetAssemble();
             return r;
         };
@@ -1323,21 +1551,7 @@ _JS_PART_4 = r"""
             hintBtn.__bound = true;
             hintBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                pfAssembleAnswerIdx = [];
-                var used = {};
-                pfAssembleCorrectWords.forEach(function(correctWord) {
-                    for (var i = 0; i < pfAssembleWords.length; i++) {
-                        if (used[i]) continue;
-                        if (pfAssembleWords[i] === correctWord) {
-                            pfAssembleAnswerIdx.push(i);
-                            used[i] = true;
-                            break;
-                        }
-                    }
-                });
-                pfInsertPos = pfAssembleAnswerIdx.length;
-                pfRenderAssemble();
-                pfOnAssembleCorrect();
+                pfToggleInfo();
             });
         }
 
@@ -1350,6 +1564,10 @@ _JS_PART_4 = r"""
                 }
             });
         }
+
+        setInterval(function() {
+            pfUpdateToggleBtnUI();
+        }, 800);
 
         console.log('[Assemble] Module loaded OK');
     }
@@ -1370,7 +1588,9 @@ _JS_PART_4 = r"""
         toggle: pfToggleAssembleMode,
         isAutoShuffle: function() { return !!pfAutoShuffleTimer; },
         toggleAutoShuffle: pfToggleAutoShuffle,
-        getAutoShufflePref: pfGetAutoShufflePref
+        getAutoShufflePref: pfGetAutoShufflePref,
+        toggleInfo: pfToggleInfo,
+        isInfoVisible: function() { return pfInfoVisible; }
     };
 
 })();
@@ -1409,5 +1629,6 @@ if __name__ == "__main__":
     assert 'pfSettingsBtn' in result
     assert 'pfSettingsMenu' in result
     assert 'pfShuffleCountdown' in result
+    assert 'pfAssembleInfo' in result
     print("Inject HTML OK")
     print("Module san sang dung")
