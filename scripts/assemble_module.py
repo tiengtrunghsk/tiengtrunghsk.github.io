@@ -1,27 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-ASSEMBLE MODULE - Che do Ghep tu cho Practice Full.
-Module doc lap, khong dung vao ma goc.
-
-Cach dung trong convert.py:
-    from assemble_module import (
-        build_assemble_css,
-        build_assemble_html,
-        build_assemble_js,
-        inject_assemble_html,
-    )
-
-    full_css += "\n/* ASSEMBLE */\n" + build_assemble_css()
-    ui_html = inject_assemble_html(ui_html)
-    full_js += "\n/* ASSEMBLE */\n" + build_assemble_js()
-"""
+"""Assemble module - Ghep tu mode for Practice Full."""
 
 import re
 
 
 def build_assemble_css():
     return r"""
-/* GHEP TU - che do luyen dich nang cao */
 .pf-assemble-mode {
     display: none;
     flex-direction: column;
@@ -31,8 +15,6 @@ def build_assemble_css():
 body.pf-assemble-active .pf-assemble-mode {
     display: flex;
 }
-
-/* O cau tra loi */
 .pf-assemble-answer {
     min-height: clamp(56px, 8vh, 72px);
     padding: clamp(.5rem, 1vh, .75rem) clamp(.6rem, 1.2vw, .9rem);
@@ -78,7 +60,6 @@ body.pf-assemble-active .pf-assemble-mode {
     25%     { transform: translateX(-5px); }
     75%     { transform: translateX(5px); }
 }
-
 .pf-assemble-hint {
     color: var(--text-3);
     font-size: clamp(.78rem, .95vw, .88rem);
@@ -86,8 +67,6 @@ body.pf-assemble-active .pf-assemble-mode {
     user-select: none;
     pointer-events: none;
 }
-
-/* O tu goi y */
 .pf-assemble-pool {
     min-height: clamp(56px, 8vh, 72px);
     padding: clamp(.5rem, 1vh, .75rem) clamp(.6rem, 1.2vw, .9rem);
@@ -100,8 +79,6 @@ body.pf-assemble-active .pf-assemble-mode {
     align-items: center;
     justify-content: center;
 }
-
-/* Nut tu */
 .pf-word {
     font-family: var(--font-zh, 'PingFang SC', sans-serif);
     font-size: clamp(1.1rem, 2vw, 1.35rem);
@@ -135,7 +112,6 @@ body.pf-assemble-active .pf-assemble-mode {
     pointer-events: none;
     transform: scale(.92);
 }
-
 .pf-assemble-answer .pf-word {
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
     color: #fff;
@@ -152,8 +128,6 @@ body.pf-assemble-active .pf-assemble-mode {
     border-color: transparent;
     transform: translateY(-2px) scale(1.04);
 }
-
-/* Nut hanh dong */
 .pf-assemble-actions {
     display: flex;
     gap: clamp(.4rem, .8vw, .6rem);
@@ -191,18 +165,14 @@ body.pf-assemble-active .pf-assemble-mode {
     transform: translateY(-2px);
     box-shadow: 0 6px 18px rgba(124,58,237,.5);
 }
-
 body.pf-assemble-active #pfInputMode { display: none !important; }
 body.pf-assemble-active #pfPreview { display: none !important; }
 body.pf-assemble-active .practice-full-input { display: none !important; }
-
 body.pf-assemble-active #pfHintBtn,
 body.pf-assemble-active #pfRevealBtn,
 body.pf-assemble-active .reveal-actions {
     display: none !important;
 }
-
-/* Con tro insert */
 .pf-insert-cursor {
     display: inline-block;
     width: 3px;
@@ -225,7 +195,6 @@ body.pf-assemble-active .reveal-actions {
     0%, 50%   { opacity: 1; }
     51%, 100% { opacity: .2; }
 }
-
 .pf-insert-gap {
     display: inline-block;
     width: 6px;
@@ -247,12 +216,9 @@ body.pf-assemble-active .reveal-actions {
     opacity: .5;
     border-radius: 1px;
 }
-
 .pf-assemble-answer .pf-insert-cursor.only {
     height: 2em;
 }
-
-/* Nut toggle ghep tu */
 .pf-nav-icon.mini-nav.assemble-toggle.with-label {
     width: auto !important;
     min-width: auto !important;
@@ -316,8 +282,6 @@ body.pf-assemble-active .reveal-actions {
     color: #1e1b4b;
     box-shadow: 0 4px 14px rgba(129,140,248,.55);
 }
-
-/* Badge MOI */
 .pf-nav-icon.mini-nav.assemble-toggle .assemble-new-badge {
     position: absolute;
     top: -8px;
@@ -349,8 +313,6 @@ body.pf-assemble-active .reveal-actions {
     box-shadow: 0 2px 8px rgba(220,38,38,.7),
                 0 0 0 2px var(--surface-2);
 }
-
-/* Nut cai dat gop */
 .pf-settings-wrap {
     position: relative;
     display: inline-flex;
@@ -385,7 +347,6 @@ body.pf-assemble-active .reveal-actions {
     background: linear-gradient(135deg, #818cf8, #a78bfa);
     color: #1e1b4b;
 }
-
 .pf-settings-menu {
     position: absolute;
     bottom: calc(100% + 8px);
@@ -415,7 +376,6 @@ body.pf-assemble-active .reveal-actions {
     from { opacity: 0; transform: translateY(8px) scale(.92); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
 }
-
 .pf-settings-item {
     display: flex;
     align-items: center;
@@ -471,7 +431,6 @@ body.pf-assemble-active .reveal-actions {
 .pf-settings-item.active i:first-child {
     color: #d97706;
 }
-
 .pf-settings-backdrop {
     position: fixed;
     inset: 0;
@@ -482,7 +441,6 @@ body.pf-assemble-active .reveal-actions {
 .pf-settings-backdrop.show {
     display: block;
 }
-
 @media (max-width: 500px) {
     .pf-word {
         padding: .35rem .7rem;
@@ -519,7 +477,6 @@ body.pf-assemble-active .reveal-actions {
         width: 4px;
     }
 }
-
 @media (max-width: 400px) {
     .pf-nav-icon.mini-nav.assemble-toggle.with-label .assemble-toggle-label {
         font-size: .64rem;
@@ -633,9 +590,7 @@ def inject_assemble_html(ui_html):
     return ui_html
 
 
-def build_assemble_js():
-    return r"""
-/* GHEP TU - chen tu vao vi tri bat ky */
+_JS_PART_1 = r"""
 (function() {
     'use strict';
 
@@ -697,3 +652,501 @@ def build_assemble_js():
         var userWords = pfAssembleAnswerIdx.map(function(i) {
             return pfAssembleWords[i];
         });
+
+        if (n < total) {
+            for (var i = 0; i < n; i++) {
+                if (userWords[i] !== pfAssembleCorrectWords[i]) return 'wrong';
+            }
+            return 'incomplete';
+        }
+
+        if (userWords.length !== total) return 'wrong';
+        for (var j = 0; j < total; j++) {
+            if (userWords[j] !== pfAssembleCorrectWords[j]) return 'wrong';
+        }
+        return 'correct';
+    }
+"""
+
+
+_JS_PART_2 = r"""
+    function pfRenderAssemble() {
+        var answerEl = document.getElementById('pfAssembleAnswer');
+        var poolEl   = document.getElementById('pfAssemblePool');
+        if (!answerEl || !poolEl) return;
+
+        var escHtml = (typeof escapeHtml === 'function')
+            ? escapeHtml
+            : function(s) { return String(s); };
+
+        answerEl.innerHTML = '';
+
+        if (pfAssembleAnswerIdx.length === 0) {
+            answerEl.innerHTML =
+                '<span class="pf-insert-cursor only" data-gap="0"></span>' +
+                '<span class="pf-assemble-hint" style="margin-left:.5rem">' +
+                'Chọn từ bên dưới để ghép câu' +
+                '</span>';
+        } else {
+            for (var pos = 0; pos <= pfAssembleAnswerIdx.length; pos++) {
+                var gap = document.createElement('span');
+                gap.className = 'pf-insert-gap';
+                gap.dataset.gap = pos;
+                gap.addEventListener('click', (function(p) {
+                    return function(e) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        pfSetCursor(p);
+                    };
+                })(pos));
+                answerEl.appendChild(gap);
+
+                if (pos === pfInsertPos) {
+                    var cursor = document.createElement('span');
+                    cursor.className = 'pf-insert-cursor';
+                    cursor.dataset.gap = pos;
+                    answerEl.appendChild(cursor);
+                }
+
+                if (pos < pfAssembleAnswerIdx.length) {
+                    var origIdx = pfAssembleAnswerIdx[pos];
+                    var word = pfAssembleWords[origIdx];
+
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'pf-word';
+                    btn.dataset.pos = pos;
+                    btn.textContent = word;
+
+                    btn.addEventListener('click', (function(p) {
+                        return function(e) {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            pfUnpickWord(p);
+                        };
+                    })(pos));
+
+                    answerEl.appendChild(btn);
+                }
+            }
+        }
+
+        var poolHtml = '';
+        pfAssembleWords.forEach(function(word, idx) {
+            var isUsed = pfAssembleAnswerIdx.indexOf(idx) !== -1;
+            poolHtml += '<button type="button" class="pf-word' +
+                        (isUsed ? ' used' : '') + '" ' +
+                        'data-pool-idx="' + idx + '">' +
+                        escHtml(word) +
+                        '</button>';
+        });
+        poolEl.innerHTML = poolHtml;
+
+        poolEl.querySelectorAll('.pf-word:not(.used)').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                var idx = parseInt(this.dataset.poolIdx, 10);
+                if (!isNaN(idx)) pfPickWord(idx);
+            });
+        });
+
+        answerEl.classList.remove('correct', 'wrong');
+        var status = pfCheckAssembleStatus();
+        if (status === 'correct') answerEl.classList.add('correct');
+        else if (status === 'wrong') answerEl.classList.add('wrong');
+    }
+
+    function pfSetCursor(pos) {
+        if (pos < 0) pos = 0;
+        if (pos > pfAssembleAnswerIdx.length) pos = pfAssembleAnswerIdx.length;
+        pfInsertPos = pos;
+        pfRenderAssemble();
+    }
+
+    function pfPickWord(poolIdx) {
+        if (pfAssembleAnswerIdx.indexOf(poolIdx) !== -1) return;
+
+        pfAssembleAnswerIdx.splice(pfInsertPos, 0, poolIdx);
+        pfInsertPos++;
+        pfRenderAssemble();
+
+        var status = pfCheckAssembleStatus();
+        if (status === 'correct') {
+            pfOnAssembleCorrect();
+        } else {
+            pfUpdateStatusText();
+        }
+    }
+
+    function pfUnpickWord(pos) {
+        if (pos < 0 || pos >= pfAssembleAnswerIdx.length) return;
+
+        pfAssembleAnswerIdx.splice(pos, 1);
+
+        if (pfInsertPos > pos) {
+            pfInsertPos--;
+        }
+        if (pfInsertPos > pfAssembleAnswerIdx.length) {
+            pfInsertPos = pfAssembleAnswerIdx.length;
+        }
+        if (pfInsertPos < 0) pfInsertPos = 0;
+
+        pfRenderAssemble();
+        pfUpdateStatusText();
+    }
+
+    function pfUpdateStatusText() {
+        var statusEl = document.getElementById('pfStatus');
+        if (!statusEl) return;
+
+        var status = pfCheckAssembleStatus();
+        if (status === 'empty') {
+            statusEl.textContent = '';
+            statusEl.className = 'practice-full-status';
+        } else if (status === 'incomplete') {
+            var n = pfAssembleAnswerIdx.length;
+            var total = pfAssembleCorrectWords.length;
+            statusEl.textContent = 'Đang ghép... (' + n + '/' + total + ')';
+            statusEl.className = 'practice-full-status';
+        } else if (status === 'wrong') {
+            statusEl.textContent = 'Sai vị trí';
+            statusEl.className = 'practice-full-status wrong';
+        } else if (status === 'correct') {
+            statusEl.textContent = 'ĐÚNG';
+            statusEl.className = 'practice-full-status correct';
+        }
+    }
+
+    function pfOnAssembleCorrect() {
+        var statusEl = document.getElementById('pfStatus');
+        if (statusEl) {
+            statusEl.textContent = 'ĐÚNG';
+            statusEl.className = 'practice-full-status correct';
+        }
+    }
+
+    function pfResetAssemble() {
+        pfBuildAssembleWords();
+        pfRenderAssemble();
+        var statusEl = document.getElementById('pfStatus');
+        if (statusEl) {
+            statusEl.textContent = '';
+            statusEl.className = 'practice-full-status';
+        }
+    }
+"""
+
+
+_JS_PART_3 = r"""
+    function pfUpdateToggleBtnUI() {
+        var btn = document.getElementById('pfAssembleToggleBtn');
+        if (!btn) return;
+
+        btn.classList.toggle('active', pfAssembleMode);
+
+        var icon = btn.querySelector('i');
+        var label = btn.querySelector('.assemble-toggle-label');
+
+        if (pfAssembleMode) {
+            if (icon) icon.className = 'fas fa-keyboard';
+            if (label) label.textContent = 'Gõ tự do';
+            btn.title = 'Chuyển về chế độ Gõ tự do';
+            btn.setAttribute('aria-label', 'Chuyển về chế độ Gõ tự do');
+        } else {
+            if (icon) icon.className = 'fas fa-puzzle-piece';
+            if (label) label.textContent = 'Ghép từ';
+            btn.title = 'Chuyển sang chế độ Ghép từ';
+            btn.setAttribute('aria-label', 'Chế độ Ghép từ');
+        }
+    }
+
+    function pfToggleAssembleMode() {
+        pfAssembleMode = !pfAssembleMode;
+
+        pfUpdateToggleBtnUI();
+
+        var btn = document.getElementById('pfAssembleToggleBtn');
+        if (btn) {
+            btn.classList.add('visited');
+            try { localStorage.setItem('assembleVisited', '1'); } catch(e) {}
+        }
+
+        document.body.classList.toggle('pf-assemble-active', pfAssembleMode);
+
+        if (pfAssembleMode) {
+            pfResetAssemble();
+        } else {
+            var statusEl = document.getElementById('pfStatus');
+            if (statusEl) {
+                statusEl.textContent = '';
+                statusEl.className = 'practice-full-status';
+            }
+            setTimeout(function() {
+                var inp = document.getElementById('pfInput');
+                if (inp) inp.focus();
+            }, 100);
+        }
+
+        try {
+            localStorage.setItem('pfAssembleMode', pfAssembleMode ? '1' : '0');
+        } catch(e) {}
+    }
+
+    function patchLoadPracticeFull() {
+        var orig = window.loadPracticeFull;
+        if (typeof orig !== 'function' || orig.__assemblePatched) return;
+
+        window.loadPracticeFull = function(stt) {
+            var r = orig.apply(this, arguments);
+            if (pfAssembleMode) pfResetAssemble();
+            return r;
+        };
+        window.loadPracticeFull.__assemblePatched = true;
+        console.log('[Assemble] Da hook loadPracticeFull');
+    }
+"""
+
+
+_JS_PART_4 = r"""
+    function initSettingsMenu() {
+        var settingsWrap = document.getElementById('pfSettingsWrap');
+        var settingsBtn = document.getElementById('pfSettingsBtn');
+        var settingsMenu = document.getElementById('pfSettingsMenu');
+        var backdrop = document.getElementById('pfSettingsBackdrop');
+        var randomBtn = document.getElementById('pfSettingsRandomBtn');
+        var randomState = document.getElementById('pfSettingsRandomState');
+        var voiceBtn = document.getElementById('pfSettingsVoiceBtn');
+
+        if (!settingsBtn || !settingsMenu) return;
+        if (settingsBtn.__bound) return;
+        settingsBtn.__bound = true;
+
+        function openMenu() {
+            settingsMenu.classList.add('show');
+            settingsBtn.classList.add('active');
+            if (backdrop) backdrop.classList.add('show');
+            updateRandomStateUI();
+        }
+        function closeMenu() {
+            settingsMenu.classList.remove('show');
+            settingsBtn.classList.remove('active');
+            if (backdrop) backdrop.classList.remove('show');
+        }
+        function toggleMenu() {
+            if (settingsMenu.classList.contains('show')) closeMenu();
+            else openMenu();
+        }
+
+        settingsBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            toggleMenu();
+        });
+
+        if (backdrop) {
+            backdrop.addEventListener('click', function() {
+                closeMenu();
+            });
+        }
+
+        function updateRandomStateUI() {
+            if (!randomState) return;
+            var isOn = (typeof pfRandomMode !== 'undefined') && pfRandomMode;
+            randomState.textContent = isOn ? 'ON' : 'OFF';
+            if (randomBtn) randomBtn.classList.toggle('active', isOn);
+        }
+
+        if (randomBtn) {
+            randomBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                if (typeof window.pfToggleRandom === 'function') {
+                    window.pfToggleRandom();
+                } else if (typeof pfRandomMode !== 'undefined') {
+                    pfRandomMode = !pfRandomMode;
+                    try {
+                        localStorage.setItem('pfRandomMode', pfRandomMode ? '1' : '0');
+                    } catch(e2) {}
+                }
+                updateRandomStateUI();
+            });
+        }
+
+        if (voiceBtn) {
+            voiceBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                closeMenu();
+                var voiceModal = document.getElementById('voiceModal');
+                if (voiceModal) {
+                    if (typeof populateVoiceSelect === 'function') {
+                        try { populateVoiceSelect(); } catch(e2) {}
+                    }
+                    if (typeof updateVoiceUI === 'function') {
+                        try { updateVoiceUI(); } catch(e2) {}
+                    }
+                    voiceModal.classList.add('show');
+                }
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!settingsMenu.classList.contains('show')) return;
+            if (settingsWrap && settingsWrap.contains(e.target)) return;
+            closeMenu();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && settingsMenu.classList.contains('show')) {
+                closeMenu();
+            }
+        });
+
+        updateRandomStateUI();
+        window.__updateRandomSettingsUI = updateRandomStateUI;
+    }
+
+    function initAssembleFeature() {
+        patchLoadPracticeFull();
+        initSettingsMenu();
+
+        var toggleBtn = document.getElementById('pfAssembleToggleBtn');
+        if (toggleBtn && !toggleBtn.__bound) {
+            toggleBtn.__bound = true;
+            toggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                pfToggleAssembleMode();
+            });
+        }
+
+        try {
+            var visited = localStorage.getItem('assembleVisited') === '1';
+            if (visited && toggleBtn) toggleBtn.classList.add('visited');
+        } catch(e) {}
+
+        try {
+            var saved = localStorage.getItem('pfAssembleMode') === '1';
+            if (saved && !pfAssembleMode) {
+                pfAssembleMode = true;
+                document.body.classList.add('pf-assemble-active');
+            }
+        } catch(e) {}
+
+        pfUpdateToggleBtnUI();
+
+        var shuffleBtn = document.getElementById('pfAssembleShuffleBtn');
+        if (shuffleBtn && !shuffleBtn.__bound) {
+            shuffleBtn.__bound = true;
+            shuffleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                pfResetAssemble();
+            });
+        }
+
+        var clearBtn = document.getElementById('pfAssembleClearBtn');
+        if (clearBtn && !clearBtn.__bound) {
+            clearBtn.__bound = true;
+            clearBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                pfAssembleAnswerIdx = [];
+                pfInsertPos = 0;
+                pfRenderAssemble();
+                var statusEl = document.getElementById('pfStatus');
+                if (statusEl) {
+                    statusEl.textContent = '';
+                    statusEl.className = 'practice-full-status';
+                }
+            });
+        }
+
+        var hintBtn = document.getElementById('pfAssembleHintBtn');
+        if (hintBtn && !hintBtn.__bound) {
+            hintBtn.__bound = true;
+            hintBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                pfAssembleAnswerIdx = [];
+                var used = {};
+                pfAssembleCorrectWords.forEach(function(correctWord) {
+                    for (var i = 0; i < pfAssembleWords.length; i++) {
+                        if (used[i]) continue;
+                        if (pfAssembleWords[i] === correctWord) {
+                            pfAssembleAnswerIdx.push(i);
+                            used[i] = true;
+                            break;
+                        }
+                    }
+                });
+                pfInsertPos = pfAssembleAnswerIdx.length;
+                pfRenderAssemble();
+                pfOnAssembleCorrect();
+            });
+        }
+
+        var answerEl = document.getElementById('pfAssembleAnswer');
+        if (answerEl && !answerEl.__bound) {
+            answerEl.__bound = true;
+            answerEl.addEventListener('click', function(e) {
+                if (e.target === answerEl) {
+                    pfSetCursor(pfAssembleAnswerIdx.length);
+                }
+            });
+        }
+
+        console.log('[Assemble] Module loaded OK');
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAssembleFeature);
+    } else {
+        initAssembleFeature();
+    }
+
+    window.__assembleDebug = {
+        getMode: function() { return pfAssembleMode; },
+        getWords: function() { return pfAssembleWords.slice(); },
+        getPicked: function() { return pfAssembleAnswerIdx.slice(); },
+        getCursor: function() { return pfInsertPos; },
+        setCursor: pfSetCursor,
+        reset: pfResetAssemble,
+        toggle: pfToggleAssembleMode
+    };
+
+})();
+"""
+
+
+def build_assemble_js():
+    return _JS_PART_1 + _JS_PART_2 + _JS_PART_3 + _JS_PART_4
+
+
+if __name__ == "__main__":
+    css = build_assemble_css()
+    html = build_assemble_html()
+    js = build_assemble_js()
+
+    print("CSS:  %d ky tu" % len(css))
+    print("HTML: %d ky tu" % len(html))
+    print("JS:   %d ky tu" % len(js))
+
+    mock_ui = (
+        '<div class="mini-group">\n'
+        '    <button class="pf-nav-icon mini-nav random" id="pfRandomToggleBtn" type="button">\n'
+        '        <i class="fas fa-dice"></i>\n'
+        '    </button>\n'
+        '    <button class="pf-nav-icon mini-nav voice" id="pfVoiceBtn" type="button">\n'
+        '        <i class="fas fa-headphones"></i>\n'
+        '    </button>\n'
+        '</div>\n'
+        '<div class="char-preview" id="pfPreview"></div>\n'
+    )
+    result = inject_assemble_html(mock_ui)
+    assert 'pfAssembleToggleBtn' in result
+    assert 'assemble-toggle-label' in result
+    assert 'assemble-new-badge' in result
+    assert 'pfAssembleMode' in result
+    assert 'pfSettingsBtn' in result
+    assert 'pfSettingsMenu' in result
+    print("Inject HTML OK")
+    print("Module san sang dung")
