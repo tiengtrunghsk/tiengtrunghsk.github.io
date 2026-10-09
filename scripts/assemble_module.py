@@ -128,6 +128,30 @@ body.pf-assemble-active .pf-assemble-mode {
     border-color: transparent;
     transform: translateY(-2px) scale(1.04);
 }
+/* Tu dung vi tri */
+.pf-assemble-answer .pf-word.pf-word-ok {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    box-shadow: 0 4px 12px rgba(34,197,94,.4);
+}
+/* Tu sai vi tri - highlight */
+.pf-assemble-answer .pf-word.pf-word-bad {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 4px 12px rgba(220,38,38,.5);
+    animation: pfWordBadPulse 1.2s ease-in-out infinite;
+}
+@keyframes pfWordBadPulse {
+    0%,100% { box-shadow: 0 4px 12px rgba(220,38,38,.5); }
+    50%     { box-shadow: 0 4px 20px rgba(220,38,38,.85); }
+}
+/* Cum sai (gom cac tu sai lien tiep) */
+.pf-assemble-answer .pf-word.pf-word-bad-cluster {
+    border-radius: 6px;
+    position: relative;
+}
+.pf-assemble-answer .pf-word.pf-word-bad-cluster:first-of-type,
+.pf-assemble-answer .pf-word.pf-word-bad-cluster + .pf-word:not(.pf-word-bad-cluster) {
+    border-top-right-radius: 10px;
+}
 .pf-assemble-actions {
     display: flex;
     gap: clamp(.4rem, .8vw, .6rem);
@@ -666,6 +690,106 @@ _JS_PART_1 = r"""
         }
         return 'correct';
     }
+
+    function pfGetWrongPositions() {
+        var result = {};
+        var n = pfAssembleAnswerIdx.length;
+        var total = pfAssembleCorrectWords.length;
+        if (n === 0) return result;
+
+        var checkLen = Math.min(n, total);
+        for (var i = 0; i < checkLen; i++) {
+            var userWord = pfAssembleWords[pfAssembleAnswerIdx[i]];
+            if (userWord !== pfAssembleCorrectWords[i]) {
+                result[i] = true;
+            }
+        }
+        if (n > total) {
+            for (var k = total; k < n; k++) {
+                result[k] = true;
+            }
+        }
+        return result;
+    }
+
+    function pfGetWrongClusters(wrongPositions) {
+        var clusters = [];
+        var cluster = null;
+        var sortedPos = Object.keys(wrongPositions)
+                              .map(function(x){return parseInt(x,10);})
+                              .sort(function(a,b){return a-b;});
+
+        for (var i = 0; i < sortedPos.length; i++) {
+            var p = sortedPos[i];
+            if (cluster === null || p !== cluster.end + 1) {
+                if (cluster) clusters.push(cluster);
+                cluster = { start: p, end: p };
+            } else {
+                cluster.end = p;
+            }
+        }
+        if (cluster) clusters.push(cluster);
+        return clusters;
+    }
+
+    function pfPickWord(poolIdx) {
+        if (pfAssembleAnswerIdx.indexOf(poolIdx) !== -1) return;
+
+        pfAssembleAnswerIdx.splice(pfInsertPos, 0, poolIdx);
+        pfInsertPos++;
+        pfRenderAssemble();
+
+        var status = pfCheckAssembleStatus();
+        if (status === 'correct') {
+            pfOnAssembleCorrect();
+        } else {
+            pfUpdateStatusText();
+        }
+    }
+
+    function pfUnpickWord(pos) {
+        if (pos < 0 || pos >= pfAssembleAnswerIdx.length) return;
+
+        pfAssembleAnswerIdx.splice(pos, 1);
+
+        if (pfInsertPos > pos) pfInsertPos--;
+        if (pfInsertPos > pfAssembleAnswerIdx.length) {
+            pfInsertPos = pfAssembleAnswerIdx.length;
+        }
+        if (pfInsertPos < 0) pfInsertPos = 0;
+
+        pfRenderAssemble();
+        pfUpdateStatusText();
+    }
+
+    function pfRemoveCluster(pos) {
+        var wrongPos = pfGetWrongPositions();
+        if (!wrongPos[pos]) return;
+
+        var clusters = pfGetWrongClusters(wrongPos);
+        var target = null;
+        for (var i = 0; i < clusters.length; i++) {
+            if (pos >= clusters[i].start && pos <= clusters[i].end) {
+                target = clusters[i];
+                break;
+            }
+        }
+        if (!target) return;
+
+        var removeCount = target.end - target.start + 1;
+        pfAssembleAnswerIdx.splice(target.start, removeCount);
+
+        if (pfInsertPos > target.end) pfInsertPos -= removeCount;
+        else if (pfInsertPos >= target.start) pfInsertPos = target.start;
+
+        if (pfInsertPos > pfAssembleAnswerIdx.length) {
+            pfInsertPos = pfAssembleAnswerIdx.length;
+        }
+        if (pfInsertPos < 0) pfInsertPos = 0;
+
+        pfRenderAssemble();
+        pfUpdateStatusText();
+    }
 """
 
 
@@ -680,6 +804,10 @@ _JS_PART_2 = r"""
             : function(s) { return String(s); };
 
         answerEl.innerHTML = '';
+
+        var status = pfCheckAssembleStatus();
+        var isWrongFull = (status === 'wrong');
+        var wrongPos = isWrongFull ? pfGetWrongPositions() : {};
 
         if (pfAssembleAnswerIdx.length === 0) {
             answerEl.innerHTML =
@@ -718,10 +846,22 @@ _JS_PART_2 = r"""
                     btn.dataset.pos = pos;
                     btn.textContent = word;
 
+                    if (isWrongFull && wrongPos[pos]) {
+                        btn.classList.add('pf-word-bad');
+                    }
+
                     btn.addEventListener('click', (function(p) {
                         return function(e) {
                             e.stopPropagation();
                             e.preventDefault();
+                            var currentStatus = pfCheckAssembleStatus();
+                            if (currentStatus === 'wrong') {
+                                var wp = pfGetWrongPositions();
+                                if (wp[p]) {
+                                    pfRemoveCluster(p);
+                                    return;
+                                }
+                            }
                             pfUnpickWord(p);
                         };
                     })(pos));
@@ -752,7 +892,6 @@ _JS_PART_2 = r"""
         });
 
         answerEl.classList.remove('correct', 'wrong');
-        var status = pfCheckAssembleStatus();
         if (status === 'correct') answerEl.classList.add('correct');
         else if (status === 'wrong') answerEl.classList.add('wrong');
     }
@@ -762,38 +901,6 @@ _JS_PART_2 = r"""
         if (pos > pfAssembleAnswerIdx.length) pos = pfAssembleAnswerIdx.length;
         pfInsertPos = pos;
         pfRenderAssemble();
-    }
-
-    function pfPickWord(poolIdx) {
-        if (pfAssembleAnswerIdx.indexOf(poolIdx) !== -1) return;
-
-        pfAssembleAnswerIdx.splice(pfInsertPos, 0, poolIdx);
-        pfInsertPos++;
-        pfRenderAssemble();
-
-        var status = pfCheckAssembleStatus();
-        if (status === 'correct') {
-            pfOnAssembleCorrect();
-        } else {
-            pfUpdateStatusText();
-        }
-    }
-
-    function pfUnpickWord(pos) {
-        if (pos < 0 || pos >= pfAssembleAnswerIdx.length) return;
-
-        pfAssembleAnswerIdx.splice(pos, 1);
-
-        if (pfInsertPos > pos) {
-            pfInsertPos--;
-        }
-        if (pfInsertPos > pfAssembleAnswerIdx.length) {
-            pfInsertPos = pfAssembleAnswerIdx.length;
-        }
-        if (pfInsertPos < 0) pfInsertPos = 0;
-
-        pfRenderAssemble();
-        pfUpdateStatusText();
     }
 
     function pfUpdateStatusText() {
@@ -810,7 +917,7 @@ _JS_PART_2 = r"""
             statusEl.textContent = 'Đang ghép... (' + n + '/' + total + ')';
             statusEl.className = 'practice-full-status';
         } else if (status === 'wrong') {
-            statusEl.textContent = 'Sai vị trí';
+            statusEl.textContent = 'Sai vị trí - bấm từ đỏ để xoá cụm sai';
             statusEl.className = 'practice-full-status wrong';
         } else if (status === 'correct') {
             statusEl.textContent = 'ĐÚNG';
