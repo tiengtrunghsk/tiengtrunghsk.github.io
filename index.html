@@ -28766,8 +28766,30 @@ window.gradeWithAPI = gradeWithAPI;
         var status = pfCheckAssembleStatus();
         if (status === 'correct') return;
 
-        pfAssembleWords = pfShuffleArray(pfAssembleWords);
-        pfInsertPos = pfAssembleAnswerIdx.length;
+        if (pfAssembleAnswerIdx.length === 0) {
+            // Chua chon tu nao -> xao toan bo pool
+            pfAssembleWords = pfShuffleArray(pfAssembleWords);
+        } else {
+            // Da chon vai tu -> chi xao cac slot CHUA dung
+            var usedSet = {};
+            pfAssembleAnswerIdx.forEach(function(i) { usedSet[i] = true; });
+
+            var freeSlots = [];
+            var freeWords = [];
+            for (var i = 0; i < pfAssembleWords.length; i++) {
+                if (!usedSet[i]) {
+                    freeSlots.push(i);
+                    freeWords.push(pfAssembleWords[i]);
+                }
+            }
+
+            var shuffled = pfShuffleArray(freeWords);
+
+            for (var k = 0; k < freeSlots.length; k++) {
+                pfAssembleWords[freeSlots[k]] = shuffled[k];
+            }
+        }
+
         pfRenderAssemble();
     }
 
