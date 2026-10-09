@@ -4616,7 +4616,7 @@ function maybeShowOnboarding() {
         return;
     }
 
-    /* ⭐ BƯỚC 1: CHƯA CÓ SELECTION → ÁP DỤNG MẶC ĐỊNH TRƯỚC (để có câu hiển thị) */
+    /* ⭐ BƯỚC 1: CHƯA CÓ SELECTION → ÁP DỤNG MẶC ĐỊNH (RANDOM) TRƯỚC */
     var allTopics = getAvailableTopicsForTier();
     if (allTopics.length > 0) {
         var isLimitedTier = (info.tier === 'demo'
@@ -4627,7 +4627,14 @@ function maybeShowOnboarding() {
         if (isLimitedTier) {
             var max = (cfg.topics_per_user > 0) ? cfg.topics_per_user : 5;
             var pickCount = Math.min(max, allTopics.length);
-            defaultTopics = allTopics.slice(0, pickCount).map(function(t) { return t.name; });
+
+            /* ⭐ Shuffle random (Fisher-Yates) */
+            var shuffled = allTopics.slice();
+            for (var i = shuffled.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var t = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = t;
+            }
+            defaultTopics = shuffled.slice(0, pickCount).map(function(t) { return t.name; });
         } else {
             defaultTopics = allTopics.map(function(t) { return t.name; });
         }
@@ -4648,7 +4655,6 @@ function maybeShowOnboarding() {
         }
     }, 1500);
 }
-
 function showOnboardingModal() {
     var cfg = getOnboardingConfig();
     if (!cfg) return;
