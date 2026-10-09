@@ -8792,11 +8792,55 @@ body.pf-assemble-active .pf-assemble-mode {
 }
 .pf-assemble-info .pf-info-word {
     font-family: var(--font-zh, 'PingFang SC', sans-serif);
-    font-size: clamp(1.1rem, 1.6vw, 1.35rem);
-    font-weight: 600;
+    font-size: clamp(1.25rem, 1.9vw, 1.5rem);
+    font-weight: 800;
     color: var(--text);
-    letter-spacing: .02em;
+    letter-spacing: .03em;
     line-height: 1.3;
+    cursor: pointer;
+    padding: .15rem .55rem;
+    border-radius: 8px;
+    background: var(--surface-2);
+    border: 1.5px solid var(--border-strong);
+    transition: all .18s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+}
+.pf-assemble-info .pf-info-word:hover {
+    background: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary-dark);
+    transform: translateY(-1px);
+}
+.pf-assemble-info .pf-info-word:active {
+    transform: scale(.97);
+}
+.pf-assemble-info .pf-info-word::after {
+    content: '\f0eb';
+    font-family: 'Font Awesome 6 Free', 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: .72em;
+    color: var(--text-3);
+    transition: color .18s ease;
+}
+.pf-assemble-info .pf-info-word:hover::after {
+    color: var(--primary);
+}
+[data-theme="dark"] .pf-assemble-info .pf-info-word {
+    color: #f1f5f9;
+    background: var(--surface-2);
+    border-color: var(--border-strong);
+}
+[data-theme="dark"] .pf-assemble-info .pf-info-word:hover {
+    background: rgba(96, 165, 250, .15);
+    border-color: #60a5fa;
+    color: #93c5fd;
+}
+[data-theme="dark"] .pf-assemble-info .pf-info-word:hover::after {
+    color: #60a5fa;
 }
 .pf-assemble-info .pf-info-pinyin {
     font-style: italic;
@@ -9298,7 +9342,8 @@ body.pf-assemble-active .reveal-actions {
         gap: .35rem;
     }
     .pf-assemble-info .pf-info-word {
-        font-size: 1rem;
+        font-size: 1.1rem;
+        padding: .12rem .45rem;
     }
     .pf-assemble-info .pf-info-meaning {
         font-size: .72rem;
@@ -28967,7 +29012,13 @@ window.gradeWithAPI = gradeWithAPI;
         }
 
         if (currentItem.zh) {
-            html += '<span class="pf-info-word">' +
+            var zhJs = String(currentItem.zh)
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, "\\'")
+                .replace(/"/g, '\\"');
+            html += '<span class="pf-info-word" ' +
+                    'onclick="pfShowMnemonicForWord(\'' + zhJs + '\', event)" ' +
+                    'title="Bấm xem mẹo nhớ">' +
                     escHtml(currentItem.zh) +
                     '</span>';
         }
@@ -29374,6 +29425,51 @@ window.gradeWithAPI = gradeWithAPI;
         window.__updateRandomSettingsUI = updateRandomStateUI;
     }
 
+    /* ⭐ BRIDGE: Goi modal meo nho tu convert.py */
+    window.pfShowMnemonicForWord = function(char, evt) {
+        if (evt) {
+            evt.stopPropagation();
+            if (evt.preventDefault) evt.preventDefault();
+        }
+        if (!char) return;
+
+        /* Uu tien 1: showMnemonic da co trong convert.py */
+        if (typeof window.showMnemonic === 'function') {
+            try {
+                window.showMnemonic(evt || { stopPropagation: function(){}, preventDefault: function(){} }, char);
+                return;
+            } catch (err) {
+                console.warn('[Assemble] showMnemonic error:', err);
+            }
+        }
+
+        /* Uu tien 2: showMnemonic kieu cu (nhan btn) -> tao btn ao */
+        if (typeof window.showMnemonic === 'function') {
+            var fakeBtn = document.createElement('button');
+            fakeBtn.setAttribute('data-char', char);
+            fakeBtn.style.display = 'none';
+            document.body.appendChild(fakeBtn);
+            try {
+                window.showMnemonic(evt, fakeBtn);
+            } catch(err) {
+                console.warn('[Assemble] showMnemonic fakeBtn error:', err);
+            }
+            setTimeout(function() {
+                if (fakeBtn.parentNode) fakeBtn.remove();
+            }, 3000);
+            return;
+        }
+
+        /* Fallback: hien toast thong bao */
+        if (typeof showTagToast === 'function') {
+            showTagToast('Chức năng mẹo nhớ đang tải, vui lòng thử lại sau');
+        } else if (typeof showSearchToast === 'function') {
+            showSearchToast('Chức năng mẹo nhớ đang tải...');
+        } else {
+            console.warn('[Assemble] showMnemonic chưa sẵn sàng cho:', char);
+        }
+    };
+
     function initAssembleFeature() {
         patchLoadPracticeFull();
         initSettingsMenu();
@@ -29472,7 +29568,8 @@ window.gradeWithAPI = gradeWithAPI;
         toggleAutoShuffle: pfToggleAutoShuffle,
         getAutoShufflePref: pfGetAutoShufflePref,
         toggleInfo: pfToggleInfo,
-        isInfoVisible: function() { return pfInfoVisible; }
+        isInfoVisible: function() { return pfInfoVisible; },
+        showMnemonicForWord: window.pfShowMnemonicForWord
     };
 
 })();
