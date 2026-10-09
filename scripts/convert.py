@@ -897,7 +897,12 @@ window.showMnemonic = async function(evt, btn) {
         if (evt.preventDefault) evt.preventDefault();
     }
 
-    var ch = btn.getAttribute('data-char');
+    var ch = '';
+    if (typeof btn === 'string') {
+        ch = btn;
+    } else if (btn && btn.getAttribute) {
+        ch = btn.getAttribute('data-char');
+    }
     if (!ch) return;
 
     var old = document.getElementById('mnemonicModal');
