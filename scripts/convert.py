@@ -1058,7 +1058,7 @@ full_js = (
     + "\n/* TELEGRAM */\n" + build_telegram_notify_js()
     + "\n/* UI */\n" + patch_js(build_ui_js())
     + "\n/* SOCIAL */\n" + build_social_js()
-    + "\ */\n" + auth_js
+    + "\n/* ACCOUNTS */\n" + auth_js 
     + "\n/* INTRO */\n" + build_intro_js()
     + "\n/* FAVORITES */\n" + build_favorites_js()
     + "\n/* CHAT */\n" + build_chat_js()
