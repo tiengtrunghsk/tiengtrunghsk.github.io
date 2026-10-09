@@ -186,38 +186,47 @@ body.pf-assemble-active .pf-assemble-mode {
     transform: translateY(-2px);
     box-shadow: 0 6px 18px rgba(124,58,237,.5);
 }
+/* Nut xao tron - chi hien icon, khong co label */
 .pf-assemble-btn.auto-shuffle {
+    width: clamp(36px, 4vw, 44px);
+    height: clamp(36px, 4vw, 44px);
+    padding: 0;
+    justify-content: center;
+    border-color: var(--border);
+    background: var(--surface);
+    color: var(--text-2);
     position: relative;
-    border-color: #f59e0b;
-    background: linear-gradient(135deg, rgba(245,158,11,.12), rgba(217,119,6,.06));
-    color: #b45309;
-    padding: clamp(.4rem, .8vh, .55rem) clamp(.7rem, 1.3vw, .95rem);
-}
-.pf-assemble-btn.auto-shuffle .pf-assemble-icon {
-    display: none;
-}
-.pf-assemble-btn.auto-shuffle .pf-shuffle-label {
-    display: none;
-}
-.pf-assemble-btn.auto-shuffle .pf-shuffle-countdown {
-    display: inline-flex;
 }
 .pf-assemble-btn.auto-shuffle:hover {
-    border-color: #d97706;
-    color: #92400e;
-    background: linear-gradient(135deg, rgba(245,158,11,.2), rgba(217,119,6,.1));
+    border-color: #f59e0b;
+    color: #d97706;
+    background: rgba(245,158,11,.1);
+    transform: translateY(-1px);
+}
+.pf-assemble-btn.auto-shuffle .pf-assemble-icon {
+    font-size: clamp(.85rem, 1vw, .95rem);
+}
+/* Khi active - hien so dem nguoc, an icon */
+.pf-assemble-btn.auto-shuffle.active {
+    border-color: #f59e0b;
+    background: linear-gradient(135deg, rgba(245,158,11,.15), rgba(217,119,6,.08));
+}
+.pf-assemble-btn.auto-shuffle.active .pf-assemble-icon {
+    display: none;
+}
+.pf-assemble-btn.auto-shuffle.active .pf-shuffle-countdown {
+    display: inline-flex;
 }
 .pf-assemble-btn .pf-shuffle-countdown {
     display: none;
     align-items: center;
     justify-content: center;
-    min-width: 24px;
-    height: 24px;
-    padding: 0 .35rem;
-    border-radius: 50px;
+    width: clamp(28px, 3vw, 32px);
+    height: clamp(28px, 3vw, 32px);
+    border-radius: 50%;
     background: linear-gradient(135deg, #ef4444, #dc2626);
     color: #fff;
-    font-size: .72rem;
+    font-size: clamp(.68rem, .8vw, .78rem);
     font-weight: 900;
     line-height: 1;
     font-variant-numeric: tabular-nums;
@@ -228,14 +237,18 @@ body.pf-assemble-active .pf-assemble-mode {
     50%      { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(220,38,38,0); }
 }
 [data-theme="dark"] .pf-assemble-btn.auto-shuffle {
-    color: #fcd34d;
-    border-color: rgba(245,158,11,.6);
-    background: linear-gradient(135deg, rgba(245,158,11,.2), rgba(217,119,6,.12));
+    background: var(--surface-2);
+    color: var(--text-2);
+    border-color: var(--border);
 }
 [data-theme="dark"] .pf-assemble-btn.auto-shuffle:hover {
-    color: #fde68a;
-    border-color: #fbbf24;
-    background: linear-gradient(135deg, rgba(245,158,11,.3), rgba(217,119,6,.18));
+    color: #fbbf24;
+    border-color: rgba(245,158,11,.6);
+    background: rgba(245,158,11,.15);
+}
+[data-theme="dark"] .pf-assemble-btn.auto-shuffle.active {
+    border-color: rgba(245,158,11,.6);
+    background: linear-gradient(135deg, rgba(245,158,11,.25), rgba(217,119,6,.15));
 }
 body.pf-assemble-active #pfInputMode { display: none !important; }
 body.pf-assemble-active #pfPreview { display: none !important; }
@@ -528,9 +541,13 @@ body.pf-assemble-active .reveal-actions {
         padding: .4rem .65rem;
         font-size: .7rem;
     }
+    .pf-assemble-btn.auto-shuffle {
+        width: 36px;
+        height: 36px;
+    }
     .pf-assemble-btn .pf-shuffle-countdown {
-        min-width: 22px;
-        height: 22px;
+        width: 28px;
+        height: 28px;
         font-size: .68rem;
     }
     .pf-nav-icon.mini-nav.assemble-toggle.with-label {
@@ -576,7 +593,6 @@ def build_assemble_html():
         '    <div class="pf-assemble-actions">\n'
         '        <button type="button" class="pf-assemble-btn auto-shuffle" id="pfAssembleShuffleBtn" title="Xáo trộn - sau 10s sẽ tự động xáo lại">\n'
         '            <i class="fas fa-random pf-assemble-icon"></i>\n'
-        '            <span class="pf-shuffle-label">Xáo trộn</span>\n'
         '            <span class="pf-shuffle-countdown" id="pfShuffleCountdown">10</span>\n'
         '        </button>\n'
         '        <button type="button" class="pf-assemble-btn" id="pfAssembleClearBtn">\n'
@@ -885,10 +901,10 @@ _JS_PART_1 = r"""
         if (!btn || !countEl) return;
 
         if (pfAutoShuffleTimer) {
-            btn.classList.add('auto-shuffle');
+            btn.classList.add('active');
             countEl.textContent = String(pfAutoShuffleRemain);
         } else {
-            btn.classList.remove('auto-shuffle');
+            btn.classList.remove('active');
         }
     }
 
@@ -1084,7 +1100,6 @@ _JS_PART_2 = r"""
             statusEl.textContent = '';
             statusEl.className = 'practice-full-status';
         }
-        // Neu user da tung bat auto-shuffle -> tu bat lai
         if (pfGetAutoShufflePref()
             && !pfAutoShuffleTimer
             && pfAssembleWords.length > 0) {
@@ -1409,7 +1424,5 @@ if __name__ == "__main__":
     assert 'pfSettingsBtn' in result
     assert 'pfSettingsMenu' in result
     assert 'pfShuffleCountdown' in result
-    assert 'pf-assemble-icon' in result
-    assert 'pf-shuffle-label' in result
     print("Inject HTML OK")
     print("Module san sang dung")
