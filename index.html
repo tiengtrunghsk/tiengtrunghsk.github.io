@@ -2783,11 +2783,13 @@ body.practice-full-open .pf-tiktok-float {
 /* Trạng thái KHOÁ */
 .fav-btn.locked{
     color:#dc2626;
-    background:rgba(220,38,38,.1);
+   {
+ background:rgba(220,   38,38,.1);
 }
-.fav-btn.locked:hover{
-    transform:scale(1.12);
-    background:rgba(220,38,38,.2);
+.fav-btn position.locked:hover{
+    transform:scale(1:.12);
+    background:absolutergba(220,38,38;
+,.2);
     color:#b91c1c;
 }
 .fav-btn.locked i{font-size:.65rem;}
@@ -13156,37 +13158,39 @@ function maybeShowOnboarding() {
         return;
     }
 
-    /* ⭐ BƯỚC 1: CHƯA CÓ SELECTION → ÁP DỤNG MẶC ĐỊNH TRƯỚC (để có câu hiển thị) */
-    var allTopics = getAvailableTopicsForTier();
-    if (allTopics.length > 0) {
-        var isLimitedTier = (info.tier === 'demo'
-                          || info.tier === 'expired'
-                          || info.tier === 'trial');
-
-        var defaultTopics;
-        if (isLimitedTier) {
-            var max = (cfg.topics_per_user > 0) ? cfg.topics_per_user : 5;
-            var pickCount = Math.min(max, allTopics.length);
-            defaultTopics = allTopics.slice(0, pickCount).map(function(t) { return t.name; });
-        } else {
-            defaultTopics = allTopics.map(function(t) { return t.name; });
-        }
-
-        window.__onboardingAutoPicked = true;
-        saveOnboardingSelection(defaultTopics, true);
-        applyOnboardingSelection(defaultTopics, true);
-    } else {
-        console.warn('[Onboarding] Không có topics, dùng fallback');
-        applyOnboardingSelection([], false);
+    // ⬇️ THÊM: Nếu đã có banner (rỗng) thì không hiện modal
+    var existingBanner2 = $('onboardingActiveBanner');
+    if (existingBanner2) {
+        return;
     }
 
-    /* ⭐ BƯỚC 2: Hiện modal sau 1.5s cho user chọn lại */
-    setTimeout(function() {
-        var existingBanner2 = $('onboardingActiveBanner');
-        if (!existingBanner2) {
-            showOnboardingModal();
-        }
-    }, 1500);
+    showOnboardingModal();
+}
+
+function showOnboardingModal() {
+    var cfg = getOnboardingConfig();
+    if (!cfg) return;
+
+    _onboardingConfig = cfg;
+
+    var saved = loadOnboardingSelection();
+    if (saved && Array.isArray(saved.topics)) {
+        _onboardingSelected = {};
+        saved.topics.forEach(function(t) { _onboardingSelected[t] = true; });
+    } else {
+        _onboardingSelected = {};
+    }
+
+    var titleEl = $('onboardingTitle');
+    var subtitleEl = $('onboardingSubtitle');
+    if (titleEl) titleEl.textContent = cfg.title || 'Bạn quan tâm chủ đề nào?';
+    if (subtitleEl) subtitleEl.textContent = cfg.subtitle || '';
+
+    renderOnboardingTopics();
+    updateOnboardingUI();
+
+    var modal = $('onboardingModal');
+    if (modal) modal.classList.add('show');
 }
 
 function renderOnboardingTopics() {
@@ -14194,27 +14198,8 @@ function initApp() {
         applyFilter();
     });
 
-    /* ⭐ CHỜ DATA LOAD XONG rồi mới filter + render + cập nhật UI */
     waitForData(function() {
-        try {
-            buildFilters();
-            applyFilter();
-            updateResultCount();
-
-            if (typeof publishTierState === 'function') publishTierState();
-            if (typeof applyUserUI === 'function') applyUserUI();
-            if (typeof markCurrentDatasetActive === 'function') markCurrentDatasetActive();
-
-            if (typeof favUpdateLockState === 'function') favUpdateLockState();
-            if (typeof favRefreshUI === 'function') favRefreshUI();
-
-            if (typeof updateDemoBannerByTier === 'function') updateDemoBannerByTier();
-            if (typeof renderExpiryBanner === 'function') renderExpiryBanner();
-
-            if (typeof maybeShowOnboarding === 'function') {
-                setTimeout(maybeShowOnboarding, 300);
-            }
-        }
+        try { buildFilters(); applyFilter(); }
         catch(e) { console.error('Init error:', e); }
     });
 
