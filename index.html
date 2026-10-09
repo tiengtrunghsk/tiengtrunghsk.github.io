@@ -8919,27 +8919,38 @@ body.pf-assemble-active .pf-assemble-mode {
     border-color: #f59e0b;
     background: linear-gradient(135deg, rgba(245,158,11,.12), rgba(217,119,6,.06));
     color: #b45309;
-    padding-right: clamp(.9rem, 1.5vw, 1.2rem);
+    padding: clamp(.4rem, .8vh, .55rem) clamp(.7rem, 1.3vw, .95rem);
 }
+
+/* Khi đang đếm ngược: chỉ hiện badge số, ẩn icon + label */
+.pf-assemble-btn.auto-shuffle .pf-assemble-icon {
+    display: none;
+}
+.pf-assemble-btn.auto-shuffle .pf-shuffle-label {
+    display: none;
+}
+.pf-assemble-btn.auto-shuffle .pf-shuffle-countdown {
+    display: inline-flex;
+}
+
 .pf-assemble-btn.auto-shuffle:hover {
     border-color: #d97706;
     color: #92400e;
     background: linear-gradient(135deg, rgba(245,158,11,.2), rgba(217,119,6,.1));
 }
 .pf-assemble-btn .pf-shuffle-countdown {
-    display: inline-flex;
+    display: none;
     align-items: center;
     justify-content: center;
-    min-width: 22px;
-    height: 22px;
+    min-width: 24px;
+    height: 24px;
     padding: 0 .35rem;
     border-radius: 50px;
     background: linear-gradient(135deg, #ef4444, #dc2626);
     color: #fff;
-    font-size: .68rem;
+    font-size: .72rem;
     font-weight: 900;
     line-height: 1;
-    margin-left: .15rem;
     font-variant-numeric: tabular-nums;
     animation: pfCountdownPulse 1s ease-in-out infinite;
 }
@@ -9249,9 +9260,9 @@ body.pf-assemble-active .reveal-actions {
         font-size: .7rem;
     }
     .pf-assemble-btn .pf-shuffle-countdown {
-        min-width: 20px;
-        height: 20px;
-        font-size: .62rem;
+        min-width: 22px;
+        height: 22px;
+        font-size: .68rem;
     }
     .pf-nav-icon.mini-nav.assemble-toggle.with-label {
         height: 38px !important;
@@ -11847,8 +11858,8 @@ body.has-floating-group #quickSearchRoot{
     <div class="pf-assemble-pool" id="pfAssemblePool"></div>
     <div class="pf-assemble-actions">
         <button type="button" class="pf-assemble-btn auto-shuffle" id="pfAssembleShuffleBtn" title="Xáo trộn - sau 5s sẽ tự động xáo lại">
-            <i class="fas fa-random"></i>
-            <span>Xáo trộn</span>
+            <i class="fas fa-random pf-assemble-icon"></i>
+            <span class="pf-shuffle-label">Xáo trộn</span>
             <span class="pf-shuffle-countdown" id="pfShuffleCountdown">5</span>
         </button>
         <button type="button" class="pf-assemble-btn" id="pfAssembleClearBtn">
@@ -28564,8 +28575,8 @@ window.gradeWithAPI = gradeWithAPI;
 
     var pfAutoShuffleTimer = null;
     var pfAutoShuffleCountdown = null;
-    var pfAutoShuffleRemain = 10;
-    var AUTO_SHUFFLE_SECONDS = 10;
+    var pfAutoShuffleRemain = 5;
+    var AUTO_SHUFFLE_SECONDS = 5;
 
     function pfSplitIntoWords(zh) {
         if (!zh) return [];
@@ -28754,11 +28765,9 @@ window.gradeWithAPI = gradeWithAPI;
 
         if (pfAutoShuffleTimer) {
             btn.classList.add('auto-shuffle');
-            countEl.style.display = '';
             countEl.textContent = String(pfAutoShuffleRemain);
         } else {
             btn.classList.remove('auto-shuffle');
-            countEl.style.display = 'none';
         }
     }
 
