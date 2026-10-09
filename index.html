@@ -8734,7 +8734,6 @@ body.acm-bulk-mode .acm-select-all-row{display:flex;}
 
 /* ASSEMBLE */
 
-/* GHEP TU - che do luyen dich nang cao */
 .pf-assemble-mode {
     display: none;
     flex-direction: column;
@@ -8744,8 +8743,6 @@ body.acm-bulk-mode .acm-select-all-row{display:flex;}
 body.pf-assemble-active .pf-assemble-mode {
     display: flex;
 }
-
-/* O cau tra loi */
 .pf-assemble-answer {
     min-height: clamp(56px, 8vh, 72px);
     padding: clamp(.5rem, 1vh, .75rem) clamp(.6rem, 1.2vw, .9rem);
@@ -8791,7 +8788,6 @@ body.pf-assemble-active .pf-assemble-mode {
     25%     { transform: translateX(-5px); }
     75%     { transform: translateX(5px); }
 }
-
 .pf-assemble-hint {
     color: var(--text-3);
     font-size: clamp(.78rem, .95vw, .88rem);
@@ -8799,8 +8795,6 @@ body.pf-assemble-active .pf-assemble-mode {
     user-select: none;
     pointer-events: none;
 }
-
-/* O tu goi y */
 .pf-assemble-pool {
     min-height: clamp(56px, 8vh, 72px);
     padding: clamp(.5rem, 1vh, .75rem) clamp(.6rem, 1.2vw, .9rem);
@@ -8813,8 +8807,6 @@ body.pf-assemble-active .pf-assemble-mode {
     align-items: center;
     justify-content: center;
 }
-
-/* Nut tu */
 .pf-word {
     font-family: var(--font-zh, 'PingFang SC', sans-serif);
     font-size: clamp(1.1rem, 2vw, 1.35rem);
@@ -8848,7 +8840,6 @@ body.pf-assemble-active .pf-assemble-mode {
     pointer-events: none;
     transform: scale(.92);
 }
-
 .pf-assemble-answer .pf-word {
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
     color: #fff;
@@ -8865,8 +8856,6 @@ body.pf-assemble-active .pf-assemble-mode {
     border-color: transparent;
     transform: translateY(-2px) scale(1.04);
 }
-
-/* Nut hanh dong */
 .pf-assemble-actions {
     display: flex;
     gap: clamp(.4rem, .8vw, .6rem);
@@ -8904,18 +8893,14 @@ body.pf-assemble-active .pf-assemble-mode {
     transform: translateY(-2px);
     box-shadow: 0 6px 18px rgba(124,58,237,.5);
 }
-
 body.pf-assemble-active #pfInputMode { display: none !important; }
 body.pf-assemble-active #pfPreview { display: none !important; }
 body.pf-assemble-active .practice-full-input { display: none !important; }
-
 body.pf-assemble-active #pfHintBtn,
 body.pf-assemble-active #pfRevealBtn,
 body.pf-assemble-active .reveal-actions {
     display: none !important;
 }
-
-/* Con tro insert */
 .pf-insert-cursor {
     display: inline-block;
     width: 3px;
@@ -8938,7 +8923,6 @@ body.pf-assemble-active .reveal-actions {
     0%, 50%   { opacity: 1; }
     51%, 100% { opacity: .2; }
 }
-
 .pf-insert-gap {
     display: inline-block;
     width: 6px;
@@ -8960,12 +8944,9 @@ body.pf-assemble-active .reveal-actions {
     opacity: .5;
     border-radius: 1px;
 }
-
 .pf-assemble-answer .pf-insert-cursor.only {
     height: 2em;
 }
-
-/* Nut toggle ghep tu */
 .pf-nav-icon.mini-nav.assemble-toggle.with-label {
     width: auto !important;
     min-width: auto !important;
@@ -9029,8 +9010,6 @@ body.pf-assemble-active .reveal-actions {
     color: #1e1b4b;
     box-shadow: 0 4px 14px rgba(129,140,248,.55);
 }
-
-/* Badge MOI */
 .pf-nav-icon.mini-nav.assemble-toggle .assemble-new-badge {
     position: absolute;
     top: -8px;
@@ -9062,8 +9041,6 @@ body.pf-assemble-active .reveal-actions {
     box-shadow: 0 2px 8px rgba(220,38,38,.7),
                 0 0 0 2px var(--surface-2);
 }
-
-/* Nut cai dat gop */
 .pf-settings-wrap {
     position: relative;
     display: inline-flex;
@@ -9098,7 +9075,6 @@ body.pf-assemble-active .reveal-actions {
     background: linear-gradient(135deg, #818cf8, #a78bfa);
     color: #1e1b4b;
 }
-
 .pf-settings-menu {
     position: absolute;
     bottom: calc(100% + 8px);
@@ -9128,7 +9104,6 @@ body.pf-assemble-active .reveal-actions {
     from { opacity: 0; transform: translateY(8px) scale(.92); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
 }
-
 .pf-settings-item {
     display: flex;
     align-items: center;
@@ -9184,7 +9159,6 @@ body.pf-assemble-active .reveal-actions {
 .pf-settings-item.active i:first-child {
     color: #d97706;
 }
-
 .pf-settings-backdrop {
     position: fixed;
     inset: 0;
@@ -9195,7 +9169,6 @@ body.pf-assemble-active .reveal-actions {
 .pf-settings-backdrop.show {
     display: block;
 }
-
 @media (max-width: 500px) {
     .pf-word {
         padding: .35rem .7rem;
@@ -9232,7 +9205,6 @@ body.pf-assemble-active .reveal-actions {
         width: 4px;
     }
 }
-
 @media (max-width: 400px) {
     .pf-nav-icon.mini-nav.assemble-toggle.with-label .assemble-toggle-label {
         font-size: .64rem;
@@ -11801,18 +11773,18 @@ body.has-floating-group #quickSearchRoot{
 <div class="char-preview" id="pfPreview"></div>
 <div class="pf-assemble-mode" id="pfAssembleMode">
     <div class="pf-assemble-answer" id="pfAssembleAnswer">
-        <span class="pf-assemble-hint">Bam tu ben duoi de ghep cau</span>
+        <span class="pf-assemble-hint">Bấm từ bên dưới để ghép câu</span>
     </div>
     <div class="pf-assemble-pool" id="pfAssemblePool"></div>
     <div class="pf-assemble-actions">
         <button type="button" class="pf-assemble-btn" id="pfAssembleShuffleBtn">
-            <i class="fas fa-random"></i> Xao tron
+            <i class="fas fa-random"></i> Xáo trộn
         </button>
         <button type="button" class="pf-assemble-btn" id="pfAssembleClearBtn">
-            <i class="fas fa-undo-alt"></i> Xoa het
+            <i class="fas fa-undo-alt"></i> Xóa hết
         </button>
         <button type="button" class="pf-assemble-btn primary" id="pfAssembleHintBtn">
-            <i class="fas fa-lightbulb"></i> Goi y
+            <i class="fas fa-lightbulb"></i> Gợi ý
         </button>
     </div>
 </div>
@@ -11840,20 +11812,20 @@ body.has-floating-group #quickSearchRoot{
         <i class="fas fa-volume-up"></i>
     </button>
     <div class="mini-group">
-        <button class="pf-nav-icon mini-nav assemble-toggle with-label" id="pfAssembleToggleBtn" type="button" title="Chuyen sang che do Ghep tu" aria-label="Che do Ghep tu"><i class="fas fa-puzzle-piece"></i><span class="assemble-toggle-label">Ghep tu</span><span class="assemble-new-badge">MOI</span></button>
+        <button class="pf-nav-icon mini-nav assemble-toggle with-label" id="pfAssembleToggleBtn" type="button" title="Chuyển sang chế độ Ghép từ" aria-label="Chế độ Ghép từ"><i class="fas fa-puzzle-piece"></i><span class="assemble-toggle-label">Ghép từ</span><span class="assemble-new-badge">MỚI</span></button>
         <div class="pf-settings-wrap" id="pfSettingsWrap">
-        <button class="pf-nav-icon mini-nav settings-btn" id="pfSettingsBtn" type="button" title="Cai dat" aria-label="Cai dat">
+        <button class="pf-nav-icon mini-nav settings-btn" id="pfSettingsBtn" type="button" title="Cài đặt" aria-label="Cài đặt">
             <i class="fas fa-cog"></i>
         </button>
         <div class="pf-settings-menu" id="pfSettingsMenu">
             <button type="button" class="pf-settings-item" id="pfSettingsRandomBtn">
                 <i class="fas fa-dice"></i>
-                <span class="pf-settings-label">Cau ngau nhien</span>
+                <span class="pf-settings-label">Câu ngẫu nhiên</span>
                 <span class="pf-settings-state" id="pfSettingsRandomState">OFF</span>
             </button>
             <button type="button" class="pf-settings-item" id="pfSettingsVoiceBtn">
                 <i class="fas fa-headphones"></i>
-                <span class="pf-settings-label">Giong doc</span>
+                <span class="pf-settings-label">Giọng đọc</span>
                 <i class="fas fa-chevron-right" style="font-size:.7rem;opacity:.5;margin-left:auto;width:auto"></i>
             </button>
         </div>
@@ -28492,7 +28464,6 @@ window.gradeWithAPI = gradeWithAPI;
 
 /* ASSEMBLE */
 
-/* GHEP TU - chen tu vao vi tri bat ky */
 (function() {
     'use strict';
 
@@ -28584,7 +28555,7 @@ window.gradeWithAPI = gradeWithAPI;
             answerEl.innerHTML =
                 '<span class="pf-insert-cursor only" data-gap="0"></span>' +
                 '<span class="pf-assemble-hint" style="margin-left:.5rem">' +
-                'Chon tu ben duoi de ghep cau' +
+                'Chọn từ bên dưới để ghép câu' +
                 '</span>';
         } else {
             for (var pos = 0; pos <= pfAssembleAnswerIdx.length; pos++) {
@@ -28706,13 +28677,13 @@ window.gradeWithAPI = gradeWithAPI;
         } else if (status === 'incomplete') {
             var n = pfAssembleAnswerIdx.length;
             var total = pfAssembleCorrectWords.length;
-            statusEl.textContent = 'Dang ghep... (' + n + '/' + total + ')';
+            statusEl.textContent = 'Đang ghép... (' + n + '/' + total + ')';
             statusEl.className = 'practice-full-status';
         } else if (status === 'wrong') {
-            statusEl.textContent = 'Sai vi tri';
+            statusEl.textContent = 'Sai vị trí';
             statusEl.className = 'practice-full-status wrong';
         } else if (status === 'correct') {
-            statusEl.textContent = 'DUNG';
+            statusEl.textContent = 'ĐÚNG';
             statusEl.className = 'practice-full-status correct';
         }
     }
@@ -28720,23 +28691,8 @@ window.gradeWithAPI = gradeWithAPI;
     function pfOnAssembleCorrect() {
         var statusEl = document.getElementById('pfStatus');
         if (statusEl) {
-            statusEl.textContent = 'DUNG';
+            statusEl.textContent = 'ĐÚNG';
             statusEl.className = 'practice-full-status correct';
-        }
-
-        var answer = (typeof pfCurrentAnswer !== 'undefined') ? pfCurrentAnswer : '';
-        if (answer && 'speechSynthesis' in window) {
-            setTimeout(function() {
-                try { speechSynthesis.cancel(); } catch(e) {}
-                var u = new SpeechSynthesisUtterance(answer);
-                u.lang = 'zh-CN';
-                if (typeof applyVoiceSettings === 'function') {
-                    try { applyVoiceSettings(u); } catch(e) {}
-                }
-                setTimeout(function() {
-                    try { speechSynthesis.speak(u); } catch(e) {}
-                }, 100);
-            }, 200);
         }
     }
 
@@ -28761,14 +28717,14 @@ window.gradeWithAPI = gradeWithAPI;
 
         if (pfAssembleMode) {
             if (icon) icon.className = 'fas fa-keyboard';
-            if (label) label.textContent = 'Go tu do';
-            btn.title = 'Chuyen ve che do Go tu do';
-            btn.setAttribute('aria-label', 'Chuyen ve che do Go tu do');
+            if (label) label.textContent = 'Gõ tự do';
+            btn.title = 'Chuyển về chế độ Gõ tự do';
+            btn.setAttribute('aria-label', 'Chuyển về chế độ Gõ tự do');
         } else {
             if (icon) icon.className = 'fas fa-puzzle-piece';
-            if (label) label.textContent = 'Ghep tu';
-            btn.title = 'Chuyen sang che do Ghep tu';
-            btn.setAttribute('aria-label', 'Che do Ghep tu');
+            if (label) label.textContent = 'Ghép từ';
+            btn.title = 'Chuyển sang chế độ Ghép từ';
+            btn.setAttribute('aria-label', 'Chế độ Ghép từ');
         }
     }
 
