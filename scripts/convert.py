@@ -42,7 +42,12 @@ from draggable_fab import (
 from patch_grade_toggle import (
     patch_html, patch_css, patch_js, patch_grading_js,
 )
-
+from assemble_module import (
+    build_assemble_css,
+    build_assemble_html,
+    build_assemble_js,
+    inject_assemble_html,
+)
 
 def _js_str(s):
     if s is None:
@@ -334,11 +339,12 @@ full_css = (
     + "\n/* CHAT */\n" + build_chat_css()
     + "\n/* ADMIN CHAT */\n" + build_admin_chat_css()
     + "\n/* DRAGGABLE FAB */\n" + build_draggable_fab_css()
+    + "\n/* ASSEMBLE */\n" + build_assemble_css()
     + "\n/* FULLWIDTH */\n" + FULLWIDTH_CSS
 )
-
 ui_html = build_ui_html()
 ui_html = patch_html(ui_html)
+ui_html = inject_assemble_html(ui_html)
 ui_html = ui_html.replace("<!-- __TIKTOK_BAR__ -->", build_tiktok_bar_html())
 ui_html = ui_html.replace("<!-- __QUICK_INTRO_BANNER__ -->", build_intro_html())
 
@@ -1052,7 +1058,7 @@ full_js = (
     + "\n/* TELEGRAM */\n" + build_telegram_notify_js()
     + "\n/* UI */\n" + patch_js(build_ui_js())
     + "\n/* SOCIAL */\n" + build_social_js()
-    + "\n/* ACCOUNTS */\n" + auth_js
+    + "\ */\n" + auth_js
     + "\n/* INTRO */\n" + build_intro_js()
     + "\n/* FAVORITES */\n" + build_favorites_js()
     + "\n/* CHAT */\n" + build_chat_js()
@@ -1060,6 +1066,7 @@ full_js = (
     + "\n/* DRAGGABLE FAB */\n" + build_draggable_fab_js()
     + "\n/* QUOTA */\n" + build_quota_js()
     + "\n/* QUOTA INIT */\n" + build_quota_init_js()
+    + "\n/* ASSEMBLE */\n" + build_assemble_js()
     + "\n/* GRADING */\n" + _build_grading_js()
 )
 
