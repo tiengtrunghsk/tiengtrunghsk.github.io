@@ -1609,14 +1609,7 @@ def main():
         os.makedirs(_data_dir, exist_ok=True)
         _fixpy_path = os.path.join(_data_dir, "fixpy_datasets.json")
 
-        # Load data cũ để giữ dataset đã có
-        datasets_dict = {}
-        if os.path.isfile(_fixpy_path):
-            try:
-                with open(_fixpy_path, "r", encoding="utf-8") as _f:
-                    datasets_dict = json.load(_f) or {}
-            except Exception as _e:
-                print("   [!] Khong doc duoc file cu: " + str(_e))
+     
                 datasets_dict = {}
 
         # ⭐ Update vocab với mnemonic MỚI
