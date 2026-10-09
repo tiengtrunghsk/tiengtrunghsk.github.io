@@ -3,7 +3,7 @@
 ASSEMBLE MODULE — Chế độ "Ghép từ" cho Practice Full.
 Module độc lập, không đụng vào mã gốc.
 
-Cách dùng trong build_html.py:
+Cách dùng trong convert.py:
     from assemble_module import (
         build_assemble_css,
         build_assemble_html,
@@ -11,13 +11,8 @@ Cách dùng trong build_html.py:
         inject_assemble_html,
     )
 
-    # CSS: nối vào full_css
     full_css += "\n/* ASSEMBLE */\n" + build_assemble_css()
-
-    # HTML: gọi inject_assemble_html() TRƯỚC khi gán vào full_body
-    ui_html = inject_assemble_html(ui_html)
-
-    # JS: nối vào full_js
+    ui_html = inject_assemble_html(ui_html)   # sau patch_html()
     full_js += "\n/* ASSEMBLE */\n" + build_assemble_js()
 """
 
@@ -228,6 +223,13 @@ body.pf-assemble-active #pfInputMode { display: none !important; }
 body.pf-assemble-active #pfPreview { display: none !important; }
 body.pf-assemble-active .practice-full-input { display: none !important; }
 
+/* ⭐ Khi bật chế độ ghép từ → ẩn "Chấm điểm" + "Xem đáp án" */
+body.pf-assemble-active #pfHintBtn,
+body.pf-assemble-active #pfRevealBtn,
+body.pf-assemble-active .reveal-actions {
+    display: none !important;
+}
+
 @media (max-width: 500px) {
     .pf-word {
         padding: .35rem .7rem;
@@ -299,6 +301,7 @@ def inject_assemble_html(ui_html: str) -> str:
             ui_html,
             count=1,
         )
+        print("✅ [assemble] Đã chèn nút toggle vào mini-group")
     else:
         print("⚠️  [assemble] Không tìm thấy .mini-group để chèn nút toggle")
 
@@ -315,10 +318,10 @@ def inject_assemble_html(ui_html: str) -> str:
             ui_html,
             count=1,
         )
+        print("✅ [assemble] Đã chèn khối ghép từ sau char-preview")
     else:
         print("⚠️  [assemble] Không tìm thấy .char-preview để chèn khối ghép từ")
 
-    print("✅ [assemble] Đã inject HTML (toggle button + assemble block)")
     return ui_html
 
 
@@ -340,22 +343,12 @@ def build_assemble_js():
     var pfAssembleCorrectWords = [];
 
     /* ─────────────────────────────────────────────────── */
-    /* Tách đáp án thành các "từ" — ưu tiên theo pinyin    */
+    /* Tách đáp án thành TỪNG KÝ TỰ Hán (không dùng pinyin) */
     /* ─────────────────────────────────────────────────── */
     function pfSplitIntoWords(zh, pinyin) {
         if (!zh) return [];
 
-        // Thử tách theo pinyin trước (nếu hàm splitByPinyin có sẵn)
-        if (typeof splitByPinyin === 'function' && pinyin) {
-            try {
-                var phrases = splitByPinyin(zh, pinyin);
-                if (phrases && phrases.length > 1) {
-                    return phrases.map(function(p) { return p.text; });
-                }
-            } catch(e) {}
-        }
-
-        // Fallback: tách từng ký tự Hán
+        // ⭐ Luôn tách từng ký tự Hán riêng lẻ
         var words = [];
         for (var i = 0; i < zh.length; i++) {
             var c = zh[i];
@@ -652,6 +645,7 @@ def build_assemble_js():
             return r;
         };
         window.loadPracticeFull.__assemblePatched = true;
+        console.log('[Assemble] Đã hook loadPracticeFull');
     }
 
     /* ─────────────────────────────────────────────────── */
@@ -752,16 +746,16 @@ def build_assemble_js():
 
 
 # ═══════════════════════════════════════════════════════════════
-# Self-test (chạy file trực tiếp để kiểm tra syntax)
+# Self-test
 # ═══════════════════════════════════════════════════════════════
 if __name__ == "__main__":
     css = build_assemble_css()
     html = build_assemble_html()
     js = build_assemble_js()
 
-    print(f"✅ CSS: {len(css):>7} ký tự")
+    print(f"✅ CSS:  {len(css):>7} ký tự")
     print(f"✅ HTML: {len(html):>6} ký tự")
-    print(f"✅ JS:  {len(js):>7} ký tự")
+    print(f"✅ JS:   {len(js):>7} ký tự")
 
     # Test inject vào HTML giả
     mock_ui = '''
