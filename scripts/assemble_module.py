@@ -872,7 +872,7 @@ _JS_PART_1 = r"""
 (function() {
     'use strict';
 
-    var pfAssembleMode = false;
+    var pfAssembleMode = true;
     var pfAssembleWords = [];
     var pfAssembleAnswerIdx = [];
     var pfAssembleCorrectWords = [];
