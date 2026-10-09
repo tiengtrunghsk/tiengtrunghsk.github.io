@@ -19,15 +19,17 @@ body.pf-assemble-active .pf-assemble-mode {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: .5rem;
-    padding: .5rem .75rem;
+    gap: .4rem .55rem;
+    padding: .45rem .7rem;
     margin-bottom: .5rem;
     background: var(--surface);
     border: 1.5px solid var(--border);
     border-radius: 10px;
-    font-size: clamp(.75rem, .9vw, .85rem);
+    font-size: clamp(.72rem, .85vw, .82rem);
     color: var(--text-2);
     transition: opacity .2s;
+    line-height: 1.2;
+    min-height: 0;
 }
 .pf-assemble-info:empty {
     display: none;
@@ -62,30 +64,37 @@ body.pf-assemble-active .pf-assemble-mode {
     letter-spacing: 0;
     font-size: clamp(.68rem, .82vw, .78rem);
 }
+
+/* ⭐ TU VUNG - IN DAM, NOI BAT, CLICKABLE */
 .pf-assemble-info .pf-info-word {
     font-family: var(--font-zh, 'PingFang SC', sans-serif);
-    font-size: clamp(1.25rem, 1.9vw, 1.5rem);
-    font-weight: 800;
-    color: var(--text);
+    font-size: clamp(1.15rem, 1.6vw, 1.35rem);
+    font-weight: 900;
+    color: var(--primary-dark, #1e40af);
     letter-spacing: .03em;
-    line-height: 1.3;
+    line-height: 1.1;
     cursor: pointer;
-    padding: .15rem .55rem;
+    padding: .18rem .6rem;
     border-radius: 8px;
-    background: var(--surface-2);
-    border: 1.5px solid var(--border-strong);
+    background: var(--primary-light, #dbeafe);
+    border: 2px solid var(--primary, #2563eb);
     transition: all .18s ease;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     display: inline-flex;
     align-items: center;
     gap: .35rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    vertical-align: middle;
+    box-shadow: 0 2px 6px rgba(37,99,235,.15);
 }
 .pf-assemble-info .pf-info-word:hover {
-    background: var(--primary-light);
-    border-color: var(--primary);
-    color: var(--primary-dark);
+    background: var(--primary, #2563eb);
+    color: #fff;
+    border-color: var(--primary-dark, #1e40af);
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37,99,235,.3);
 }
 .pf-assemble-info .pf-info-word:active {
     transform: scale(.97);
@@ -94,40 +103,56 @@ body.pf-assemble-active .pf-assemble-mode {
     content: '\f0eb';
     font-family: 'Font Awesome 6 Free', 'Font Awesome 5 Free';
     font-weight: 900;
-    font-size: .72em;
-    color: var(--text-3);
+    font-size: .7em;
+    color: var(--primary, #2563eb);
     transition: color .18s ease;
 }
 .pf-assemble-info .pf-info-word:hover::after {
-    color: var(--primary);
+    color: #fff;
 }
 [data-theme="dark"] .pf-assemble-info .pf-info-word {
-    color: #f1f5f9;
-    background: var(--surface-2);
-    border-color: var(--border-strong);
-}
-[data-theme="dark"] .pf-assemble-info .pf-info-word:hover {
+    color: #93c5fd;
     background: rgba(96, 165, 250, .15);
     border-color: #60a5fa;
-    color: #93c5fd;
+}
+[data-theme="dark"] .pf-assemble-info .pf-info-word:hover {
+    background: #3b82f6;
+    color: #fff;
+    border-color: #60a5fa;
 }
 [data-theme="dark"] .pf-assemble-info .pf-info-word:hover::after {
-    color: #60a5fa;
+    color: #fff;
 }
+
+/* ⭐ CAU VI DU ZH - KHONG CLICKABLE, MO HON */
+.pf-assemble-info .pf-info-example {
+    font-family: var(--font-zh, 'PingFang SC', sans-serif);
+    font-size: clamp(.85rem, 1.1vw, .95rem);
+    color: var(--text-2);
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    opacity: .85;
+    padding: .1rem .2rem;
+}
+
 .pf-assemble-info .pf-info-pinyin {
     font-style: italic;
     color: var(--text-3);
-    font-size: clamp(.72rem, .85vw, .82rem);
+    font-size: clamp(.7rem, .82vw, .78rem);
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 .pf-assemble-info .pf-info-meaning {
     color: var(--text-2);
     font-weight: 500;
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 .pf-assemble-answer {
     min-height: clamp(56px, 8vh, 72px);
     padding: clamp(.5rem, 1vh, .75rem) clamp(.6rem, 1.2vw, .9rem);
@@ -608,19 +633,49 @@ body.pf-assemble-active .reveal-actions {
 .pf-settings-backdrop.show {
     display: block;
 }
+
+/* ⭐ DESKTOP: info bar 1 hang, khong wrap */
+@media (min-width: 501px) {
+    .pf-assemble-info {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+    .pf-assemble-info::-webkit-scrollbar {
+        display: none;
+    }
+}
+
 @media (max-width: 500px) {
     .pf-assemble-info {
-        padding: .4rem .6rem;
-        gap: .35rem;
+        padding: .35rem .55rem;
+        gap: .3rem .45rem;
+        font-size: .7rem;
+    }
+    .pf-assemble-info .pf-info-tag {
+        font-size: .58rem;
+        padding: .15rem .45rem;
     }
     .pf-assemble-info .pf-info-word {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         padding: .12rem .45rem;
+        border-width: 1.5px;
+    }
+    .pf-assemble-info .pf-info-word::after {
+        font-size: .65em;
+    }
+    .pf-assemble-info .pf-info-example {
+        font-size: .78rem;
+    }
+    .pf-assemble-info .pf-info-pinyin {
+        font-size: .65rem;
     }
     .pf-assemble-info .pf-info-meaning {
-        font-size: .72rem;
-        white-space: normal;
-        text-overflow: initial;
+        font-size: .68rem;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        max-width: 100%;
     }
     .pf-word {
         padding: .4rem .75rem;
@@ -858,7 +913,6 @@ _JS_PART_1 = r"""
     }
 
     function pfBuildAssembleWords() {
-        // Luon tach tung ky tu Han rieng le
         var sourceText = pfGetAssembleSourceText();
         pfAssembleCorrectWords = pfSplitIntoWords(sourceText);
 
@@ -1094,6 +1148,7 @@ _JS_PART_1 = r"""
 
 
 _JS_PART_2 = r"""
+    /* ⭐ RENDER INFO BAR - chi hien khi bat nut Goi y */
     function pfRenderInfo() {
         var infoEl = document.getElementById('pfAssembleInfo');
         if (!infoEl) return;
@@ -1107,44 +1162,59 @@ _JS_PART_2 = r"""
 
         var escHtml = (typeof escapeHtml === 'function')
             ? escapeHtml
-            : function(s) { return String(s); };
+            : function(s) {
+                return String(s)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            };
 
         var html = '';
 
+        /* 1. Tag HSK */
         if (currentItem.hsk) {
             html += '<span class="pf-info-tag pf-info-hsk">' +
                     escHtml(currentItem.hsk) +
                     '</span>';
         }
 
+        /* 2. Tag topic - chi hien neu khac "Tu vung" */
         if (currentItem.topic && currentItem.topic !== 'Từ vựng') {
             html += '<span class="pf-info-tag pf-info-topic">' +
                     escHtml(currentItem.topic) +
                     '</span>';
         }
 
+        /* 3. TU VUNG (zh) - IN DAM, CLICKABLE -> modal meo nho */
         if (currentItem.zh) {
-            var zhJs = String(currentItem.zh)
-                .replace(/\\/g, '\\\\')
-                .replace(/'/g, "\\'")
-                .replace(/"/g, '\\"');
             html += '<span class="pf-info-word" ' +
-                    'onclick="pfShowMnemonicForWord(\'' + zhJs + '\', event)" ' +
-                    'title="Bấm xem mẹo nhớ">' +
+                    'data-mnemonic-char="' + escHtml(currentItem.zh) + '" ' +
+                    'title="Bấm xem mẹo nhớ" ' +
+                    'role="button" tabindex="0">' +
                     escHtml(currentItem.zh) +
                     '</span>';
         }
 
-        if (currentItem.pinyin) {
-            html += '<span class="pf-info-pinyin">' +
-                    escHtml(currentItem.pinyin) +
+        /* 4. CAU VI DU ZH - KHONG clickable */
+        if (currentItem.vi_du_zh) {
+            html += '<span class="pf-info-example">' +
+                    escHtml(currentItem.vi_du_zh) +
                     '</span>';
         }
 
-        var meaning = currentItem.vi || '';
-        if (meaning && meaning !== currentItem.vi_du_vi) {
+        /* 5. Pinyin cau vi du */
+        if (currentItem.vi_du_pinyin) {
+            html += '<span class="pf-info-pinyin">' +
+                    escHtml(currentItem.vi_du_pinyin) +
+                    '</span>';
+        }
+
+        /* 6. Dich cau vi du */
+        if (currentItem.vi_du_vi) {
             html += '<span class="pf-info-meaning">' +
-                    escHtml(meaning) +
+                    escHtml(currentItem.vi_du_vi) +
                     '</span>';
         }
 
@@ -1184,7 +1254,14 @@ _JS_PART_2 = r"""
 
         var escHtml = (typeof escapeHtml === 'function')
             ? escapeHtml
-            : function(s) { return String(s); };
+            : function(s) {
+                return String(s)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            };
 
         answerEl.innerHTML = '';
 
@@ -1543,7 +1620,7 @@ _JS_PART_4 = r"""
         window.__updateRandomSettingsUI = updateRandomStateUI;
     }
 
-    /* ⭐ BRIDGE: Goi modal meo nho tu convert.py */
+    /* ⭐ BRIDGE: Goi modal meo nho */
     window.pfShowMnemonicForWord = function(char, evt) {
         if (evt) {
             evt.stopPropagation();
@@ -1551,34 +1628,39 @@ _JS_PART_4 = r"""
         }
         if (!char) return;
 
-        /* Uu tien 1: showMnemonic da co trong convert.py */
-        if (typeof window.showMnemonic === 'function') {
-            try {
-                window.showMnemonic(evt || { stopPropagation: function(){}, preventDefault: function(){} }, char);
-                return;
-            } catch (err) {
-                console.warn('[Assemble] showMnemonic error:', err);
-            }
-        }
+        var fakeEvt = evt || {
+            stopPropagation: function() {},
+            preventDefault: function() {}
+        };
 
-        /* Uu tien 2: showMnemonic kieu cu (nhan btn) -> tao btn ao */
         if (typeof window.showMnemonic === 'function') {
+            var isOldStyle = (window.showMnemonic.length <= 1);
+
+            if (!isOldStyle) {
+                try {
+                    window.showMnemonic(fakeEvt, char);
+                    return;
+                } catch (err) {
+                    console.warn('[Assemble] showMnemonic(evt, char) error:', err);
+                }
+            }
+
             var fakeBtn = document.createElement('button');
             fakeBtn.setAttribute('data-char', char);
             fakeBtn.style.display = 'none';
             document.body.appendChild(fakeBtn);
             try {
-                window.showMnemonic(evt, fakeBtn);
-            } catch(err) {
-                console.warn('[Assemble] showMnemonic fakeBtn error:', err);
-            }
-            setTimeout(function() {
+                window.showMnemonic(fakeEvt, fakeBtn);
+                setTimeout(function() {
+                    if (fakeBtn.parentNode) fakeBtn.remove();
+                }, 3000);
+                return;
+            } catch (err2) {
+                console.warn('[Assemble] showMnemonic(fakeEvt, btn) error:', err2);
                 if (fakeBtn.parentNode) fakeBtn.remove();
-            }, 3000);
-            return;
+            }
         }
 
-        /* Fallback: hien toast thong bao */
         if (typeof showTagToast === 'function') {
             showTagToast('Chức năng mẹo nhớ đang tải, vui lòng thử lại sau');
         } else if (typeof showSearchToast === 'function') {
@@ -1588,9 +1670,42 @@ _JS_PART_4 = r"""
         }
     };
 
+    /* ⭐ Event delegation: bam tu vung -> mo modal meo nho */
+    function initMnemonicDelegation() {
+        if (document.__mnemonicDelegated) return;
+        document.__mnemonicDelegated = true;
+
+        document.addEventListener('click', function(e) {
+            var wordEl = e.target.closest
+                ? e.target.closest('.pf-info-word[data-mnemonic-char]')
+                : null;
+            if (!wordEl) return;
+            e.stopPropagation();
+            e.preventDefault();
+            var ch = wordEl.getAttribute('data-mnemonic-char');
+            if (ch && typeof window.pfShowMnemonicForWord === 'function') {
+                window.pfShowMnemonicForWord(ch, e);
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            var wordEl = e.target.closest
+                ? e.target.closest('.pf-info-word[data-mnemonic-char]')
+                : null;
+            if (!wordEl) return;
+            e.preventDefault();
+            var ch = wordEl.getAttribute('data-mnemonic-char');
+            if (ch && typeof window.pfShowMnemonicForWord === 'function') {
+                window.pfShowMnemonicForWord(ch, e);
+            }
+        });
+    }
+
     function initAssembleFeature() {
         patchLoadPracticeFull();
         initSettingsMenu();
+        initMnemonicDelegation();
 
         var toggleBtn = document.getElementById('pfAssembleToggleBtn');
         if (toggleBtn && !toggleBtn.__bound) {
