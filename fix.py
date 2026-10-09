@@ -1591,7 +1591,6 @@ def main():
     vocab_exists_in_html = 'data-dataset="' + VOCAB_ID + '"' in html
     add_vocab = bool(vocab_data) and not vocab_exists_in_html
 
-    # ⭐ LUÔN ghi lại fixpy_datasets.json nếu có data mới (mnemonic update)
     _need_data_rewrite = bool(vocab_data) or bool(datasets)
     _need_patch_html = bool(all_new) or add_vocab
 
@@ -1600,7 +1599,7 @@ def main():
         print("[fix.py] Tat ca da co - khong can patch.")
         return
 
-    # ⭐ CASE A: Tab đã có → chỉ ghi lại data JSON, KHÔNG patch HTML
+    # CASE A: Tab da co -> chi ghi lai data JSON, khong patch HTML
     if not _need_patch_html and _need_data_rewrite:
         print("")
         print("[fix.py] Tab da co san -> CHI ghi lai data JSON (khong patch HTML)")
@@ -1609,10 +1608,8 @@ def main():
         os.makedirs(_data_dir, exist_ok=True)
         _fixpy_path = os.path.join(_data_dir, "fixpy_datasets.json")
 
-     
-                datasets_dict = {}
+        datasets_dict = {}
 
-        # ⭐ Update vocab với mnemonic MỚI
         if vocab_data:
             datasets_dict[VOCAB_ID] = {
                 "id": VOCAB_ID,
@@ -1636,7 +1633,6 @@ def main():
         _size_kb = os.path.getsize(_fixpy_path) / 1024
         print("   [OK] Ghi data/fixpy_datasets.json (" + f"{_size_kb:.1f}" + " KB)")
 
-        # Chạy patch_buttons
         print("")
         print("=" * 62)
         print("[fix.py] Chay patch_buttons.py de cover 4 nut...")
@@ -1724,6 +1720,9 @@ def main():
     for ds in all_new:
         datasets_dict[ds["id"]] = ds
 
+    for ds in datasets:
+        datasets_dict[ds["id"]] = ds
+
     if add_vocab:
         datasets_dict[VOCAB_ID] = {
             "id": VOCAB_ID,
@@ -1737,19 +1736,9 @@ def main():
             "group": "fixpy",
         }
 
-    # ⭐ Merge với data cũ để KHÔNG mất dataset đã có
     _data_dir = "data"
     os.makedirs(_data_dir, exist_ok=True)
     _fixpy_path = os.path.join(_data_dir, "fixpy_datasets.json")
-    if os.path.isfile(_fixpy_path):
-        try:
-            with open(_fixpy_path, "r", encoding="utf-8") as _f:
-                _old_data = json.load(_f) or {}
-            for _k, _v in _old_data.items():
-                if _k not in datasets_dict:
-                    datasets_dict[_k] = _v
-        except Exception:
-            pass
 
     with open(_fixpy_path, "w", encoding="utf-8") as _f:
         json.dump(datasets_dict, _f, ensure_ascii=False, separators=(",", ":"))
