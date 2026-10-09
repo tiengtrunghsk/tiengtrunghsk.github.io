@@ -798,10 +798,7 @@ def build_assemble_js():
                 '</span>';
         } else {
             // Duyệt qua các vị trí: 0..n
-            // Tại mỗi vị trí: nếu là vị trí con trỏ → hiện cursor
-            //                 nếu < n → hiện gap + từ
             for (var pos = 0; pos <= pfAssembleAnswerIdx.length; pos++) {
-                // Gap cho phép click đặt con trỏ
                 var gap = document.createElement('span');
                 gap.className = 'pf-insert-gap';
                 gap.dataset.gap = pos;
@@ -814,7 +811,6 @@ def build_assemble_js():
                 })(pos));
                 answerEl.appendChild(gap);
 
-                // Con trỏ tại vị trí này
                 if (pos === pfInsertPos) {
                     var cursor = document.createElement('span');
                     cursor.className = 'pf-insert-cursor';
@@ -822,7 +818,6 @@ def build_assemble_js():
                     answerEl.appendChild(cursor);
                 }
 
-                // Từ tại vị trí pos
                 if (pos < pfAssembleAnswerIdx.length) {
                     var origIdx = pfAssembleAnswerIdx[pos];
                     var word = pfAssembleWords[origIdx];
@@ -878,7 +873,6 @@ def build_assemble_js():
     /* Đặt con trỏ vào vị trí bất kỳ                       */
     /* ─────────────────────────────────────────────────── */
     function pfSetCursor(pos) {
-        // Clamp
         if (pos < 0) pos = 0;
         if (pos > pfAssembleAnswerIdx.length) pos = pfAssembleAnswerIdx.length;
         pfInsertPos = pos;
@@ -891,9 +885,8 @@ def build_assemble_js():
     function pfPickWord(poolIdx) {
         if (pfAssembleAnswerIdx.indexOf(poolIdx) !== -1) return;
 
-        // Chèn vào vị trí con trỏ
         pfAssembleAnswerIdx.splice(pfInsertPos, 0, poolIdx);
-        pfInsertPos++;   // con trỏ nhảy sau từ vừa chèn
+        pfInsertPos++;
         pfRenderAssemble();
 
         var status = pfCheckAssembleStatus();
@@ -912,11 +905,8 @@ def build_assemble_js():
 
         pfAssembleAnswerIdx.splice(pos, 1);
 
-        // Điều chỉnh con trỏ
         if (pfInsertPos > pos) {
             pfInsertPos--;
-        } else if (pfInsertPos === pos) {
-            // Con trỏ đứng ngay chỗ vừa xoá → giữ nguyên (nhảy vào vị trí đó)
         }
         if (pfInsertPos > pfAssembleAnswerIdx.length) {
             pfInsertPos = pfAssembleAnswerIdx.length;
@@ -1221,11 +1211,11 @@ def build_assemble_js():
                 if (statusEl) {
                     statusEl.textContent = '';
                     statusEl.className = 'practice-full-status';
-                ô }
+                }
             });
         }
 
-        đ var hintBtn = document.getElementById('pfápAssembleHintBtn');
+        var hintBtn = document.getElementById('pfAssembleHintBtn');
         if (hintBtn && !hintBtn.__bound) {
             hintBtn.__bound = true;
             hintBtn.addEventListener('click', function(e) {
@@ -1248,12 +1238,10 @@ def build_assemble_js():
             });
         }
 
-        // Click trực tiếp vào vùng trống của án → đặt con trỏ về cuối
         var answerEl = document.getElementById('pfAssembleAnswer');
         if (answerEl && !answerEl.__bound) {
             answerEl.__bound = true;
             answerEl.addEventListener('click', function(e) {
-                // Nếu click trực tiếp vào ô (không phải vào từ / gap / cursor)
                 if (e.target === answerEl) {
                     pfSetCursor(pfAssembleAnswerIdx.length);
                 }
@@ -1263,14 +1251,12 @@ def build_assemble_js():
         console.log('[Assemble] Module loaded OK');
     }
 
-    // Chờ DOM ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initAssembleFeature);
     } else {
         initAssembleFeature();
     }
 
-    // Expose để debug
     window.__assembleDebug = {
         getMode: function() { return pfAssembleMode; },
         getWords: function() { return pfAssembleWords.slice(); },
