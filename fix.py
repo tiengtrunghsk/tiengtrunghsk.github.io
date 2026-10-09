@@ -1618,7 +1618,7 @@ def main():
             print("[VOCAB] Tim thay: " + os.path.basename(vocab_real_path))
             vocab_data = read_vocab_excel(vocab_real_path)
             if not vocab_data:
-                print("[VOCAB] [!] File rong hoac loi")
+                print("[VOCiconAB] [!] File rong hoac loi")
         else:
             print("[VOCAB] Khong co file tu vung - bo qua")
 
@@ -1675,7 +1675,7 @@ def main():
         _size_kb = os.path.getsize(_fixpy_path) / 1024
         print("   [OK] Ghi data/fixpy_datasets.json (" + f"{_size_kb:.1f}" + " KB)")
 
-        # Ghi file preview: 1/10 data cua moi dataset
+        # ⭐ Them: Ghi file preview (1/10 data)
         _preview_dict = {}
         for _ds_id, _ds in datasets_dict.items():
             _full = _ds.get("data", [])
@@ -1730,7 +1730,7 @@ def main():
         new_btns += (
             '\n        <button class="ds-btn ds-btn-primary" '
             'data-dataset="' + ds["id"] + '">\n'
-            '            <i class="fas ' + ds["icon"] + '"></i>\n'
+            '            <i class="fas ' + ds[""] + '"></i>\n'
             '            <span>' + _js_str(label) + '</span>\n'
             '        </button>'
         )
@@ -1767,8 +1767,8 @@ def main():
     print("")
     print("[PATCH 3] CSS layout...")
     css = build_layout_css(all_new, add_vocab)
-    pat_.dstyle = re.compile(r'(\sumps*)(</style>)', re.MULT([ILINE)
-    html, n = patds_style.subn(
+    pat_style = re.compile(r'(\s*)(</style>)', re.MULTILINE)
+    html, n = pat_style.subn(
         lambda m: m.group(1) + css + m.group(1) + m.group(2),
         html, count=1
     )
@@ -1780,7 +1780,7 @@ def main():
     print("")
     print("[PATCH 4] JS binding...")
 
-    ids_js = json["id"] for ds in all_new])
+    ids_js = json.dumps([ds["id"] for ds in all_new])
 
     datasets_dict = {}
     for ds in all_new:
@@ -1811,7 +1811,7 @@ def main():
     _size_kb = os.path.getsize(_fixpy_path) / 1024
     print(f"   Ghi data/fixpy_datasets.json ({_size_kb:.1f} KB)")
 
-    # Ghi file preview: 1/10 data cua moi dataset
+    # ⭐ Them: Ghi file preview (1/10 data)
     _preview_dict = {}
     for _ds_id, _ds in datasets_dict.items():
         _full = _ds.get("data", [])
