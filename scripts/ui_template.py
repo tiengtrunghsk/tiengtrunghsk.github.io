@@ -4616,13 +4616,44 @@ function maybeShowOnboarding() {
         return;
     }
 
-    // ⬇️ THÊM: Nếu đã có banner (rỗng) thì không hiện modal
-    var existingBanner2 = $('onboardingActiveBanner');
-    if (existingBanner2) {
-        return;
+    /* ⭐ BƯỚC 1: CHƯA CÓ SELECTION → ÁP DỤNG MẶC ĐỊNH (RANDOM) TRƯỚC */
+    var allTopics = getAvailableTopicsForTier();
+    if (allTopics.length > 0) {
+        var isLimitedTier = (info.tier === 'demo'
+                          || info.tier === 'expired'
+                          || info.tier === 'trial');
+
+        var defaultTopics;
+        if (isLimitedTier) {
+            var max = (cfg.topics_per_user > 0) ? cfg.topics_per_user : 5;
+            var pickCount = Math.min(max, allTopics.length);
+
+            /* ⭐ Shuffle random (Fisher-Yates) */
+            var shuffled = allTopics.slice();
+            for (var i = shuffled.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var t = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = t;
+            }
+            defaultTopics = shuffled.slice(0, pickCount).map(function(t) { return t.name; });
+        } else {
+            defaultTopics = allTopics.map(function(t) { return t.name; });
+        }
+
+        window.__onboardingAutoPicked = true;
+        saveOnboardingSelection(defaultTopics, true);
+        applyOnboardingSelection(defaultTopics, true);
+    } else {
+        console.warn('[Onboarding] Không có topics, dùng fallback');
+        applyOnboardingSelection([], false);
     }
 
-    showOnboardingModal();
+    /* ⭐ BƯỚC 2: Hiện modal sau 1.5s cho user chọn lại */
+    setTimeout(function() {
+        var existingBanner2 = $('onboardingActiveBanner');
+        if (!existingBanner2) {
+            showOnboardingModal();
+        }
+    }, 1500);
 }
 
 function showOnboardingModal() {
