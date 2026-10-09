@@ -13123,24 +13123,15 @@ function saveOnboardingSelection(topics, autoPicked) {
 /* ═══════════════════════════════════════════════════════════ */
 function maybeShowOnboarding() {
     var info = getTierInfo();
-
     if (info.tier !== 'demo' && info.tier !== 'trial'
-        && info.tier !== 'active' && info.tier !== 'expired') {
-        return;
-    }
+        && info.tier !== 'active' && info.tier !== 'expired') return;
 
     var cfg = getOnboardingConfig();
     if (!cfg) return;
 
-    // ⭐ FIX: Đảm bảo DATA đã load xong trước khi xử lý
+    // Đợi data load xong
     if (typeof RAW_DATA === 'undefined' || !RAW_DATA || RAW_DATA.length === 0) {
-        if (window.__dataLoadPromise) {
-            window.__dataLoadPromise.then(function() {
-                setTimeout(maybeShowOnboarding, 100);
-            });
-        } else {
-            setTimeout(maybeShowOnboarding, 300);
-        }
+        setTimeout(maybeShowOnboarding, 300);
         return;
     }
 
@@ -13150,60 +13141,8 @@ function maybeShowOnboarding() {
         return;
     }
 
-    var saved = loadOnboardingSelection();
-    if (saved && Array.isArray(saved.topics) && saved.topics.length > 0) {
-        window.__onboardingAutoPicked = !!saved.auto_picked;
-
-        // ⭐ FIX: LUÔN gọi applyOnboardingSelection nếu override CHƯA được set
-        // (không phụ thuộc vào banner có tồn tại hay không)
-        var hasOverride = window.__onboardingOverride 
-                       && Array.isArray(window.__onboardingOverride) 
-                       && window.__onboardingOverride.length > 0;
-
-        if (!hasOverride) {
-            // Chưa có override → áp dụng lại selection đã lưu
-            applyOnboardingSelection(saved.topics, false);
-        } else {
-            // Đã có override (do refreshApp / login lại) → chỉ vẽ lại banner
-            var existingBanner = $('onboardingActiveBanner');
-            if (!existingBanner) {
-                showOnboardingActiveBanner(saved.topics, window.__onboardingOverride.length);
-            }
-        }
-        return;
-    }
-
-    /* ⭐ BƯỚC 1: CHƯA CÓ SELECTION → ÁP DỤNG MẶC ĐỊNH TRƯỚC */
-    var allTopics = getAvailableTopicsForTier();
-    if (allTopics.length > 0) {
-        var isLimitedTier = (info.tier === 'demo'
-                          || info.tier === 'expired'
-                          || info.tier === 'trial');
-
-        var defaultTopics;
-        if (isLimitedTier) {
-            var max = (cfg.topics_per_user > 0) ? cfg.topics_per_user : 5;
-            var pickCount = Math.min(max, allTopics.length);
-            defaultTopics = allTopics.slice(0, pickCount).map(function(t) { return t.name; });
-        } else {
-            defaultTopics = allTopics.map(function(t) { return t.name; });
-        }
-
-        window.__onboardingAutoPicked = true;
-        saveOnboardingSelection(defaultTopics, true);
-        applyOnboardingSelection(defaultTopics, true);
-    } else {
-        console.warn('[Onboarding] Không có topics, dùng fallback');
-        applyOnboardingSelection([], false);
-    }
-
-    /* ⭐ BƯỚC 2: Hiện modal sau 1.5s cho user chọn lại */
-    setTimeout(function() {
-        var existingBanner2 = $('onboardingActiveBanner');
-        if (!existingBanner2) {
-            showOnboardingModal();
-        }
-    }, 1500);
+    // ⭐ LUÔN hiện modal — không check localStorage nữa
+    showOnboardingModal();
 }
 function showOnboardingModal() {
     var cfg = getOnboardingConfig();
