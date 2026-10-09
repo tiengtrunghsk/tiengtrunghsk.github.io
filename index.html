@@ -29843,18 +29843,20 @@ window.__switchRawData = function(datasetId) {
             return;
         }
         window.__switchRawData = function(datasetId) {
-            if (!window.__fixpyDataLoaded && window.__fixpyMeta && window.__fixpyMeta[datasetId]) {
-                console.log('[fix.py] data chua load, doi...');
-                if (!window.__fixpyPendingSwitch) window.__fixpyPendingSwitch = [];
-                window.__fixpyPendingSwitch.push(datasetId);
-                return true;
-            }
             if (window.FIXPY_DATASETS && window.FIXPY_DATASETS[datasetId]) {
+                if (!window.__fixpyDataLoaded) {
+                    console.log('[fix.py] data chua load, doi:', datasetId);
+                    if (!window.__fixpyPendingSwitch) window.__fixpyPendingSwitch = [];
+                    window.__fixpyPendingSwitch.push(datasetId);
+                    CURRENT_DATASET = datasetId;
+                    return true;
+                }
                 RAW_DATA = window.FIXPY_DATASETS[datasetId].data || [];
                 CURRENT_DATASET = datasetId;
                 console.log('[fix.py] switch FIXPY:', datasetId, '->', RAW_DATA.length, 'cau');
                 return true;
             }
+            console.log('[fix.py] switch non-FIXPY:', datasetId);
             return origSwitch.apply(this, arguments);
         };
         window.__fixPySwitchPatched = true;
@@ -30119,6 +30121,17 @@ window.__switchRawData = function(datasetId) {
             this.classList.add('active');
             if (typeof window.__switchRawData === 'function') {
                 window.__switchRawData(dsId);
+            }
+            console.log('[bindTab] click', dsId, '| CURRENT_DATASET:', CURRENT_DATASET, '| RAW_DATA:', RAW_DATA.length);
+            if (CURRENT_DATASET !== dsId) {
+                console.warn('[bindTab] Dataset chua doi, force!', CURRENT_DATASET, '!=', dsId);
+                CURRENT_DATASET = dsId;
+                if (window.FIXPY_DATASETS && window.FIXPY_DATASETS[dsId]) {
+                    RAW_DATA = window.FIXPY_DATASETS[dsId].data || [];
+                } else if (typeof DATASET_REGISTRY !== 'undefined' && DATASET_REGISTRY[dsId]) {
+                    RAW_DATA = DATASET_REGISTRY[dsId].data || [];
+                }
+                console.log('[bindTab] Force ->', RAW_DATA.length, 'cau');
             }
             if (typeof state !== 'undefined' && state) {
                 state.search = '';
