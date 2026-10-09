@@ -326,36 +326,6 @@ def build_vocab_js_patch():
         main.insertBefore(banner, main.firstChild);
     }
 
-    function patchSubjectLock() {
-        if (window.__vocabSubjectLockPatched) return;
-        if (typeof window.buildFilters !== 'function') {
-            setTimeout(patchSubjectLock, 200);
-            return;
-        }
-        var orig = window.buildFilters;
-        window.buildFilters = function() {
-            var result = orig.apply(this, arguments);
-            try {
-                var sf = document.getElementById('subjectFilter');
-                if (!sf) return result;
-                if (_isVocabMode()) {
-                    sf.disabled = true;
-                    sf.value = '';
-                    sf.style.opacity = '0.5';
-                    sf.style.cursor = 'not-allowed';
-                    sf.title = 'Khong kha dung cho Tu vung';
-                } else {
-                    sf.disabled = false;
-                    sf.style.opacity = '';
-                    sf.style.cursor = '';
-                    sf.title = '';
-                }
-            } catch(e) {}
-            return result;
-        };
-        window.__vocabSubjectLockPatched = true;
-    }
-
     function watchVocabMode() {
         var isVocab = (typeof CURRENT_DATASET !== 'undefined') && CURRENT_DATASET === VOCAB_ID;
 
@@ -833,7 +803,7 @@ def scan_data_dir():
 
 
 # =================================================================
-#  BUILD JS OVERRIDE
+#  BUILD JS OVERRIDE (CẬP NHẬT LOAD PREVIEW TRƯỚC, DATA ĐẦY ĐỦ SAU)
 # =================================================================
 def build_js_override(ids_js, datasets_meta_json):
     L = []
@@ -841,7 +811,7 @@ def build_js_override(ids_js, datasets_meta_json):
 
     add("")
     add("<script>")
-    add("/* FIX.PY - Lazy load data tu JSON */")
+    add("/* FIX.PY - Lazy load preview + full data tu JSON */")
     add("(function() {")
     add("    'use strict';")
     add("    var NEW_IDS = " + ids_js + ";")
@@ -851,19 +821,40 @@ def build_js_override(ids_js, datasets_meta_json):
     add("    window.__fixpyDataLoaded = false;")
     add("    window.__fixpyMeta = " + datasets_meta_json + ";")
     add("")
+    add("    /* 1. LOAD NHANH PREVIEW (1/10 data) TRUOC DE GIAO DIEN HIEN THI NGAY */")
     add("    (function() {")
-    add("        fetch('data/fixpy_datasets.json?t=' + Math.floor(Date.now() / 60000))")
+    add("        fetch('data/fixpy_preview.json?t=' + Math.floor(Date.now() / 60000))")
     add("            .then(function(r) { return r.ok ? r.json() : {}; })")
     add("            .then(function(d) {")
-    add("                window.FIXPY_DATASETS = d || {};")
-    add("                window.__fixpyDataLoaded = true;")
-    add("                console.log('[fix.py] loaded', Object.keys(d).length, 'datasets');")
+    add("                if (!window.__fixpyFullLoaded) {")
+    add("                    window.FIXPY_DATASETS = d || {};")
+    add("                }")
+    add("                console.log('[fix.py] preview loaded', Object.keys(d).length, 'datasets');")
     add("                if (typeof window.__fixpyOnDataReady === 'function') {")
     add("                    window.__fixpyOnDataReady();")
     add("                }")
     add("            })")
     add("            .catch(function(e) {")
-    add("                console.error('[fix.py] load error:', e);")
+    add("                console.error('[fix.py] preview load error:', e);")
+    add("            });")
+    add("    })();")
+    add("")
+    add("    /* 2. LOAD NGẦM TOÀN BỘ DỮ LIỆU ĐẦY ĐỦ PHÍA SAU */")
+    add("    window.__fixpyFullLoaded = false;")
+    add("    (function() {")
+    add("        fetch('data/fixpy_datasets.json?t=' + Math.floor(Date.now() / 60000))")
+    add("            .then(function(r) { return r.ok ? r.json() : {}; })")
+    add("            .then(function(d) {")
+    add("                window.FIXPY_DATASETS = d || {};")
+    add("                window.__fixpyFullLoaded = true;")
+    add("                window.__fixpyDataLoaded = true;")
+    add("                console.log('[fix.py] FULL data loaded', Object.keys(d).length, 'datasets');")
+    add("                if (typeof window.__fixpyOnDataReady === 'function') {")
+    add("                    window.__fixpyOnDataReady();")
+    add("                }")
+    add("            })")
+    add("            .catch(function(e) {")
+    add("                console.error('[fix.py] full data load error:', e);")
     add("                window.__fixpyDataLoaded = true;")
     add("            });")
     add("    })();")
@@ -907,13 +898,6 @@ def build_js_override(ids_js, datasets_meta_json):
     add("        }")
     add("        window.__switchRawData = function(datasetId) {")
     add("            if (window.FIXPY_DATASETS && window.FIXPY_DATASETS[datasetId]) {")
-    add("                if (!window.__fixpyDataLoaded) {")
-    add("                    console.log('[fix.py] data chua load, doi:', datasetId);")
-    add("                    if (!window.__fixpyPendingSwitch) window.__fixpyPendingSwitch = [];")
-    add("                    window.__fixpyPendingSwitch.push(datasetId);")
-    add("                    CURRENT_DATASET = datasetId;")
-    add("                    return true;")
-    add("                }")
     add("                RAW_DATA = window.FIXPY_DATASETS[datasetId].data || [];")
     add("                CURRENT_DATASET = datasetId;")
     add("                console.log('[fix.py] switch FIXPY:', datasetId, '->', RAW_DATA.length, 'cau');")
@@ -974,7 +958,6 @@ def build_js_override(ids_js, datasets_meta_json):
     add("                    || (typeof getLimitedData !== 'undefined' ? getLimitedData : null);")
     add("        if (typeof origGet !== 'function') return;")
     add("        window.getLimitedData = function() {")
-    add("            if (!window.__fixpyDataLoaded) return [];")
     add("            var currentDs = (typeof CURRENT_DATASET !== 'undefined')")
     add("                            ? CURRENT_DATASET : 'tonghop';")
     add("            if (currentDs === 'tonghop') {")
@@ -1066,7 +1049,6 @@ def build_js_override(ids_js, datasets_meta_json):
     add("            return;")
     add("        }")
     add("        window.applyFilter = function() {")
-    add("            if (!window.__fixpyDataLoaded) return;")
     add("            var curDs = (typeof CURRENT_DATASET !== 'undefined')")
     add("                        ? CURRENT_DATASET : 'tonghop';")
     add("            if (curDs === 'tonghop') {")
@@ -1122,7 +1104,6 @@ def build_js_override(ids_js, datasets_meta_json):
     add("            return;")
     add("        }")
     add("        window.pfApplyFilter = function() {")
-    add("            if (!window.__fixpyDataLoaded) return;")
     add("            var curDs = (typeof CURRENT_DATASET !== 'undefined')")
     add("                        ? CURRENT_DATASET : 'tonghop';")
     add("            if (curDs === 'tonghop') {")
@@ -1372,7 +1353,7 @@ def build_js_override(ids_js, datasets_meta_json):
     add("        patchPfApplyFilter();")
     add("        NEW_IDS.forEach(bindTab);")
     add("        patchMarkActive();")
-    add("        bindFixedTabs();")   # ⭐ THÊM
+    add("        bindFixedTabs();")
     add("    }")
     add("    if (document.readyState === 'loading') {")
     add("        document.addEventListener('DOMContentLoaded', bindAll);")
@@ -1444,7 +1425,6 @@ def build_js_override(ids_js, datasets_meta_json):
     add("                        b.classList.remove('active');")
     add("                    });")
     add("                    this.classList.add('active');")
-    add("                    /* ⭐ VẼ LẠI SUB BUTTONS VỚI ICON KHÓA */")
     add("                    if (typeof initDatasetSelector === 'function') {")
     add("                        try { initDatasetSelector(); } catch(err) {}")
     add("                    }")
@@ -1460,7 +1440,6 @@ def build_js_override(ids_js, datasets_meta_json):
     add("</script>")
 
     return "\n".join(L)
-
 
 
 # =================================================================
@@ -1563,7 +1542,7 @@ def build_layout_css(new_datasets, add_vocab):
 
 
 # =================================================================
-#  MAIN
+#  MAIN (GHI CẢ 2 FILE: FULL VÀ PREVIEW)
 # =================================================================
 def main():
     print("=" * 62)
@@ -1607,45 +1586,72 @@ def main():
     _need_data_rewrite = bool(vocab_data) or bool(datasets)
     _need_patch_html = bool(all_new) or add_vocab
 
+    # Chuẩn bị dữ liệu để ghi ra file JSON
+    datasets_dict = {}
+    if vocab_data:
+        datasets_dict[VOCAB_ID] = {
+            "id": VOCAB_ID,
+            "name": VOCAB_LABEL,
+            "icon": "fa-book",
+            "color": "#f59e0b",
+            "data": vocab_data,
+            "count": len(vocab_data),
+            "source": (os.path.basename(vocab_real_path)
+                       if vocab_real_path else "tu_vung_hsk.xlsx"),
+            "type": "premium",
+            "group": "fixpy",
+        }
+
+    for ds in datasets:
+        datasets_dict[ds["id"]] = ds
+
+    for ds in all_new:
+        datasets_dict[ds["id"]] = ds
+
+    if _need_data_rewrite or _need_patch_html:
+        _data_dir = "data"
+        os.makedirs(_data_dir, exist_ok=True)
+        
+        # 1. Ghi file full 20MB
+        _fixpy_path = os.path.join(_data_dir, "fixpy_datasets.json")
+        with open(_fixpy_path, "w", encoding="utf-8") as _f:
+            json.dump(datasets_dict, _f, ensure_ascii=False, separators=(",", ":"))
+        _size_kb = os.path.getsize(_fixpy_path) / 1024
+        print(f"   [OK] Ghi data/fixpy_datasets.json ({_size_kb:.1f} KB)")
+
+        # 2. Ghi file preview siêu nhẹ (chỉ lấy 1/10 data ban đầu)
+        _preview_dict = {}
+        for _ds_id, _ds in datasets_dict.items():
+            _full = _ds.get("data", [])
+            _n = max(1, len(_full) // 10)
+            _preview_dict[_ds_id] = {
+                "id": _ds["id"],
+                "name": _ds["name"],
+                "icon": _ds["icon"],
+                "color": _ds["color"],
+                "count": _ds["count"],
+                "source": _ds["source"],
+                "type": _ds.get("type", "main"),
+                "group": _ds.get("group", "fixpy"),
+                "data": _full[:_n],
+                "preview": True,
+            }
+
+        _preview_path = os.path.join("data", "fixpy_preview.json")
+        with open(_preview_path, "w", encoding="utf-8") as _f:
+            json.dump(_preview_dict, _f, ensure_ascii=False, separators=(",", ":"))
+        _prev_kb = os.path.getsize(_preview_path) / 1024
+        print(f"   [OK] Ghi data/fixpy_preview.json ({_prev_kb:.1f} KB - Load nhanh)")
+
     if not _need_patch_html and not _need_data_rewrite:
         print("")
-        print("[fix.py] Tat ca da co - khong can patch.")
+        print("[fix.py] Tat ca da co - khong can patch HTML.")
         return
 
     # CASE A: Tab da co -> chi ghi lai data JSON, khong patch HTML
     if not _need_patch_html and _need_data_rewrite:
         print("")
         print("[fix.py] Tab da co san -> CHI ghi lai data JSON (khong patch HTML)")
-
-        _data_dir = "data"
-        os.makedirs(_data_dir, exist_ok=True)
-        _fixpy_path = os.path.join(_data_dir, "fixpy_datasets.json")
-
-        datasets_dict = {}
-
-        if vocab_data:
-            datasets_dict[VOCAB_ID] = {
-                "id": VOCAB_ID,
-                "name": VOCAB_LABEL,
-                "icon": "fa-book",
-                "color": "#f59e0b",
-                "data": vocab_data,
-                "count": len(vocab_data),
-                "source": (os.path.basename(vocab_real_path)
-                           if vocab_real_path else "tu_vung_hsk.xlsx"),
-                "type": "premium",
-                "group": "fixpy",
-            }
-            print("   [OK] Update vocab: " + str(len(vocab_data)) + " tu")
-
-        for ds in datasets:
-            datasets_dict[ds["id"]] = ds
-
-        with open(_fixpy_path, "w", encoding="utf-8") as _f:
-            json.dump(datasets_dict, _f, ensure_ascii=False, separators=(",", ":"))
-        _size_kb = os.path.getsize(_fixpy_path) / 1024
-        print("   [OK] Ghi data/fixpy_datasets.json (" + f"{_size_kb:.1f}" + " KB)")
-
         print("")
         print("=" * 62)
         print("[fix.py] Chay patch_buttons.py de cover 4 nut...")
@@ -1659,7 +1665,6 @@ def main():
             print("[fix.py] patch_buttons.py -> " + ("THANH CONG" if _ok else "THAT BAI"))
         except Exception as _e:
             print("[fix.py] Loi patch_buttons: " + str(_e))
-
         return
 
     print("")
@@ -1685,11 +1690,11 @@ def main():
     if add_vocab:
         new_btns += build_vocab_tab_html(VOCAB_ID, VOCAB_LABEL)
 
-    pat_after_tonghop = re.compile(
+    pat_tonghop = re.compile(
         r'(<button[^>]*class="[^"]*ds-btn[^"]*"[^>]*data-dataset="tonghop"[^>]*>.*?</button>)',
         re.MULTILINE | re.DOTALL
     )
-    html, n = pat_after_tonghop.subn(
+    html, n = pat_tonghop.subn(
         lambda m: m.group(1) + new_btns,
         html, count=1
     )
@@ -1728,35 +1733,6 @@ def main():
     print("[PATCH 4] JS binding...")
 
     ids_js = json.dumps([ds["id"] for ds in all_new])
-
-    datasets_dict = {}
-    for ds in all_new:
-        datasets_dict[ds["id"]] = ds
-
-    for ds in datasets:
-        datasets_dict[ds["id"]] = ds
-
-    if add_vocab:
-        datasets_dict[VOCAB_ID] = {
-            "id": VOCAB_ID,
-            "name": VOCAB_LABEL,
-            "icon": "fa-book",
-            "color": "#f59e0b",
-            "data": vocab_data,
-            "count": len(vocab_data),
-            "source": os.path.basename(vocab_real_path),
-            "type": "premium",
-            "group": "fixpy",
-        }
-
-    _data_dir = "data"
-    os.makedirs(_data_dir, exist_ok=True)
-    _fixpy_path = os.path.join(_data_dir, "fixpy_datasets.json")
-
-    with open(_fixpy_path, "w", encoding="utf-8") as _f:
-        json.dump(datasets_dict, _f, ensure_ascii=False, separators=(",", ":"))
-    _size_kb = os.path.getsize(_fixpy_path) / 1024
-    print(f"   Ghi data/fixpy_datasets.json ({_size_kb:.1f} KB)")
 
     datasets_meta = {}
     for _id, _ds in datasets_dict.items():
@@ -1804,9 +1780,6 @@ def main():
     print("=" * 62)
     print("[fix.py] HOAN TAT! Da patch " + INDEX_HTML)
     print("[fix.py] Kich thuoc HTML: " + str(round(size_kb, 1)) + " KB")
-    if add_vocab or all_new:
-        _fx_kb = os.path.getsize(_fixpy_path) / 1024
-        print(f"[fix.py] Data JSON (tai rieng): {_fx_kb:.1f} KB")
 
     if all_new:
         print("[fix.py] Tab thuong da them:")
