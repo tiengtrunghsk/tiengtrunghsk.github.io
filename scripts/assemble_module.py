@@ -128,12 +128,10 @@ body.pf-assemble-active .pf-assemble-mode {
     border-color: transparent;
     transform: translateY(-2px) scale(1.04);
 }
-/* Tu dung vi tri */
 .pf-assemble-answer .pf-word.pf-word-ok {
     background: linear-gradient(135deg, #22c55e, #16a34a);
     box-shadow: 0 4px 12px rgba(34,197,94,.4);
 }
-/* Tu sai vi tri - highlight */
 .pf-assemble-answer .pf-word.pf-word-bad {
     background: linear-gradient(135deg, #ef4444, #dc2626);
     box-shadow: 0 4px 12px rgba(220,38,38,.5);
@@ -143,7 +141,6 @@ body.pf-assemble-active .pf-assemble-mode {
     0%,100% { box-shadow: 0 4px 12px rgba(220,38,38,.5); }
     50%     { box-shadow: 0 4px 20px rgba(220,38,38,.85); }
 }
-/* Cum sai (gom cac tu sai lien tiep) */
 .pf-assemble-answer .pf-word.pf-word-bad-cluster {
     border-radius: 6px;
     position: relative;
@@ -188,6 +185,49 @@ body.pf-assemble-active .pf-assemble-mode {
 .pf-assemble-btn.primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 18px rgba(124,58,237,.5);
+}
+.pf-assemble-btn.auto-shuffle {
+    position: relative;
+    border-color: #f59e0b;
+    background: linear-gradient(135deg, rgba(245,158,11,.12), rgba(217,119,6,.06));
+    color: #b45309;
+    padding-right: clamp(.9rem, 1.5vw, 1.2rem);
+}
+.pf-assemble-btn.auto-shuffle:hover {
+    border-color: #d97706;
+    color: #92400e;
+    background: linear-gradient(135deg, rgba(245,158,11,.2), rgba(217,119,6,.1));
+}
+.pf-assemble-btn .pf-shuffle-countdown {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 .35rem;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    font-size: .68rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-left: .15rem;
+    font-variant-numeric: tabular-nums;
+    animation: pfCountdownPulse 1s ease-in-out infinite;
+}
+@keyframes pfCountdownPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220,38,38,.5); }
+    50%      { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(220,38,38,0); }
+}
+[data-theme="dark"] .pf-assemble-btn.auto-shuffle {
+    color: #fcd34d;
+    border-color: rgba(245,158,11,.6);
+    background: linear-gradient(135deg, rgba(245,158,11,.2), rgba(217,119,6,.12));
+}
+[data-theme="dark"] .pf-assemble-btn.auto-shuffle:hover {
+    color: #fde68a;
+    border-color: #fbbf24;
+    background: linear-gradient(135deg, rgba(245,158,11,.3), rgba(217,119,6,.18));
 }
 body.pf-assemble-active #pfInputMode { display: none !important; }
 body.pf-assemble-active #pfPreview { display: none !important; }
@@ -480,6 +520,11 @@ body.pf-assemble-active .reveal-actions {
         padding: .4rem .65rem;
         font-size: .7rem;
     }
+    .pf-assemble-btn .pf-shuffle-countdown {
+        min-width: 20px;
+        height: 20px;
+        font-size: .62rem;
+    }
     .pf-nav-icon.mini-nav.assemble-toggle.with-label {
         height: 38px !important;
         padding: 0 .55rem !important;
@@ -521,8 +566,10 @@ def build_assemble_html():
         '    </div>\n'
         '    <div class="pf-assemble-pool" id="pfAssemblePool"></div>\n'
         '    <div class="pf-assemble-actions">\n'
-        '        <button type="button" class="pf-assemble-btn" id="pfAssembleShuffleBtn">\n'
-        '            <i class="fas fa-random"></i> Xáo trộn\n'
+        '        <button type="button" class="pf-assemble-btn auto-shuffle" id="pfAssembleShuffleBtn" title="Xáo trộn - sau 5s sẽ tự động xáo lại">\n'
+        '            <i class="fas fa-random"></i>\n'
+        '            <span>Xáo trộn</span>\n'
+        '            <span class="pf-shuffle-countdown" id="pfShuffleCountdown">5</span>\n'
         '        </button>\n'
         '        <button type="button" class="pf-assemble-btn" id="pfAssembleClearBtn">\n'
         '            <i class="fas fa-undo-alt"></i> Xóa hết\n'
@@ -539,9 +586,9 @@ def inject_assemble_html(ui_html):
     toggle_btn = (
         '<button class="pf-nav-icon mini-nav assemble-toggle with-label" '
         'id="pfAssembleToggleBtn" type="button" '
-        'title="Chuyển sang chế độ Ghép từ" aria-label="Chế độ Ghép từ">'
-        '<i class="fas fa-puzzle-piece"></i>'
-        '<span class="assemble-toggle-label">Ghép từ</span>'
+        'title="Đang ở chế độ Gõ tự do - bấm để chuyển sang Ghép từ" aria-label="Đang ở chế độ Gõ tự do">'
+        '<i class="fas fa-keyboard"></i>'
+        '<span class="assemble-toggle-label">Gõ tự do</span>'
         '<span class="assemble-new-badge">MỚI</span>'
         '</button>'
     )
@@ -554,7 +601,7 @@ def inject_assemble_html(ui_html):
             ui_html,
             count=1,
         )
-        print("[assemble] Da chen nut toggle Ghep tu vao mini-group")
+        print("[assemble] Da chen nut toggle vao mini-group")
     else:
         print("[assemble] CANH BAO: Khong tim thay .mini-group")
 
@@ -623,6 +670,11 @@ _JS_PART_1 = r"""
     var pfAssembleAnswerIdx = [];
     var pfAssembleCorrectWords = [];
     var pfInsertPos = 0;
+
+    var pfAutoShuffleTimer = null;
+    var pfAutoShuffleCountdown = null;
+    var pfAutoShuffleRemain = 5;
+    var AUTO_SHUFFLE_SECONDS = 5;
 
     function pfSplitIntoWords(zh) {
         if (!zh) return [];
@@ -790,6 +842,71 @@ _JS_PART_1 = r"""
         pfRenderAssemble();
         pfUpdateStatusText();
     }
+
+    function pfStopAutoShuffle() {
+        if (pfAutoShuffleTimer) {
+            clearInterval(pfAutoShuffleTimer);
+            pfAutoShuffleTimer = null;
+        }
+        if (pfAutoShuffleCountdown) {
+            clearInterval(pfAutoShuffleCountdown);
+            pfAutoShuffleCountdown = null;
+        }
+        pfAutoShuffleRemain = AUTO_SHUFFLE_SECONDS;
+        pfUpdateAutoShuffleUI();
+    }
+
+    function pfUpdateAutoShuffleUI() {
+        var btn = document.getElementById('pfAssembleShuffleBtn');
+        var countEl = document.getElementById('pfShuffleCountdown');
+        if (!btn || !countEl) return;
+
+        if (pfAutoShuffleTimer) {
+            btn.classList.add('auto-shuffle');
+            countEl.style.display = '';
+            countEl.textContent = String(pfAutoShuffleRemain);
+        } else {
+            btn.classList.remove('auto-shuffle');
+            countEl.style.display = 'none';
+        }
+    }
+
+    function pfDoShuffle() {
+        var status = pfCheckAssembleStatus();
+        if (status === 'correct') return;
+
+        pfAssembleWords = pfShuffleArray(pfAssembleWords);
+        pfInsertPos = pfAssembleAnswerIdx.length;
+        pfRenderAssemble();
+    }
+
+    function pfStartAutoShuffle() {
+        pfStopAutoShuffle();
+
+        pfAutoShuffleRemain = AUTO_SHUFFLE_SECONDS;
+        pfUpdateAutoShuffleUI();
+
+        pfAutoShuffleCountdown = setInterval(function() {
+            pfAutoShuffleRemain--;
+            if (pfAutoShuffleRemain < 0) pfAutoShuffleRemain = 0;
+            pfUpdateAutoShuffleUI();
+        }, 1000);
+
+        pfAutoShuffleTimer = setInterval(function() {
+            pfDoShuffle();
+            pfAutoShuffleRemain = AUTO_SHUFFLE_SECONDS;
+            pfUpdateAutoShuffleUI();
+        }, AUTO_SHUFFLE_SECONDS * 1000);
+    }
+
+    function pfToggleAutoShuffle() {
+        if (pfAutoShuffleTimer) {
+            pfStopAutoShuffle();
+        } else {
+            pfStartAutoShuffle();
+            pfDoShuffle();
+        }
+    }
 """
 
 
@@ -931,6 +1048,9 @@ _JS_PART_2 = r"""
             statusEl.textContent = 'ĐÚNG';
             statusEl.className = 'practice-full-status correct';
         }
+        if (pfAutoShuffleTimer) {
+            pfStopAutoShuffle();
+        }
     }
 
     function pfResetAssemble() {
@@ -956,15 +1076,15 @@ _JS_PART_3 = r"""
         var label = btn.querySelector('.assemble-toggle-label');
 
         if (pfAssembleMode) {
-            if (icon) icon.className = 'fas fa-keyboard';
-            if (label) label.textContent = 'Gõ tự do';
-            btn.title = 'Chuyển về chế độ Gõ tự do';
-            btn.setAttribute('aria-label', 'Chuyển về chế độ Gõ tự do');
-        } else {
             if (icon) icon.className = 'fas fa-puzzle-piece';
             if (label) label.textContent = 'Ghép từ';
-            btn.title = 'Chuyển sang chế độ Ghép từ';
-            btn.setAttribute('aria-label', 'Chế độ Ghép từ');
+            btn.title = 'Đang ở chế độ Ghép từ - bấm để chuyển sang Gõ tự do';
+            btn.setAttribute('aria-label', 'Đang ở chế độ Ghép từ');
+        } else {
+            if (icon) icon.className = 'fas fa-keyboard';
+            if (label) label.textContent = 'Gõ tự do';
+            btn.title = 'Đang ở chế độ Gõ tự do - bấm để chuyển sang Ghép từ';
+            btn.setAttribute('aria-label', 'Đang ở chế độ Gõ tự do');
         }
     }
 
@@ -984,6 +1104,7 @@ _JS_PART_3 = r"""
         if (pfAssembleMode) {
             pfResetAssemble();
         } else {
+            pfStopAutoShuffle();
             var statusEl = document.getElementById('pfStatus');
             if (statusEl) {
                 statusEl.textContent = '';
@@ -1148,7 +1269,7 @@ _JS_PART_4 = r"""
             shuffleBtn.__bound = true;
             shuffleBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                pfResetAssemble();
+                pfToggleAutoShuffle();
             });
         }
 
@@ -1217,7 +1338,9 @@ _JS_PART_4 = r"""
         getCursor: function() { return pfInsertPos; },
         setCursor: pfSetCursor,
         reset: pfResetAssemble,
-        toggle: pfToggleAssembleMode
+        toggle: pfToggleAssembleMode,
+        isAutoShuffle: function() { return !!pfAutoShuffleTimer; },
+        toggleAutoShuffle: pfToggleAutoShuffle
     };
 
 })();
@@ -1255,5 +1378,6 @@ if __name__ == "__main__":
     assert 'pfAssembleMode' in result
     assert 'pfSettingsBtn' in result
     assert 'pfSettingsMenu' in result
+    assert 'pfShuffleCountdown' in result
     print("Inject HTML OK")
     print("Module san sang dung")
