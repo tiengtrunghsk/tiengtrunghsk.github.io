@@ -13654,7 +13654,7 @@ function maybeShowOnboarding() {
         return;
     }
 
-    // Neu da co override roi -> chi can goi applyFilter de render
+    // Neu da co override -> chi can goi applyFilter de render
     if (window.__onboardingOverride
         && Array.isArray(window.__onboardingOverride)
         && window.__onboardingOverride.length > 0) {
@@ -13668,7 +13668,6 @@ function maybeShowOnboarding() {
     if (saved && Array.isArray(saved.topics) && saved.topics.length > 0) {
         window.__onboardingAutoPicked = !!saved.auto_picked;
         applyOnboardingSelection(saved.topics, false);
-        // FIX: goi applyFilter sau khi apply
         if (typeof applyFilter === 'function') applyFilter();
         if (typeof updateResultCount === 'function') updateResultCount();
         return;
@@ -13677,7 +13676,6 @@ function maybeShowOnboarding() {
     // Chua co selection -> hien modal
     showOnboardingModal();
 }
-
 function showOnboardingModal() {
     var cfg = getOnboardingConfig();
     if (!cfg) return;
