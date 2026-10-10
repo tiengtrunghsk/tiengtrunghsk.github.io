@@ -51,7 +51,8 @@ jobs:
           pip install openpyxl cn2an pypinyin jieba pandas hanzidentifier cjkradlib
 
       - name: Create scripts/config.json with secrets
-        run: |
+          
+      run: |
           python << 'EOF'
           import json
           import os
@@ -74,7 +75,7 @@ jobs:
 
           print('[OK] Da tao; scripts/config.json voi secret')
           EOF
-        print env:
+        env:
           TELEGRAM_BOT_TOKEN:(' ${{ secrets.TELEcnGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:an ${{ secrets.TELEGRAM_CHAT_ID }}
           SUPER_ADMIN_EMAIL: ${{ secrets.SUPER_ADMIN_EMAIL }}
