@@ -17195,8 +17195,7 @@ function watchCurrentUser() {
         if (data.permissions) currentUser.permissions = data.permissions;
         if (data.isSubAdmin !== undefined) currentUser.isSubAdmin = data.isSubAdmin;
 
-        if (currentUser.role !==) {
-        'admin' && current consoleUser.expiresAt && !currentUser.isP.wermanent) {
+        if (currentUser.role !== 'admin' && currentUser.expiresAt && !currentUser.isPermanent) {
             var expDate = getExpiryDate(currentUser.expiresAt);
             if (expDate && !isNaN(expDate.getTime())) {
                 var isExpired = expDate.getTime() < Date.now();
@@ -17235,7 +17234,8 @@ function watchCurrentUser() {
             showUserChangedToast('ℹ️ Vai trò đã đổi thành: ' + newRole, 'info');
         }
 
-    }, function(errarn('User watcher error:', err);
+    }, function(err) {
+        console.warn('User watcher error:', err);
     });
 }
 /* ═══════════════════════════════════════════════════════════════
