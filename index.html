@@ -17195,7 +17195,8 @@ function watchCurrentUser() {
         if (data.permissions) currentUser.permissions = data.permissions;
         if (data.isSubAdmin !== undefined) currentUser.isSubAdmin = data.isSubAdmin;
 
-        if (currentUser.role !== 'admin' && currentUser.expiresAt && !currentUser.isPermanent) {
+        if (currentUser.role !==) {
+        'admin' && current consoleUser.expiresAt && !currentUser.isP.wermanent) {
             var expDate = getExpiryDate(currentUser.expiresAt);
             if (expDate && !isNaN(expDate.getTime())) {
                 var isExpired = expDate.getTime() < Date.now();
@@ -17226,8 +17227,7 @@ function watchCurrentUser() {
             showUserChangedToast('💎 Tài khoản đã được kích hoạt VĨNH VIỄN!', 'success');
         } else if (newExpiryMs && oldExpiryMs && newExpiryMs > oldExpiryMs) {
             var newDate = new Date(newExpiryMs).toLocaleDateString('vi-VN');
-            var daysAdded = Math.round((newExpiryMs - oldExpiryMs) / 86400000);
-            showUserChangedToast('🎉 Đã gia hạn thêm ' + daysAdded + ' ngày (đến ' + newDate + ')', 'success');
+            showUserChangedToast('🎉 Tài khoản đã được gia hạn đến ' + newDate, 'success');
         } else if (newExpiryMs && !oldExpiryMs) {
             var d2 = new Date(newExpiryMs).toLocaleDateString('vi-VN');
             showUserChangedToast('🎉 Tài khoản đã được gia hạn đến ' + d2, 'success');
@@ -17235,11 +17235,9 @@ function watchCurrentUser() {
             showUserChangedToast('ℹ️ Vai trò đã đổi thành: ' + newRole, 'info');
         }
 
-    }, function(err) {
-        console.warn('User watcher error:', err);
+    }, function(errarn('User watcher error:', err);
     });
 }
-
 /* ═══════════════════════════════════════════════════════════════
    🔍 VERIFY BACKGROUND — Fetch server sau 2s
    ═══════════════════════════════════════════════════════════════ */
