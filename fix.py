@@ -141,12 +141,12 @@ def build_vocab_js_patch():
         if (u && u.role === 'admin') {
             return { allowed: true, tier: 'admin',
                 hskAllowed: [1,2,3,4,5,6,7,8,9], maxQuestions: -1,
-                label: 'Admin - Toan bo HSK', warning: null };
+                label: 'Admin - Toàn bộ HSK', warning: null };
         }
         if (u && u.isPermanent === true) {
             return { allowed: true, tier: 'premium',
                 hskAllowed: [1,2,3,4,5,6,7,8,9], maxQuestions: -1,
-                label: 'Premium - Toan bo HSK', warning: null };
+                label: 'Premium - Toàn bộ HSK', warning: null };
         }
 
         var tier = 'demo';
@@ -168,19 +168,19 @@ def build_vocab_js_patch():
 
         var hskRange = hskArr.length
             ? 'HSK ' + hskArr[0] + '-' + hskArr[hskArr.length - 1]
-            : 'co ban';
+            : 'cơ bản';
 
         if (tier === 'expired') {
             return { allowed: false, tier: 'expired', hskAllowed: [], maxQuestions: 0,
                 label: 'Tài khoản hết hạn',
-                warning: 'Tài khoản đã hết hạn, gia hạn để không gián đoạn quá trình học.' };
+                warning: 'Tài khoản đã hết hạn — gia hạn để tiếp tục dùng Từ vựng HSK.' };
         }
         if (tier === 'demo') {
             return { allowed: true, tier: 'demo', hskAllowed: hskArr, maxQuestions: maxQ,
                 label: 'Demo - ' + hskRange,
-                warning: 'Bản dùng thử giới hạn ' + hskRange + ' và tối đa ' +
+                warning: 'Bạn Demo giới hạn ' + hskRange + ' và tối đa ' +
                          (maxQ > 0 ? maxQ + ' từ' : 'một số từ') +
-                         ' - Đăng nhập để sử dụng đầy đủ.' };
+                         ' — đăng nhập để dùng đầy đủ.' };
         }
         if (tier === 'trial') {
             if (isUnlimited) {
@@ -191,9 +191,9 @@ def build_vocab_js_patch():
             }
             return { allowed: true, tier: 'trial', hskAllowed: hskArr, maxQuestions: maxQ,
                 label: 'Trial - ' + hskRange,
-                warning: 'Bản Trial học thử ' + hskRange + ' và ' +
+                warning: 'Bạn Trial giới hạn ' + hskRange + ' và ' +
                          (maxQ > 0 ? maxQ + ' từ' : 'một số từ') +
-                         ' - Chỉ từ 50k mở khoá toàn bộ.' };
+                         ' — nâng cấp Premium để mở toàn bộ.' };
         }
         if (isUnlimited) {
             return { allowed: true, tier: 'active',
@@ -203,9 +203,9 @@ def build_vocab_js_patch():
         }
         return { allowed: true, tier: 'active', hskAllowed: hskArr, maxQuestions: maxQ,
             label: 'Active - ' + hskRange,
-            warning: 'Ban Active gioi han ' + hskRange + ' va ' +
-                     (maxQ > 0 ? maxQ + ' tu' : 'mot so tu') +
-                     ' - nang cap Premium de mo toan bo.' };
+            warning: 'Bạn Active giới hạn ' + hskRange + ' và ' +
+                     (maxQ > 0 ? maxQ + ' từ' : 'một số từ') +
+                     ' — nâng cấp Premium để mở toàn bộ.' };
     }
 
     function applyVocabLimits(list, access) {
@@ -271,8 +271,10 @@ def build_vocab_js_patch():
         }
     }
 
+    /* ⭐ BANNER GỘP — hiện ở mọi tab, gộp thông tin lượt Nghe + Viết */
     function injectVocabWarningBanner() {
-        if (!_isVocabMode()) {
+        var acc = getVocabAccess();
+        if (!acc.warning) {
             var oldOut = document.getElementById('vocabWarningBanner');
             if (oldOut) oldOut.remove();
             return;
@@ -280,36 +282,70 @@ def build_vocab_js_patch():
         var old = document.getElementById('vocabWarningBanner');
         if (old) old.remove();
 
-        var acc = getVocabAccess();
-        if (!acc.warning) return;
-
         var main = document.getElementById('mainContent');
         if (!main) return;
 
+        /* ⭐ Tính thông tin hiển thị tuỳ tab */
         var limitedCount = 0, totalCount = 0;
+        var unit = _isVocabMode() ? 'từ' : 'câu';
+
         try {
-            if (window.FIXPY_DATASETS && window.FIXPY_DATASETS[VOCAB_ID]) {
+            if (_isVocabMode() && window.FIXPY_DATASETS && window.FIXPY_DATASETS[VOCAB_ID]) {
                 var full = window.FIXPY_DATASETS[VOCAB_ID].data || [];
                 totalCount = full.length;
                 limitedCount = applyVocabLimits(full, acc).length;
+            } else {
+                var info = (typeof getTierInfo === 'function') ? getTierInfo() : {};
+                var maxQ = info.maxQuestions || 60;
+                var fullCount = (typeof RAW_DATA !== 'undefined' && Array.isArray(RAW_DATA)) ? RAW_DATA.length : 0;
+                totalCount = fullCount;
+                limitedCount = Math.min(maxQ, fullCount);
             }
         } catch(e) {}
+
+        /* ⭐ Thông tin lượt Nghe + Viết còn lại */
+        var remaining = 0;
+        try {
+            if (typeof getDemoRemaining === 'function') {
+                remaining = getDemoRemaining();
+            }
+        } catch(e) {}
+        var showRemaining = (acc.tier === 'demo' || acc.tier === 'expired')
+                            && remaining !== Infinity && remaining >= 0;
 
         var limitInfo = '';
         if (acc.maxQuestions > 0 && limitedCount > 0 && totalCount > limitedCount) {
             limitInfo = ' <span style="opacity:.75">(' +
-                        limitedCount + '/' + totalCount + ' tu)</span>';
+                        limitedCount + '/' + totalCount + ' ' + unit + ')</span>';
         }
 
         var icon = acc.tier === 'expired' ? 'fa-exclamation-triangle'
                  : acc.tier === 'trial' ? 'fa-hourglass-half'
                  : acc.tier === 'demo' ? 'fa-user'
                  : 'fa-info-circle';
-        var btnLabel = acc.tier === 'expired' ? 'Gia han ngay'
-                     : acc.tier === 'demo' ? 'Dang nhap'
-                     : 'Nang cap Premium';
+        var btnLabel = acc.tier === 'expired' ? 'Gia hạn ngay'
+                     : acc.tier === 'demo' ? 'Đăng nhập'
+                     : 'Nâng cấp Premium';
         var btnFn = acc.tier === 'demo' ? 'vocabUpgradeLogin()'
                   : 'vocabUpgradeRenew()';
+
+        /* ⭐ Warning message có dấu + ngắn gọn */
+        var descText = '';
+        if (acc.tier === 'demo') {
+            descText = 'Đăng nhập bằng Gmail để dùng toàn bộ kho câu, không giới hạn.';
+        } else if (acc.tier === 'expired') {
+            descText = 'Tài khoản đã hết hạn — gia hạn để tiếp tục dùng toàn bộ tính năng.';
+        } else if (acc.tier === 'trial') {
+            descText = 'Nâng cấp Premium để mở toàn bộ nội dung, không giới hạn.';
+        } else {
+            descText = acc.warning || '';
+        }
+
+        var remainingHtml = '';
+        if (showRemaining) {
+            remainingHtml = ' · <span style="color:#16a34a;font-weight:800">Nghe + Viết còn ' +
+                            remaining + ' lượt</span>';
+        }
 
         var banner = document.createElement('div');
         banner.id = 'vocabWarningBanner';
@@ -317,8 +353,8 @@ def build_vocab_js_patch():
         banner.innerHTML =
             '<div class="vocab-warning-icon"><i class="fas ' + icon + '"></i></div>' +
             '<div class="vocab-warning-text">' +
-                '<strong>' + _esc(acc.label) + limitInfo + '</strong>' +
-                '<span>' + _esc(acc.warning) + '</span>' +
+                '<strong>' + _esc(acc.label) + limitInfo + remainingHtml + '</strong>' +
+                '<span>' + _esc(descText) + '</span>' +
             '</div>' +
             '<button class="vocab-warning-btn" onclick="' + btnFn + '">' +
                 '<i class="fas fa-crown"></i> ' + btnLabel +
@@ -346,7 +382,7 @@ def build_vocab_js_patch():
                 sf.value = '';
                 sf.style.opacity = '0.5';
                 sf.style.cursor = 'not-allowed';
-                sf.title = 'Khong kha dung cho Tu vung';
+                sf.title = 'Không khả dụng cho Từ vựng';
             } else if (!isVocab && sf.disabled) {
                 sf.disabled = false;
                 sf.style.opacity = '';
@@ -427,7 +463,7 @@ def build_vocab_js_patch():
                         pfSubj.value = '';
                         pfSubj.style.opacity = '0.5';
                         pfSubj.style.cursor = 'not-allowed';
-                        pfSubj.title = 'Khong kha dung cho Tu vung';
+                        pfSubj.title = 'Không khả dụng cho Từ vựng';
                     }
                 }
                 return result;
@@ -459,9 +495,10 @@ def build_vocab_js_patch():
 
         updateTabLockState();
 
+        /* ⭐ Luôn inject banner ở MỌI TAB (không chỉ vocab) */
         setInterval(function() {
             updateTabLockState();
-            if (_isVocabMode()) injectVocabWarningBanner();
+            injectVocabWarningBanner();
         }, 2000);
 
         watchVocabMode();
