@@ -7,7 +7,11 @@ Cung cấp 3 hàm:
   - build_intro_html()  → HTML cho banner marquee + 2 nút mock
   - build_intro_js()    → JS điều khiển banner + highlight nút thật
 
-Nút #introBtn trên header → scroll đến banner + nhấp nháy highlight.
+Đặc điểm:
+  - Chữ chạy to, đậm, nổi bật
+  - 2 nút mock (viết + mở rộng) bên phải — click để scroll + blink nút thật
+  - Ẩn banner khi ở tab Từ vựng Premium
+  - Nút #introBtn trên header → scroll đến banner + nhấp nháy
 """
 
 
@@ -42,6 +46,11 @@ def build_intro_css():
     to   { opacity: 1; transform: translateY(0); }
 }
 .quick-intro-banner.dismissed { display: none !important; }
+
+/* ⭐ Ẩn banner khi ở tab Từ vựng Premium */
+body[data-vocab-mode="1"] .quick-intro-banner {
+    display: none !important;
+}
 
 .qib-icon {
     width: 36px;
@@ -108,7 +117,6 @@ def build_intro_css():
     filter: drop-shadow(0 1px 2px rgba(217, 70, 239, .3));
 }
 .qib-item b {
-    color: #dc2626;
     font-weight: 900;
     margin: 0 .15em;
     letter-spacing: .02em;
@@ -356,16 +364,16 @@ def build_intro_html():
 def build_intro_js():
     return r"""
 /* ═══════════════════════════════════════════════════════════════ */
-/* QUICK INTRO BANNER — Marquee + 2 nút mock                     */
+/* QUICK INTRO BANNER — Marquee + 2 nút mock + auto-hide theo tab */
 /* ═══════════════════════════════════════════════════════════════ */
 function initQuickIntroBanner() {
     var banner = $('quickIntroBanner');
     var dismiss = $('quickIntroDismiss');
     if (!banner) return;
 
+    /* ─── Nút đóng ─── */
     var hidden = false;
     try { hidden = localStorage.getItem('quick_intro_dismissed') === '1'; } catch(e) {}
-    if (hidden) { banner.classList.add('dismissed'); return; }
 
     if (dismiss && !dismiss.__bound) {
         dismiss.__bound = true;
@@ -375,8 +383,10 @@ function initQuickIntroBanner() {
         });
     }
 
+    /* ─── Auto-tính tốc độ marquee ─── */
     var track = banner.querySelector('.qib-track');
-    if (track) {
+    if (track && !track.__bound) {
+        track.__bound = true;
         var updateSpeed = function() {
             var w = track.scrollWidth / 2;
             if (w <= 0) return;
@@ -388,15 +398,13 @@ function initQuickIntroBanner() {
         window.addEventListener('resize', updateSpeed);
     }
 
-    /* ⭐ 2 nút mock — click để làm nổi bật nút thật trên card đầu tiên */
+    /* ─── 2 nút mock — click để làm nổi bật nút thật trên card đầu tiên ─── */
     var mockWriteBtn = $('qibMockWriteBtn');
     var mockFullBtn  = $('qibMockFullBtn');
 
     function highlightRealButton(selector) {
-        /* Tìm card đầu tiên đang hiện */
         var firstCard = document.querySelector('.card');
         if (!firstCard) {
-            /* Fallback: scroll xuống main content */
             var main = document.getElementById('mainContent');
             if (main) {
                 window.scrollTo({
@@ -407,17 +415,14 @@ function initQuickIntroBanner() {
             return;
         }
 
-        /* Tìm nút trong card */
         var targetBtn = firstCard.querySelector(selector);
         if (!targetBtn) return;
 
-        /* Scroll đến card */
         window.scrollTo({
             top: firstCard.getBoundingClientRect().top + window.scrollY - 100,
             behavior: 'smooth'
         });
 
-        /* Highlight nhấp nháy */
         var origBoxShadow = targetBtn.style.boxShadow;
         var origTransform = targetBtn.style.transform;
         var origZIndex = targetBtn.style.zIndex;
@@ -459,6 +464,36 @@ function initQuickIntroBanner() {
             highlightRealButton('.practice-full-btn');
         });
     }
+
+    /* ⭐ Tự động ẩn/hiện banner theo tab hiện tại */
+    if (!window.__qibTabSyncBound) {
+        window.__qibTabSyncBound = true;
+        var _lastDs = null;
+        var syncBannerByTab = function() {
+            var bannerEl = document.getElementById('quickIntroBanner');
+            if (!bannerEl) return;
+
+            var curDs = (typeof CURRENT_DATASET !== 'undefined') ? CURRENT_DATASET : 'tonghop';
+            if (curDs === _lastDs) return;
+            _lastDs = curDs;
+
+            if (curDs === 'tu-vung') {
+                bannerEl.style.display = 'none';
+            } else {
+                var dismissed = false;
+                try { dismissed = localStorage.getItem('quick_intro_dismissed') === '1'; } catch(e) {}
+                bannerEl.style.display = dismissed ? 'none' : '';
+            }
+        };
+        syncBannerByTab();
+        setInterval(syncBannerByTab, 300);
+    }
+
+    /* Khởi tạo lần đầu: nếu là tab vocab hoặc đã dismissed → ẩn */
+    var curDsInit = (typeof CURRENT_DATASET !== 'undefined') ? CURRENT_DATASET : 'tonghop';
+    if (curDsInit === 'tu-vung' || hidden) {
+        banner.classList.add('dismissed');
+    }
 }
 
 function resetQuickIntroBanner() {
@@ -478,9 +513,27 @@ function handleIntroBtnClick() {
         try { localStorage.removeItem('quick_intro_dismissed'); } catch(e) {}
     }
 
-    /* Scroll đến banner */
-    var y = banner.getBoundingClientRect().top + window.scrollY - 100;
-    window.scrollTo({ top: y, behavior: 'smooth' });
+    /* Nếu đang ở tab Từ vựng → chuyển về tab Tổng hợp trước */
+    var curDs = (typeof CURRENT_DATASET !== 'undefined') ? CURRENT_DATASET : 'tonghop';
+    if (curDs === 'tu-vung') {
+        if (typeof window.switchDataset === 'function') {
+            window.switchDataset('tonghop');
+        } else if (typeof window.__switchRawData === 'function') {
+            window.__switchRawData('tonghop');
+            if (typeof applyFilter === 'function') applyFilter();
+            if (typeof markCurrentDatasetActive === 'function') markCurrentDatasetActive();
+        }
+        setTimeout(function() {
+            window.scrollTo({
+                top: banner.getBoundingClientRect().top + window.scrollY - 100,
+                behavior: 'smooth'
+            });
+        }, 200);
+    } else {
+        /* Scroll đến banner */
+        var y = banner.getBoundingClientRect().top + window.scrollY - 100;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+    }
 
     /* Nhấp nháy highlight */
     banner.style.transition = 'box-shadow .3s ease, transform .3s ease';
