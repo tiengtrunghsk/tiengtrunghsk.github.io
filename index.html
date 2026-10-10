@@ -20012,55 +20012,18 @@ window.testTelegram = function() {
 };
 
 
-/* ⭐ Ẩn banner trùng lặp khi ở tab Từ vựng Premium */
-(function autoHideDuplicateBannersInVocab() {
-    var VOCAB_ID = 'tu-vung';
 
-    function isVocabMode() {
-        try {
-            return (typeof CURRENT_DATASET !== 'undefined') && CURRENT_DATASET === VOCAB_ID;
-        } catch(e) { return false; }
-    }
-
-    /* Wrap renderExpiryBanner (banner đỏ trên cùng) */
-    var _origRenderExpiryBanner = renderExpiryBanner;
-    var _newRenderExpiryBanner = function() {
-        var banner = document.getElementById('expiryBanner');
-        if (!banner) return;
-        if (isVocabMode()) {
-            banner.style.display = 'none';
-            return;
+/* ⭐ Ẩn #expiryBanner khi #vocabWarningBanner đang hiện (tránh trùng) */
+(function hideExpiryWhenMerged() {
+    function sync() {
+        var merged = document.getElementById('vocabWarningBanner');
+        var expiry = document.getElementById('expiryBanner');
+        if (!expiry) return;
+        if (merged && merged.offsetParent !== null) {
+            expiry.style.display = 'none';
         }
-        return _origRenderExpiryBanner.apply(this, arguments);
-    };
-    renderExpiryBanner = _newRenderExpiryBanner;
-    window.renderExpiryBanner = _newRenderExpiryBanner;
-
-    /* Wrap updateDemoBanner (banner vàng dưới) nếu tồn tại */
-    if (typeof window.updateDemoBanner === 'function') {
-        var _origUpdateDemoBanner = window.updateDemoBanner;
-        window.updateDemoBanner = function() {
-            var banner = document.getElementById('demoBanner');
-            if (!banner) return;
-            if (isVocabMode()) {
-                banner.style.display = 'none';
-                return;
-            }
-            return _origUpdateDemoBanner.apply(this, arguments);
-        };
     }
-
-    /* Polling phát hiện đổi tab */
-    var _lastDs = null;
-    setInterval(function() {
-        var curDs = (typeof CURRENT_DATASET !== 'undefined') ? CURRENT_DATASET : 'tonghop';
-        if (curDs === _lastDs) return;
-        _lastDs = curDs;
-        try { if (typeof renderExpiryBanner === 'function') renderExpiryBanner(); } catch(e) {}
-        try { if (typeof window.updateDemoBanner === 'function') window.updateDemoBanner(); } catch(e) {}
-    }, 300);
-
-    console.log('[Banner] Auto-hide duplicate in Vocab: ready');
+    setInterval(sync, 500);
 })();
 
 
