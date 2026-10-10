@@ -6,14 +6,11 @@ on:
       - 'data/**'
       - 'scripts/data/**'
       - 'scripts/**/*.py'
-      - 'scripts/requirements.txt'
       - 'scripts/config.example.json'
       - 'fix.py'
       - 'patch_buttons.py'
       - 'quick_search.py'
       - 'vocab_premium.py'
-      - 'favorites_module.py'
-      - 'ui_template.py'
       - 'fix_all_conflicts.py'
       - 'vocab_data/**'
       - 'requirements.txt'
@@ -36,45 +33,23 @@ concurrency:
 jobs:
   convert:
     runs-on: ubuntu-latest
-    # ⭐ Bỏ qua nếu commit message chứa [skip ci] — tránh loop
-    if: |
-      github.event_name != 'push' ||
-      !contains(github.event.head_commit.message, '[skip ci]')
-
     steps:
-      - name: 📥 Checkout repo
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # ═══════════════════════════════════════════════════════════════
-      #  Setup Python + Cache pip (dùng scripts/requirements.txt)
-      # ═══════════════════════════════════════════════════════════════
-      - name: 🐍 Setup Python 3.11
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: 'scripts/requirements.txt'
 
-      - name: 📦 Cài dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f scripts/requirements.txt ]; then
-            echo "▶️  Cài từ scripts/requirements.txt..."
-            pip install -r scripts/requirements.txt
-          elif [ -f requirements.txt ]; then
-            echo "▶️  Cài từ requirements.txt (root)..."
-            pip install -r requirements.txt
-          else
-            echo "⚠️  Không tìm thấy requirements.txt — cài mặc định"
-            pip install openpyxl cn2an pypinyin jieba pandas hanzidentifier cjkradlib
-          fi
+          pip install openpyxl cn2an pypinyin jieba pandas hanzidentifier cjkradlib
 
-      # ═══════════════════════════════════════════════════════════════
-      #  Tạo scripts/config.json từ secrets
-      # ═══════════════════════════════════════════════════════════════
-      - name: 🔐 Create scripts/config.json with secrets
+      - name: Create scripts/config.json with secrets
         run: |
           python << 'EOF'
           import json
@@ -100,74 +75,57 @@ jobs:
           EOF
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CH❌AT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           SUPER_ADMIN_EMAIL: ${{ secrets.SUPER_ADMIN_EMAIL }}
           FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
 
-      - name: ✅ Verify scripts/config.json
+      - name: Verify scripts/config.json
         run: |
           if [ ! -f "scripts/config.json" ]; then
-            echo " scripts/config.json khong duoc tao"
+            echo "scripts/config.json khong duoc tao"
             exit 1
           fi
           python -c "
           import json
           cfg = json.load(open('scripts/config.json', encoding='utf-8'))
-          print('✅ scripts/config.json OK')
+          print('scripts/config.json OK')
           print('  - telegram_bot_token:', 'SET' if cfg.get('telegram_bot_token') else 'MISSING')
           print('  - telegram_chat_id:', 'SET' if cfg.get('telegram_chat_id') else 'MISSING')
           print('  - super_admin:', 'SET' if cfg.get('super_admin') else 'MISSING')
           print('  - firebase_config.apiKey:', 'SET' if cfg.get('firebase_config', {}).get('apiKey') else 'MISSING')
           "
 
-      # ═══════════════════════════════════════════════════════════════
-      #  Verify dependencies + modules
-      # ═══════════════════════════════════════════════════════════════
-      - name: 🔍 Verify dependencies
+      - name: Verify dependencies
         run: |
-          python -c "import openpyxl; print('✅ openpyxl', openpyxl.__version__)"
-          python -c "import cn2an; print('✅ cn2an', cn2an.__version__)"
-          python -c "import pypinyin; print('✅ pypinyin', pypinyin.__version__)"
-          python -c "import jieba; print('✅ jieba OK')"
-          python -c "import pandas; print('✅ pandas', pandas.__version__)"
+          python -c "import openpyxl; print('openpyxl', openpyxl.__version__)"
+          python -c "import cn2an; print('cn2an', cn2an.__version__)"
+          python -c "import pypinyin; print('pypinyin', pypinyin.__version__)"
+          python -c "import jieba; print('jieba OK')"
+          python -c "import pandas; print('pandas', pandas.__version__)"
 
-      - name: 🔍 Verify vocab modules
+      - name: Verify vocab modules
         run: |
           if [ -f vocab_premium.py ]; then
-            python -c "from vocab_premium import read_vocab_excel, build_vocab_css, build_vocab_tab_html, build_vocab_modal_html, build_vocab_js_override; print('✅ vocab_premium OK')"
+            python -c "from vocab_premium import read_vocab_excel, build_vocab_css, build_vocab_tab_html, build_vocab_modal_html, build_vocab_js_override; print('vocab_premium OK')"
           fi
           if [ -d vocab_data ]; then
-            python -c "from vocab_data.radicals_db import RADICALS; print('✅ radicals_db', len(RADICALS))" || true
-            python -c "from vocab_data.radical_analyzer import get_radical_for_word; print('✅ radical_analyzer OK')" || true
-            python -c "from vocab_data.mnemonic_generator import generate_mnemonic; print('✅ mnemonic_generator OK')" || true
+            python -c "from vocab_data.radicals_db import RADICALS; print('radicals_db', len(RADICALS))" || true
+            python -c "from vocab_data.radical_analyzer import get_radical_for_word; print('radical_analyzer OK')" || true
+            python -c "from vocab_data.mnemonic_generator import generate_mnemonic; print('mnemonic_generator OK')" || true
           fi
 
-      - name: 🔍 Verify quick_search module
+      - name: Verify quick_search module
         run: |
           if [ -f quick_search.py ]; then
-            python -c "from quick_search import patch_quick_search; print('✅ quick_search OK')"
+            python -c "from quick_search import patch_quick_search; print('quick_search OK')"
           else
-            echo "⚠️  quick_search.py not found, skip"
+            echo "quick_search.py not found, skip"
           fi
 
-      - name: 🔍 Verify fix_all_conflicts module
-        id: verify_fix_conflicts
-        run: |
-          if [ -f fix_all_conflicts.py ]; then
-            python -c "import ast; ast.parse(open('fix_all_conflicts.py', encoding='utf-8').read()); print('✅ fix_all_conflicts.py syntax OK')"
-            echo "has_fix=true" >> $GITHUB_OUTPUT
-          else
-            echo "⚠️  fix_all_conflicts.py not found, skip"
-            echo "has_fix=false" >> $GITHUB_OUTPUT
-          fi
-
-      # ═══════════════════════════════════════════════════════════════
-      #  Pre-flight check
-      # ═══════════════════════════════════════════════════════════════
-      - name: 🛫 Pre-flight check
+      - name: Pre-flight check
         run: python scripts/check.py
 
-      - name: 🔢 Count ai_mnemonics entries
+      - name: Count ai_mnemonics entries
         id: count_ai
         run: |
           if [ ! -f "data/ai_mnemonics.json" ]; then
@@ -184,128 +142,74 @@ jobs:
           fi
           echo "AI mnemonics: $COUNT entries"
 
-      # ═══════════════════════════════════════════════════════════════
-      #  Convert data
-      # ═══════════════════════════════════════════════════════════════
-      - name: 🔄 Run convert script
+      - name: Run convert script
         run: python scripts/convert.py
 
-      # ═══════════════════════════════════════════════════════════════
-      #  ⭐ Fix all conflicts (chạy TRƯỚC fix.py)
-      # ═══════════════════════════════════════════════════════════════
-      - name: 🔧 Run fix_all_conflicts.py
-        if: steps.verify_fix_conflicts.outputs.has_fix == 'true'
+      - name: Run fix_all_conflicts.py
         run: |
-          echo "▶️  Running fix_all_conflicts.py..."
-          python fix_all_conflicts.py 2>&1 | tee fix_conflicts.log
-          EXIT_CODE=${PIPESTATUS[0]}
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "❌ fix_all_conflicts.py failed (exit $EXIT_CODE)"
-            exit $EXIT_CODE
+          if [ -f fix_all_conflicts.py ]; then
+            python fix_all_conflicts.py
+          else
+            echo "no fix_all_conflicts.py"
           fi
-          echo "✅ fix_all_conflicts.py OK"
 
-      - name: 🧪 Verify patched Python files syntax
-        if: steps.verify_fix_conflicts.outputs.has_fix == 'true'
-        run: |
-          echo "=== Syntax check sau khi fix_all_conflicts ==="
-          FAILED=0
-          for f in fix.py patch_buttons.py favorites_module.py ui_template.py; do
-            if [ -f "$f" ]; then
-              if python -c "import ast; ast.parse(open('$f', encoding='utf-8').read())" 2>/dev/null; then
-                echo "✅ $f"
-              else
-                echo "❌ $f SYNTAX ERROR"
-                FAILED=$((FAILED + 1))
-              fi
-            fi
-          done
-          if [ $FAILED -gt 0 ]; then
-            echo "❌ $FAILED file(s) with syntax errors"
-            exit 1
-          fi
-          echo "✅ All patched files OK"
-
-      # ═══════════════════════════════════════════════════════════════
-      #  Run fix.py + patch_buttons.py + quick_search.py
-      # ═══════════════════════════════════════════════════════════════
-      - name: 🔧 Run fix.py
+      - name: Run fix.py
         run: |
           if [ -f fix.py ]; then
             python fix.py
           else
-            echo "⚠️  no fix.py"
+            echo "no fix.py"
           fi
 
-      - name: 🔧 Run patch_buttons.py
-        run: |
-          if [ -f patch_buttons.py ]; then
-            python patch_buttons.py
-          else
-            echo "⚠️  no patch_buttons.py"
-          fi
-
-      - name: 🔧 Run quick_search.py
+      - name: Run quick_search.py
         run: |
           if [ -f quick_search.py ]; then
             python quick_search.py
           else
-            echo "⚠️  no quick_search.py"
+            echo "no quick_search.py"
           fi
 
-      - name: 🧹 Clear Python cache
+      - name: Clear Python cache
         run: |
           find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
           find . -type f -name "*.pyc" -delete 2>/dev/null || true
 
-      # ═══════════════════════════════════════════════════════════════
-      #  Verify output
-      # ═══════════════════════════════════════════════════════════════
-      - name: ✅ Verify index.html after convert
+      - name: Verify index.html after convert
         run: |
           if [ ! -f index.html ]; then
-            echo "❌ index.html not found"
+            echo "index.html not found"
             exit 1
           fi
           if [ ! -f "data/all_datasets.json" ]; then
-            echo "❌ data/all_datasets.json not found"
+            echo "data/all_datasets.json not found"
             exit 1
           fi
           if [ ! -f "data/dataset_registry.json" ]; then
-            echo "❌ data/dataset_registry.json not found"
+            echo "data/dataset_registry.json not found"
             exit 1
           fi
           for el in FIREBASE_CONFIG CURRENT_DATASET DATASET_REGISTRY_META window.__dataLoadPromise; do
             if grep -q "$el" index.html; then
-              echo "✅ $el"
+              echo "OK $el"
             else
-              echo "❌ MISSING $el"
+              echo "MISSING $el"
               exit 1
             fi
           done
           OPEN_SCRIPT=$(grep -o "<script" index.html | wc -l)
           CLOSE_SCRIPT=$(grep -o "</script>" index.html | wc -l)
           if [ "$OPEN_SCRIPT" -ne "$CLOSE_SCRIPT" ]; then
-            echo "❌ script tags mismatch ($OPEN_SCRIPT vs $CLOSE_SCRIPT)"
+            echo "script tags mismatch ($OPEN_SCRIPT vs $CLOSE_SCRIPT)"
             exit 1
           fi
           SIZE=$(stat -c%s index.html)
-          echo "📦 index.html size: $((SIZE / 1024)) KB"
+          echo "index.html size: $((SIZE / 1024)) KB"
           if [ "$SIZE" -gt 2097152 ]; then
-            echo "❌ index.html too large (>2MB), data still inline?"
+            echo "index.html too large (>2MB), data still inline?"
             exit 1
           fi
 
-      - name: ✅ Verify cleanup script in index.html
-        run: |
-          if grep -q "FIX_ALL_CONFLICTS: Cleanup runtime" index.html; then
-            echo "✅ cleanup script injected"
-          else
-            echo "⚠️  cleanup script NOT found in index.html"
-            echo "   (Chạy fix_all_conflicts.py với index.html có sẵn để inject)"
-          fi
-
-      - name: ✅ Verify fixpy_datasets has mnemonics
+      - name: Verify fixpy_datasets has mnemonics
         id: verify_mnemonic
         run: |
           if [ ! -f "data/fixpy_datasets.json" ]; then
@@ -316,68 +220,55 @@ jobs:
           COUNT=$(python -c "import json; d = json.load(open('data/fixpy_datasets.json', encoding='utf-8')); v = d.get('tu-vung', {}); r = v.get('data', []); print(sum(1 for x in r if x.get('mnemonic')))" 2>/dev/null || echo 0)
           echo "has_mnemonic=true" >> $GITHUB_OUTPUT
           echo "mnemonic_count=$COUNT" >> $GITHUB_OUTPUT
-          echo "📚 fixpy_datasets.json: $COUNT tu co meo nho"
+          echo "fixpy_datasets.json: $COUNT tu co meo nho"
 
-      - name: ✅ Verify quick_search in index.html
+      - name: Verify quick_search in index.html
         run: |
           if [ ! -f quick_search.py ]; then
             exit 0
           fi
           if grep -q "QUICK_SEARCH_MODULE_JS" index.html; then
             COUNT=$(grep -o "QUICK_SEARCH_MODULE_JS" index.html | wc -l)
-            echo "✅ quick_search JS inject count: $COUNT"
+            echo "quick_search JS inject count: $COUNT"
           else
-            echo "⚠️  quick_search JS not found"
+            echo "quick_search JS not found"
           fi
           if grep -q "QUICK_SEARCH_MODULE_CSS" index.html; then
-            echo "✅ quick_search CSS OK"
+            echo "quick_search CSS OK"
           else
-            echo "⚠️  quick_search CSS not found"
+            echo "quick_search CSS not found"
           fi
 
-      - name: ✅ Verify datasets loaded
+      - name: Verify datasets loaded
         run: |
           if grep -q '"tonghop"' data/dataset_registry.json; then
-            echo "✅ tonghop"
+            echo "tonghop OK"
           else
-            echo "❌ tonghop MISSING"
+            echo "tonghop MISSING"
             exit 1
           fi
           if grep -q 'FIX.PY: AUTO-FIT LAYOUT' index.html; then
-            echo "✅ fix.py CSS OK"
+            echo "fix.py CSS OK"
           fi
 
-      - name: 🔒 Check no secrets leaked to index.html
+      - name: Check no secrets leaked to index.html
         run: |
           LEAK=0
           if grep -q "8936673606:AAGQt" index.html; then
-            echo "🚨 LEAK: Old telegram token found in index.html"
+            echo "LEAK: Old telegram token found in index.html"
             LEAK=1
           fi
           if [ "$LEAK" -eq 1 ]; then
-            echo "🚨 SECRET LEAK DETECTED - abort commit"
+            echo "SECRET LEAK DETECTED - abort commit"
             exit 1
           fi
-          echo "✅ No secrets leaked OK"
+          echo "No secrets leaked OK"
 
-      - name: 📤 Upload fix_conflicts log
-        if: always() && steps.verify_fix_conflicts.outputs.has_fix == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: fix-conflicts-log-${{ github.run_number }}
-          path: fix_conflicts.log
-          retention-days: 7
-          if-no-files-found: ignore 💾
-
-      # ═══════════════════════════════════════════════════════════════
-      #  Commit & Push
-      # ═══════════════════════════════════════════════════════════════
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # ═══ Core files ═══
           git add index.html
           if [ -f "data/ai_mnemonics.json" ]; then git add data/ai_mnemonics.json; fi
           if [ -f "data/all_datasets.json" ]; then git add data/all_datasets.json; fi
@@ -385,34 +276,21 @@ jobs:
           if [ -f "data/fixpy_datasets.json" ]; then git add data/fixpy_datasets.json; fi
           if [ -f "data/similar_chars.json" ]; then git add data/similar_chars.json; fi
 
-          # ═══ ⭐ Files .py đã được fix_all_conflicts sửa ═══
-          if [ -f "fix.py" ]; then git add fix.py; fi
-          if [ -f "patch_buttons.py" ]; then git add patch_buttons.py; fi
-          if [ -f "favorites_module.py" ]; then git add favorites_module.py; fi
-          if [ -f "ui_template.py" ]; then git add ui_template.py; fi
-
           if git diff --quiet && git diff --staged --quiet; then
-            echo "ℹ️  no changes"
+            echo "no changes"
           else
             AI_COUNT="${{ steps.count_ai.outputs.ai_count }}"
             MNEMONIC_COUNT="${{ steps.verify_mnemonic.outputs.mnemonic_count }}"
             QS_TAG=""
-            FIX_TAG=""
             if grep -q "QUICK_SEARCH_MODULE_JS" index.html; then
               QS_TAG=" + QS"
             fi
-            if [ "${{ steps.verify_fix_conflicts.outputs.has_fix }}" == "true" ]; then
-              FIX_TAG=" + FixConflicts"
-            fi
-            git commit -m "Auto convert Excel to HTML (mnemonic: ${MNEMONIC_COUNT}, ai: ${AI_COUNT}${QS_TAG}${FIX_TAG}) [skip ci]"
+            git commit -m "Auto convert Excel to HTML (mnemonic: ${MNEMONIC_COUNT}, ai: ${AI_COUNT}${QS_TAG}) [skip ci]"
             git pull --rebase origin ${{ github.ref_name }} || true
-            git push origin HEAD:${{ github.ref_name Pages }}
+            git push origin HEAD:${{ github.ref_name }}
           fi
 
-      # ═════════ artifact══════════════════════════════════════════════════════
-      #  Prepare Pages artifact
-      # ═══════════════════════════════════════════════════════════════
-      - name: 📦 Prepare
+      - name: Prepare Pages artifact
         run: |
           rm -rf _site
           mkdir -p _site
@@ -421,22 +299,29 @@ jobs:
           if [ -d "static" ]; then cp -r static _site/; fi
           if [ -f "404.html" ]; then cp 404.html _site/; fi
           mkdir -p _site/data
-          if [ -f "data/ai_mnemonics.json" ]; then cp data/ai_mnemonics.json _site/data/; fi
-          if [ -f "data/all_datasets.json" ]; then cp data/all_datasets.json _site/data/; fi
-          if [ -f "data/dataset_registry.json" ]; then cp data/dataset_registry.json _site/data/; fi
-          if [ -f "data/fixpy_datasets.json" ]; then cp data/fixpy_datasets.json _site/data/; fi
-          if [ -f "data/similar_chars.json" ]; then cp data/similar_chars.json _site/data/; fi
+          if [ -f "data/ai_mnemonics.json" ]; then
+            cp data/ai_mnemonics.json _site/data/
+          fi
+          if [ -f "data/all_datasets.json" ]; then
+            cp data/all_datasets.json _site/data/
+          fi
+          if [ -f "data/dataset_registry.json" ]; then
+            cp data/dataset_registry.json _site/data/
+          fi
+          if [ -f "data/fixpy_datasets.json" ]; then
+            cp data/fixpy_datasets.json _site/data/
+          fi
+          if [ -f "data/similar_chars.json" ]; then
+            cp data/similar_chars.json _site/data/
+          fi
           echo "=== _site contents ==="
           find _site -type f | head -30
 
-      - name: 📤 Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3 với
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
           path: '_site'
 
-  # ═══════════════════════════════════════════════════════════════
-  #  Deploy job
-  # ═══════════════════════════════════════════════════════════════
   deploy:
     needs: convert
     runs-on: ubuntu-latest
@@ -444,9 +329,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: ⚙️  Setup Pages
+      - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: 🚀 Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
