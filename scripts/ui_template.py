@@ -8046,7 +8046,7 @@ function pfBuildDatasetSelect() {
             if (isTonghop) {
                 opt.textContent = (ds.count || 0) + ' câu - Tổng hợp VPCX';
             } else {
-                opt.textContent = (isLocked ? '[Khoá] ' : '') +
+                opt.textContent = (isLocked ? '🔒 ' : '') +
                                   dsName + ' (' + (ds.count || 0) + ' câu)';
             }
 
