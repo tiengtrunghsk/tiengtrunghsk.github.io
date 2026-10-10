@@ -3331,6 +3331,16 @@ body.practice-full-open .pf-tiktok-float {
         font-size: clamp(0.68rem, 30.85rem);
     }
 }
+.ds-btn:disabled,
+.ds-btn[disabled] {
+    opacity: .55;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+.ds-btn[data-dataset-group="chuyen-nganh"]:disabled .ds-new-badge {
+    opacity: .5;
+    animation: none;
+}
 """
 def build_ui_html():
     return r"""
@@ -3384,7 +3394,7 @@ def build_ui_html():
             <i class="fas fa-book-open"></i>
             <span id="dsTonghopLabel">1700+ Câu phản xạ<br>Văn phòng - Công xưởng</span>
         </button>
-        <button class="ds-btn ds-btn-primary" data-dataset-group="chuyen-nganh" id="dsChuyenNganhBtn">
+        <button class="ds-btn ds-btn-primary" data-dataset-group="chuyen-nganh" id="dsChuyenNganhBtn" disabled>
             <i class="fas fa-industry"></i>
             <span>Chuyên ngành</span>
             <i class="fas fa-chevron-down ds-arrow"></i>
@@ -3841,13 +3851,18 @@ function autoFitLabel(el) {
 /* DATASET SWITCHING                                             */
 /* ============================================================ */
 function initDatasetSelector() {
-    if (typeof DATASET_REGISTRY === 'undefined' || !DATASET_REGISTRY) {
+    var cnBtnInit = $('dsChuyenNganhBtn');
+    if (cnBtnInit) cnBtnInit.disabled = true;
+
+    if (typeof DATASET_REGISTRY === 'undefined' || !DATASET_REGISTRY || !DATASET_REGISTRY.tonghop) {
         if (window.__dataLoadPromise) {
             window.__dataLoadPromise.then(function() { initDatasetSelector(); });
         }
         return;
     }
-    if (!DATASET_REGISTRY.tonghop) return;
+
+    /* ⭐ Data đã sẵn sàng → mở khoá nút */
+    if (cnBtnInit) cnBtnInit.disabled = false;
     var labelEl = $('dsTonghopLabel');
     if (labelEl) {
         var count = DATASET_REGISTRY.tonghop.count
@@ -5551,7 +5566,7 @@ function initApp() {
     $('mainContent').style.display = 'block';
 
     loadVoiceSettings();
-    initDatasetSelector();
+    
 
     if (typeof initSocial === 'function') initSocial();
     if (typeof updateFloatingLeftVisibility === 'function') updateFloatingLeftVisibility();
@@ -5661,7 +5676,11 @@ function initApp() {
     });
 
     waitForData(function() {
-        try { buildFilters(); applyFilter(); }
+        try {
+            initDatasetSelector();
+            buildFilters();
+            applyFilter();
+        }
         catch(e) { console.error('Init error:', e); }
     });
 
