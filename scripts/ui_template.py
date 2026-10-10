@@ -5486,7 +5486,7 @@ function initSearchLockDemo() {
         inp.style.borderColor = '#f59e0b';
         inp.style.color = '#92400e';
         inp.style.fontWeight = '600';
-        inp.placeholder = 'Dang nhap de su dung tim kiem...';
+        inp.placeholder = 'Đăng nhập để sử dụng tìm kiếm...';
 
         inp.addEventListener('click', function(e) {
             e.preventDefault();
