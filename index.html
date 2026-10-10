@@ -10809,12 +10809,7 @@ body.has-floating-group #quickSearchRoot{
 </div>
 
 
-<div class="demo-banner" id="demoBanner" style="display:none">
-<div class="demo-banner-icon"><i class="fas fa-gift"></i></div>
-<div class="demo-banner-text"><div class="title" id="demoBannerTitle">Đăng nhập miễn phí để mở khóa toàn bộ</div>
-<div class="desc" id="demoBannerDesc">Đăng nhập bằng <b>Gmail</b> để xem <b>toàn bộ kho câu</b>, không giới luyện viết.<br>Nghe + Luyện viết còn lại hôm nay: <b id="demoRemainingText" style="color:#16a34a">100</b> lượt.</div></div>
-<button class="demo-banner-btn" id="demoBannerBtn" onclick="showLoginModal()"><i class="fas fa-sign-in-alt"></i> <span id="demoBannerBtnText">Đăng nhập bằng Gmail</span></button>
-</div>
+
 <div class="expiry-banner" id="expiryBanner" style="display:none">
     <div class="expiry-banner-icon" id="expiryBannerIcon">
         <i class="fas fa-hourglass-half"></i>
@@ -12571,14 +12566,8 @@ function canUseFeature() {
 }
 
 function updateDemoRemaining() {
-    var el = $('demoRemainingText');
-    if (!el) return;
-    if (!shouldCountUsage()) return;
-    var remaining = getDemoRemaining();
-    el.textContent = remaining;
-    if (remaining < 20) el.style.color = '#dc2626';
-    else if (remaining < 50) el.style.color = '#f59e0b';
-    else el.style.color = '#16a34a';
+    /* Đã gộp vào #vocabWarningBanner */
+    return;
 }
 
 function showLimitMessage() {
@@ -13957,68 +13946,9 @@ function updateTierBadge() {
 }
 
 function updateDemoBanner() {
-    var info = getTierInfo();
-    var banner = $('demoBanner');
-    if (!banner) return;
-
-    /* ═══════════════════════════════════════════════════════════════
-       ⭐ FIX: CHỈ HIỆN BANNER DEMO KHI USER CHƯA LOGIN (tier === 'demo')
-       - tier 'demo'    → hiện banner vàng + nút "Đăng nhập"
-       - tier 'expired' → ẩn (đã có banner Expiry riêng màu đỏ)
-       - tier 'trial'   → ẩn
-       - tier 'active'  → ẩn
-       ═══════════════════════════════════════════════════════════════ */
-    if (info.tier !== 'demo') {
-        banner.style.display = 'none';
-        return;
-    }
-
-    var titleEl = $('demoBannerTitle');
-    var descEl  = $('demoBannerDesc');
-    var btnEl   = $('demoBannerBtn');
-    var btnText = $('demoBannerBtnText');
-    var iconEl  = banner.querySelector('.demo-banner-icon');
-
-    /* ⭐ Hiện banner */
-    banner.style.display = 'flex';
-
-    /* ═══════════════════════════════════════════════════════════════
-       ⭐ DEMO (chưa login) → Nút "Đăng nhập bằng Gmail"
-       ═══════════════════════════════════════════════════════════════ */
-    if (titleEl) titleEl.innerHTML = 'Đăng nhập miễn phí để mở khóa toàn bộ';
-
-    if (descEl) {
-        descEl.innerHTML = 'Đăng nhập bằng <b>Gmail</b> để xem <b>toàn bộ kho câu</b>, ' +
-            'không giới hạn nghe và luyện viết.<br>' +
-            'Nghe + Luyện viết còn lại hôm nay: ' +
-            '<b id="demoRemainingText" style="color:#16a34a">' + getDemoRemaining() + '</b> lượt.';
-    }
-
-    /* ⭐ XÓA HOÀN TOÀN attribute onclick cũ + gán property mới */
-    if (btnEl) {
-        btnEl.removeAttribute('onclick');
-        btnEl.onclick = function(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
-            if (typeof showLoginModal === 'function') {
-                showLoginModal();
-            }
-        };
-    }
-
-    if (btnText) btnText.textContent = 'Đăng nhập bằng Gmail';
-
-    /* ⭐ Đổi icon trong nút thành icon đăng nhập */
-    var btnIcon = btnEl ? btnEl.querySelector('i') : null;
-    if (btnIcon) btnIcon.className = 'fas fa-sign-in-alt';
-
-    /* ⭐ Icon tròn bên trái */
-    if (iconEl) iconEl.innerHTML = '<i class="fas fa-gift"></i>';
-
-    /* ⭐ Reset màu về mặc định (vàng) */
-    banner.style.background = '';
-    banner.style.borderColor = '';
+    /* Đã gộp vào #vocabWarningBanner */
+    return;
 }
-
     
 
 /* ============================================================ */
