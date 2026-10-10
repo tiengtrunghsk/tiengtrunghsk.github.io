@@ -65,6 +65,7 @@ body.pf-assemble-active .pf-assemble-mode {
     font-size: clamp(.68rem, .82vw, .78rem);
 }
 
+/* ⭐ TU VUNG - IN DAM, NOI BAT, CLICKABLE -> mo modal */
 .pf-assemble-info .pf-info-word {
     font-family: var(--font-zh, 'PingFang SC', sans-serif);
     font-size: clamp(1.15rem, 1.6vw, 1.35rem);
@@ -123,6 +124,7 @@ body.pf-assemble-active .pf-assemble-mode {
     color: #fff;
 }
 
+/* ⭐ CAU VI DU ZH - KHONG co nen/vien, click -> doc TTS */
 .pf-assemble-info .pf-info-example {
     font-family: var(--font-zh, 'PingFang SC', sans-serif);
     font-size: clamp(.85rem, 1.1vw, .95rem);
@@ -167,6 +169,7 @@ body.pf-assemble-active .pf-assemble-mode {
     color: var(--text);
 }
 
+/* ⭐ CAU HIEN THI THUAN - khong click */
 .pf-assemble-info .pf-info-plain {
     font-family: var(--font-zh, 'PingFang SC', sans-serif);
     font-size: clamp(.95rem, 1.2vw, 1.05rem);
@@ -1220,8 +1223,15 @@ _JS_PART_1 = r"""
         return clusters;
     }
 
+    /* ⭐ TAO PARTICLES - CHI KHI MODAL DANG MO */
     function pfCreateParticles(sourceEl, count) {
         if (!sourceEl) return;
+
+        /* ⭐ CHECK MODAL DANG MO - NEU KHONG THI KHONG TAO */
+        var pfModal = document.getElementById('practiceFullModal');
+        if (!pfModal || !pfModal.classList.contains('show')) {
+            return;
+        }
 
         var rect = sourceEl.getBoundingClientRect();
         var width = rect.width;
@@ -1271,6 +1281,17 @@ _JS_PART_1 = r"""
                     if (el.parentNode) el.parentNode.removeChild(el);
                 }, 2200 + delay);
             })(p);
+        }
+    }
+
+    /* ⭐ DON SACH PARTICLES KHI DONG MODAL */
+    function pfCleanupParticles() {
+        var layer = document.getElementById('pfParticleLayer');
+        if (layer) {
+            layer.innerHTML = '';
+            if (layer.parentNode) {
+                layer.parentNode.removeChild(layer);
+            }
         }
     }
 
@@ -1382,9 +1403,16 @@ _JS_PART_1 = r"""
         }
     }
 
+    /* ⭐ SHUFFLE - CHI KHI MODAL DANG MO */
     function pfDoShuffle() {
         var status = pfCheckAssembleStatus();
         if (status === 'correct') return;
+
+        /* ⭐ CHECK MODAL DANG MO */
+        var pfModal = document.getElementById('practiceFullModal');
+        if (!pfModal || !pfModal.classList.contains('show')) {
+            return;
+        }
 
         var poolEl = document.getElementById('pfAssemblePool');
         if (!poolEl) return;
@@ -1478,6 +1506,7 @@ _JS_PART_1 = r"""
 
 
 _JS_PART_2 = r"""
+    /* ⭐ RENDER INFO BAR - PHAN BIET 2 LOAI TAB */
     function pfRenderInfo() {
         var infoEl = document.getElementById('pfAssembleInfo');
         if (!infoEl) return;
@@ -1864,6 +1893,7 @@ _JS_PART_3 = r"""
             pfResetAssemble();
         } else {
             pfStopAutoShuffle();
+            pfCleanupParticles();
             var statusEl2 = document.getElementById('pfStatus');
             if (statusEl2) {
                 statusEl2.textContent = '';
@@ -2182,6 +2212,36 @@ _JS_PART_4 = r"""
             });
         }
 
+        /* ⭐ HOOK: DON PARTICLES + DUNG SHUFFLE KHI DONG MODAL */
+        (function hookCloseModal() {
+            if (window.__assembleCloseHooked) return;
+            window.__assembleCloseHooked = true;
+
+            var origClose = window.closePracticeFull;
+            if (typeof origClose === 'function') {
+                window.closePracticeFull = function() {
+                    if (pfAutoShuffleTimer) pfStopAutoShuffle();
+                    pfCleanupParticles();
+                    return origClose.apply(this, arguments);
+                };
+                console.log('[Assemble] Da hook closePracticeFull - cleanup particles');
+            } else {
+                /* Neu closePracticeFull chua co - retry sau 500ms */
+                setTimeout(function() {
+                    var origClose2 = window.closePracticeFull;
+                    if (typeof origClose2 === 'function' && !window.__assembleCloseHooked2) {
+                        window.__assembleCloseHooked2 = true;
+                        window.closePracticeFull = function() {
+                            if (pfAutoShuffleTimer) pfStopAutoShuffle();
+                            pfCleanupParticles();
+                            return origClose2.apply(this, arguments);
+                        };
+                        console.log('[Assemble] Da hook closePracticeFull (retry)');
+                    }
+                }, 500);
+            }
+        })();
+
         setInterval(function() {
             pfUpdateToggleBtnUI();
         }, 800);
@@ -2209,7 +2269,8 @@ _JS_PART_4 = r"""
         toggleInfo: pfToggleInfo,
         isInfoVisible: function() { return pfInfoVisible; },
         showMnemonicForWord: window.pfShowMnemonicForWord,
-        speakText: pfSpeakText
+        speakText: pfSpeakText,
+        cleanupParticles: pfCleanupParticles
     };
 
 })();
