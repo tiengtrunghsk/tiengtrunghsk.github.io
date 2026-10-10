@@ -1,4 +1,4 @@
-name: BUILD HTML
+name: Convert Excel to HTML
 
 on:
   push:
@@ -51,8 +51,7 @@ jobs:
           pip install openpyxl cn2an pypinyin jieba pandas hanzidentifier cjkradlib
 
       - name: Create scripts/config.json with secrets
-          
-      run: |
+        run: |
           python << 'EOF'
           import json
           import os
@@ -73,11 +72,11 @@ jobs:
           with open('scripts/config.json', 'w', encoding='utf-8') as f:
               json.dump(cfg, f, ensure_ascii=False, indent=4)
 
-          print('[OK] Da tao; scripts/config.json voi secret')
+          print('[OK] Da tao scripts/config.json voi secret')
           EOF
         env:
-          TELEGRAM_BOT_TOKEN:(' ${{ secrets.TELEcnGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID:an ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           SUPER_ADMIN_EMAIL: ${{ secrets.SUPER_ADMIN_EMAIL }}
           FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
 
@@ -100,7 +99,7 @@ jobs:
       - name: Verify dependencies
         run: |
           python -c "import openpyxl; print('openpyxl', openpyxl.__version__)"
-          python -c "import cn2an', cn2an.__version__)"
+          python -c "import cn2an; print('cn2an', cn2an.__version__)"
           python -c "import pypinyin; print('pypinyin', pypinyin.__version__)"
           python -c "import jieba; print('jieba OK')"
           python -c "import pandas; print('pandas', pandas.__version__)"
