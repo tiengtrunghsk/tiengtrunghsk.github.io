@@ -31101,7 +31101,7 @@ window.__SIMILAR_CHARS__ = {"版": {"similar": ["板", "饭"], "diff": "版=bả
     var storyPart = '';
 
     var storyMatch = text.match(
-        /🎬\s*([\s\S]*?)(?=(?:\n\s*📎\s*Ví\s*dụ)|\n\s*🔗|\n\s*💡|\n\s*📌|\s*$)/
+        /(?:🎬|📌)\s*([\s\S]*?)(?=(?:\n\s*📎\s*Ví\s*dụ)|\n\s*🔗|\n\s*💡|\s*$)/
     );
 
     if (storyMatch) {
@@ -31169,8 +31169,7 @@ window.__SIMILAR_CHARS__ = {"版": {"similar": ["板", "饭"], "diff": "版=bả
 
     var storyHtml = '';
     if (storyPart) {
-        var storyBody = storyPart.replace(/^🎬\s*/, '').trim();
-        var storyContentHtml = _processText(storyBody);
+        var storyContentHtml = _processText(storyPart);
 
         storyHtml =
             '<div class="mnemonic-story-wrap" data-story="1">' +
