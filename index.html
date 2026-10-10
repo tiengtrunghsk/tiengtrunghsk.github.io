@@ -16492,6 +16492,30 @@ function favBuildFavButton(stt) {
         '<i class="' + iconClass + '"></i>' +
         '</button>';
 }
+/* ⭐ Xóa banner chủ đề gợi ý khi tier không cần (active/admin) */
+function removeOnboardingBannerIfNeeded() {
+    var info = (typeof getTierInfo === 'function') ? getTierInfo() : { tier: 'demo' };
+
+    var isActive = (info.tier === 'active');
+    var isAdmin = false;
+    try {
+        isAdmin = !!(typeof currentUser !== 'undefined'
+                     && currentUser
+                     && currentUser.role === 'admin');
+    } catch(e) {}
+
+    if (isActive || isAdmin) {
+        var banner = document.getElementById('onboardingActiveBanner');
+        if (banner) banner.remove();
+
+        /* Xóa override để data render đầy đủ (không bị giới hạn topic) */
+        window.__onboardingOverride = null;
+        window.__onboardingAutoPicked = false;
+
+        console.log('[Onboarding] Đã xóa banner chủ đề (tier: ' + info.tier + ', admin: ' + isAdmin + ')');
+    }
+}
+window.removeOnboardingBannerIfNeeded = removeOnboardingBannerIfNeeded;
 
 window.pfApplyFilter = pfApplyFilter;
 window.pfBuildQuickNav = pfBuildQuickNav;
