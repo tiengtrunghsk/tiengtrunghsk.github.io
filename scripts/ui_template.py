@@ -4583,18 +4583,18 @@ function saveOnboardingSelection(topics, autoPicked) {
 /* SỬA: MAYBE SHOW ONBOARDING — LUÔN VẼ BANNER NẾU CÓ SELECTION */
 /* ═══════════════════════════════════════════════════════════ */
 function maybeShowOnboarding() {
+    /* ⭐ KHÔNG TỰ ĐỘNG HIỆN MODAL LÚC KHỞI ĐỘNG
+       - Lần đầu vào → tự động chọn TẤT CẢ chủ đề có thể
+       - User bấm nút "Đổi" → mới mở modal (giữ nguyên logic onChangeTopicsClick)
+    */
     var info = getTierInfo();
 
-    // ⭐ Bỏ onboarding cho active + admin
+    /* Bỏ qua cho active + admin */
     if (info.tier === 'active') return;
     if (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'admin') return;
 
-    // Chỉ demo / trial / expired mới cần chọn chủ đề
-    if (info.tier !== 'demo' && info.tier !== 'trial'
-        && info.tier !== 'expired') return;
-
-    var cfg = getOnboardingConfig();
-    if (!cfg) return;
+    /* Chỉ demo / trial / expired */
+    if (info.tier !== 'demo' && info.tier !== 'trial' && info.tier !== 'expired') return;
 
     if (typeof RAW_DATA === 'undefined' || !RAW_DATA || RAW_DATA.length === 0) {
         setTimeout(maybeShowOnboarding, 300);
@@ -4607,7 +4607,7 @@ function maybeShowOnboarding() {
         return;
     }
 
-    // Neu da co override -> chi can goi applyFilter de render
+    /* ⭐ Nếu đã có override → chỉ apply filter (không hiện modal) */
     if (window.__onboardingOverride
         && Array.isArray(window.__onboardingOverride)
         && window.__onboardingOverride.length > 0) {
@@ -4616,18 +4616,32 @@ function maybeShowOnboarding() {
         return;
     }
 
-    // Co selection cu -> apply + render lai
+    /* ⭐ Có selection cũ → apply + KHÔNG hiện modal */
     var saved = loadOnboardingSelection();
     if (saved && Array.isArray(saved.topics) && saved.topics.length > 0) {
         window.__onboardingAutoPicked = !!saved.auto_picked;
-        applyOnboardingSelection(saved.topics, false);
+        if (typeof applyOnboardingSelection === 'function') {
+            applyOnboardingSelection(saved.topics, false);
+        }
         if (typeof applyFilter === 'function') applyFilter();
         if (typeof updateResultCount === 'function') updateResultCount();
         return;
     }
 
-    // Chua co selection -> hien modal
-    showOnboardingModal();
+    /* ⭐ LẦN ĐẦU VÀO: tự động chọn TẤT CẢ chủ đề — KHÔNG hiện modal */
+    var allTopics = getAvailableTopicsForTier();
+    if (allTopics.length === 0) return;
+
+    var pickedTopics = allTopics.map(function(t) { return t.name; });
+
+    window.__onboardingAutoPicked = true;
+    saveOnboardingSelection(pickedTopics, true);
+
+    if (typeof applyOnboardingSelection === 'function') {
+        applyOnboardingSelection(pickedTopics, false);
+    }
+    if (typeof applyFilter === 'function') applyFilter();
+    if (typeof updateResultCount === 'function') updateResultCount();
 }
 function showOnboardingModal() {
     var cfg = getOnboardingConfig();
