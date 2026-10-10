@@ -23,7 +23,7 @@ def build_intro_css():
     display: flex;
     align-items: center;
     gap: .65rem;
-    padding: .55rem .85rem;
+    padding: .6rem .85rem;
     margin-bottom: 1rem;
     background: linear-gradient(135deg,
         rgba(99, 102, 241, .08) 0%,
@@ -44,15 +44,15 @@ def build_intro_css():
 .quick-intro-banner.dismissed { display: none !important; }
 
 .qib-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 9px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     background: linear-gradient(135deg, #6366f1, #8b5cf6 40%, #d946ef);
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: .9rem;
+    font-size: 1rem;
     flex-shrink: 0;
     box-shadow: 0 3px 10px rgba(139, 92, 246, .35);
     position: relative;
@@ -62,7 +62,7 @@ def build_intro_css():
 .qib-marquee {
     flex: 1 1 auto;
     min-width: 0;
-    height: 26px;
+    height: 30px;
     overflow: hidden;
     position: relative;
     mask-image: linear-gradient(90deg,
@@ -93,39 +93,60 @@ def build_intro_css():
 .qib-item {
     display: inline-flex;
     align-items: center;
-    gap: .35rem;
+    gap: .45rem;
     padding: 0 1.5rem;
-    font-size: .8rem;
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: 800;
     color: var(--text);
     line-height: 1;
     flex-shrink: 0;
+    letter-spacing: .01em;
 }
 .qib-item i {
     color: #d946ef;
-    font-size: .8rem;
+    font-size: 1.05rem;
+    filter: drop-shadow(0 1px 2px rgba(217, 70, 239, .3));
 }
 .qib-item b {
     color: #dc2626;
     font-weight: 900;
-    margin: 0 .1em;
+    margin: 0 .15em;
+    letter-spacing: .02em;
+    background: linear-gradient(135deg, #dc2626, #ef4444 50%, #dc2626);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(0 1px 1px rgba(220, 38, 38, .2));
 }
 .qib-item.sep::after {
     content: '·';
     margin-left: 1.5rem;
-    color: var(--text-3);
-    opacity: .5;
-    font-size: 1.2em;
+    color: #d946ef;
+    opacity: .7;
+    font-size: 1.6em;
+    font-weight: 900;
+    line-height: 1;
+    text-shadow: 0 0 6px rgba(217, 70, 239, .4);
 }
 
 [data-theme="dark"] .qib-item {
     color: #e2e8f0;
 }
 [data-theme="dark"] .qib-item b {
-    color: #fca5a5;
+    background: linear-gradient(135deg, #fca5a5, #f87171 50%, #fca5a5);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
 }
 [data-theme="dark"] .qib-item i {
     color: #f0abfc;
+    filter: drop-shadow(0 1px 2px rgba(240, 171, 252, .4));
+}
+[data-theme="dark"] .qib-item.sep::after {
+    color: #f0abfc;
+    text-shadow: 0 0 8px rgba(240, 171, 252, .5);
 }
 
 /* ═══════════════════════════════════════════════════════════ */
@@ -142,14 +163,14 @@ def build_intro_css():
     border-left: 1.5px dashed rgba(139, 92, 246, .3);
 }
 .qib-mock-btn {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     border: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: .85rem;
+    font-size: .95rem;
     cursor: pointer;
     flex-shrink: 0;
     transition: transform .2s cubic-bezier(.34,1.56,.64,1),
@@ -211,8 +232,8 @@ def build_intro_css():
 }
 
 .qib-btn-ghost {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     padding: 0;
     display: inline-flex;
     align-items: center;
@@ -223,7 +244,7 @@ def build_intro_css():
     border-radius: 50px;
     cursor: pointer;
     font-family: inherit;
-    font-size: .78rem;
+    font-size: .82rem;
     transition: all .2s ease;
 }
 .qib-btn-ghost:hover {
@@ -239,37 +260,42 @@ def build_intro_css():
 
 @media (max-width: 500px) {
     .quick-intro-banner {
-        padding: .5rem .65rem;
+        padding: .55rem .65rem;
         gap: .5rem;
     }
     .qib-icon {
-        width: 28px;
-        height: 28px;
-        font-size: .82rem;
-        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        font-size: .9rem;
+        border-radius: 9px;
     }
-    .qib-marquee { height: 22px; }
-    .qib-item  {
-        font-size: .2672rem;
-        padding: 0px 1.15rem;
+    .qib-marquee { height: 26px; }
+    .qib-item {
+        font-size: .85rem;
+        padding: 0 1.15rem;
+        gap: .35rem;
     }
-    .;
-qib-item.sep::after {
-        margin   -left: 1.15rem;
- }
+    .qib-item i {
+        font-size: .9rem;
+    }
+    .qib-item.sep::after {
+        margin-left: 1.15rem;
+        font-size: 1.4em;
     }
     .qib-mock-actions {
         gap: .25rem;
         padding-left: .35rem;
     }
     .qib-mock-btn {
-        width: 28px;
-        height: 28px;
-        font-size: .75rem;
+        width: 32px;
+        height: 32px;
+        font-size: .85rem;
     }
     .qib-btn-ghost {
-        width: 26px;
-        height:}
+        width: 30px;
+        height: 30px;
+    }
+}
 @media (max-width: 380px) {
     .qib-mock-btn.write {
         display: none;
