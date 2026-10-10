@@ -30354,31 +30354,6 @@ window.__switchRawData = function(datasetId) {
                 } catch(err) {}
             }, true);
         }
-        var cnBtn = document.querySelector('.ds-btn[data-dataset-group="chuyen-nganh"]');
-        if (cnBtn && !cnBtn.__fixedBind) {
-            cnBtn.__fixedBind = true;
-            cnBtn.addEventListener('click', function(e) {
-                e.stopImmediateIconPropagation();
-                e.stopImmediatePropagation();
-                e.stopPropagation();
-                var sub = document.getElementById('dsSubWrap');
-                if (!sub) return;
-                var isOpen = sub.style.display === 'block';
-                if (isOpen) {
-                    sub.style.display = 'none';
-                    this.classList.remove('active');
-                } else {
-                    sub.style.display = 'block';
-                    document.querySelectorAll('.ds-btn').forEach(function(b) {
-                        b.classList.remove('active');
-                    });
-                    this.classList.add('active');
-                    if (typeof initDatasetSelector === 'function') {
-                        try { initDatasetSelector(); } catch(err) {}
-                    }
-                }
-            }, true);
-        }
     }
     setTimeout(bindFixedTabs, 1500);
     setInterval(bindFixedTabs, 2000);
