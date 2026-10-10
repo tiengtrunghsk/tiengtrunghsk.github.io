@@ -29774,6 +29774,136 @@ window.__switchRawData = function(datasetId) {
 })();
 </script>
 
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   FIX_ALL_CONFLICTS: Cleanup runtime
+   - Đảm bảo nút Chuyên ngành LUÔN hoạt động
+   - Chặn mọi event conflict từ module cũ
+   - Watchdog: nếu DOM bị thay thế, tự re-bind
+   ═══════════════════════════════════════════════════════════════════════ */
+(function() {
+    'use strict';
+
+    console.log('[FIX_CONFLICT] Cleanup script loaded');
+
+    /* ═══ 1. Watchdog: Đảm bảo nút Chuyên ngành luôn toggle được ═══ */
+    function bindCNWatchdog() {
+        var cnBtn = document.getElementById('dsChuyenNganhBtn')
+                 || document.querySelector('.ds-btn[data-dataset-group="chuyen-nganh"]');
+        if (!cnBtn) return;
+
+        if (cnBtn.__cleanupBound) return;
+        cnBtn.__cleanupBound = true;
+
+        /* Capture-phase listener chạy TRƯỚC mọi stopImmediatePropagation khác */
+        cnBtn.addEventListener('click', function(e) {
+            /* Nếu bị stopImmediatePropagation ở phase khác → vẫn cố toggle */
+            setTimeout(function() {
+                var sub = document.getElementById('dsSubWrap');
+                if (!sub) return;
+
+                var isOpen = sub.style.display !== 'none';
+                var hasActive = cnBtn.classList.contains('active');
+
+                /* Logic: chỉ xử lý khi DOM chưa toggle đúng */
+                if (!isOpen && !hasActive) {
+                    /* Chưa mở → mở */
+                    sub.style.display = 'block';
+                    document.querySelectorAll('.ds-btn:not([data-dataset-group="chuyen-nganh"])')
+                        .forEach(function(b) { b.classList.remove('active'); });
+                    cnBtn.classList.add('active');
+                } else if (!isOpen && hasActive) {
+                    /* Lệch state → fix */
+                    sub.style.display = 'block';
+                }
+            }, 0);
+        }, true);
+
+        console.log('[FIX_CONFLICT] Đã bind watchdog cho nút Chuyên ngành');
+    }
+
+    /* ═══ 2. Dọn DOM: xoá các nút clone dư ═══ */
+    function cleanupDuplicates() {
+        var cnBtns = document.querySelectorAll('.ds-btn[data-dataset-group="chuyen-nganh"]');
+        if (cnBtns.length > 1) {
+            console.warn('[FIX_CONFLICT] Có ' + cnBtns.length + ' nút Chuyên ngành — xoá bớt');
+            for (var i = 1; i < cnBtns.length; i++) {
+                cnBtns[i].remove();
+            }
+        }
+
+        var tonghopBtns = document.querySelectorAll('.ds-btn[data-dataset="tonghop"]');
+        if (tonghopBtns.length > 1) {
+            console.warn('[FIX_CONFLICT] Có ' + tonghopBtns.length + ' nút Tổng hợp — xoá bớt');
+            for (var j = 1; j < tonghopBtns.length; j++) {
+                tonghopBtns[j].remove();
+            }
+        }
+    }
+
+    /* ═══ 3. Fix state mismatch định kỳ ═══ */
+    function fixStateMismatch() {
+        var cnBtn = document.querySelector('.ds-btn[data-dataset-group="chuyen-nganh"]');
+        var sub = document.getElementById('dsSubWrap');
+        if (!cnBtn || !sub) return;
+
+        var isOpen = sub.style.display !== 'none';
+        var hasActive = cnBtn.classList.contains('active');
+
+        /* Nếu dropdown mở nhưng nút không active → fix */
+        if (isOpen && !hasActive) {
+            cnBtn.classList.add('active');
+        }
+        /* Nếu dropdown đóng nhưng nút active → chỉ fix nếu KHÔNG phải vừa click */
+        if (!isOpen && hasActive && !cnBtn.__justClicked) {
+            /* Không tự fix ở đây để tránh race */
+        }
+    }
+
+    /* ═══ 4. Khởi động ═══ */
+    function init() {
+        bindCNWatchdog();
+        cleanupDuplicates();
+
+        /* Re-bind khi DOM có thay đổi */
+        var obs = new MutationObserver(function(muts) {
+            for (var i = 0; i < muts.length; i++) {
+                var added = muts[i].addedNodes;
+                for (var j = 0; j < added.length; j++) {
+                    var n = added[j];
+                    if (n.nodeType !== 1) continue;
+                    if (n.matches && (
+                        n.matches('.ds-btn[data-dataset-group="chuyen-nganh"]') ||
+                        n.querySelector('.ds-btn[data-dataset-group="chuyen-nganh"]')
+                    )) {
+                        setTimeout(bindCNWatchdog, 50);
+                    }
+                }
+            }
+        });
+
+        var dsRow = document.querySelector('.ds-main-row');
+        if (dsRow) {
+            obs.observe(dsRow, { childList: true, subtree: true });
+        }
+
+        /* Định kỳ fix mismatch (nhẹ, 2s/lần) */
+        setInterval(fixStateMismatch, 2000);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    /* Re-init khi cần */
+    setTimeout(init, 500);
+    setTimeout(init, 1500);
+})();
+</script>
+
+
 <div class="vocab-upgrade-modal" id="vocabUpgradeModal">
     <div class="vocab-upgrade-box">
         <div class="vocab-upgrade-header">
@@ -30176,16 +30306,18 @@ window.__switchRawData = function(datasetId) {
     }
 
     function bindTab(dsId) {
+        /* ⭐ FIX_CONFLICT: Bỏ qua nút chuyen-nganh — không clone */
+        if (dsId === 'chuyen-nganh') return;
         var btn = document.querySelector('.ds-btn[data-dataset="' + dsId + '"]');
+        if (btn && btn.getAttribute('data-dataset-group') === 'chuyen-nganh') return;
         if (!btn) return;
         if (btn.__fixPyBound) return;
         var cloned = btn.cloneNode(true);
         btn.parentNode.replaceChild(cloned, btn);
         cloned.__fixPyBound = true;
         cloned.addEventListener('click', function(e) {
-            e.stopImmediatePropagation();
+            /* FIX_CONFLICT: bỏ stopImmediatePropagation */
             e.stopPropagation();
-            e.preventDefault();
             var sub = document.getElementById('dsSubWrap');
             if (sub) sub.style.display = 'none';
             document.querySelectorAll('.ds-btn, .ds-sub-btn').forEach(function(b) {
@@ -30248,7 +30380,7 @@ window.__switchRawData = function(datasetId) {
                     window.scrollTo({ top: yOffset, behavior: 'smooth' });
                 }
             }, 100);
-        }, true);
+        }, false); /* FIX_CONFLICT: bỏ capture */
     }
 
     function patchApplyOnboarding() {
@@ -30374,8 +30506,10 @@ window.__switchRawData = function(datasetId) {
         clearTimeout(_timer);
         _timer = setTimeout(bindAll, 200);
     });
-    if (document.body) {
-        observer.observe(document.body, { childList: true, subtree: true });
+    /* FIX_CONFLICT: chỉ observe .ds-main-row */
+    var _dsRow = document.querySelector('.ds-main-row');
+    if (_dsRow) {
+        observer.observe(_dsRow, { childList: true });
     }
 
     /* === BIND LAI 2 TAB GOC (tonghop + chuyen-nganh) === */
@@ -30384,7 +30518,6 @@ window.__switchRawData = function(datasetId) {
         if (tonghopBtn && !tonghopBtn.__fixedBind) {
             tonghopBtn.__fixedBind = true;
             tonghopBtn.addEventListener('click', function(e) {
-                e.stopImmediatePropagation();
                 e.stopPropagation();
                 var sub = document.getElementById('dsSubWrap');
                 if (sub) sub.style.display = 'none';
@@ -32065,6 +32198,7 @@ window.__SIMILAR_CHARS__ = {"版": {"similar": ["板", "饭"], "diff": "版=bả
 </script>
 
 
+
 <script>
 /* PATCH_BUTTONS: FIX ACTIVE TAB */
 (function() {
@@ -32077,6 +32211,12 @@ window.__SIMILAR_CHARS__ = {"版": {"similar": ["板", "饭"], "diff": "版=bả
         var btn = e.target.closest('.ds-btn, .ds-sub-btn');
         if (!btn) return;
 
+
+        // FIX_CONFLICT: bỏ qua nút Chuyên ngành
+        if (btn.id === 'dsChuyenNganhBtn' ||
+            btn.getAttribute('data-dataset-group') === 'chuyen-nganh') {
+            return;
+        }
         // Nút Chuyên ngành (mở dropdown) → clear Yêu thích + Từ vựng
         // ⭐ KHÔNG return — để dropdown handler chạy bình thường
         if (btn.id === 'dsChuyenNganhBtn' ||
@@ -32110,6 +32250,7 @@ window.__SIMILAR_CHARS__ = {"版": {"similar": ["板", "饭"], "diff": "版=bả
     }, true);
 })();
 </script>
+
 
 
 
@@ -32350,6 +32491,7 @@ window.__SIMILAR_CHARS__ = {"版": {"similar": ["板", "饭"], "diff": "版=bả
 })();
 
 </script>
+
 
 
 
