@@ -5373,25 +5373,24 @@ body.hide-floating .tiktok-bar { display: none !important; }
 /* INTRO */
 
 /* ═══════════════════════════════════════════════════════════════ */
-/* QUICK INTRO BANNER — Giới thiệu nhanh trên trang chủ            */
+/* QUICK INTRO BANNER — Marquee chạy chữ quảng cáo              */
 /* ═══════════════════════════════════════════════════════════════ */
 .quick-intro-banner {
     display: flex;
     align-items: center;
-    gap: .85rem;
-    padding: .8rem 1rem;
+    gap: .65rem;
+    padding: .55rem .85rem;
     margin-bottom: 1rem;
     background: linear-gradient(135deg,
-        rgba(99, 102, 241, .06) 0%,
-        rgba(139, 92, 246, .06) 50%,
-        rgba(217, 70, 239, .04) 100%);
-    border: 1.5px solid rgba(139, 92, 246, .25);
-    border-radius: 14px;
-    position: relative;
+        rgba(99, 102, 241, .08) 0%,
+        rgba(139, 92, 246, .08) 50%,
+        rgba(217, 70, 239, .06) 100%);
+    border: 1.5px solid rgba(139, 92, 246, .3);
+    border-radius: 12px;
     overflow: hidden;
+    position: relative;
     animation: qibSlideDown .5s cubic-bezier(.34, 1.56, .64, 1);
-    flex-wrap: wrap;
-    box-shadow: 0 2px 10px rgba(139, 92, 246, .06);
+    box-shadow: 0 2px 10px rgba(139, 92, 246, .08);
 }
 @keyframes qibSlideDown {
     from { opacity: 0; transform: translateY(-12px); }
@@ -5399,61 +5398,119 @@ body.hide-floating .tiktok-bar { display: none !important; }
 }
 .quick-intro-banner.dismissed { display: none !important; }
 
+/* Icon bên trái */
 .qib-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
     background: linear-gradient(135deg, #6366f1, #8b5cf6 40%, #d946ef);
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.15rem;
+    font-size: .9rem;
     flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(139, 92, 246, .35);
+    box-shadow: 0 3px 10px rgba(139, 92, 246, .35);
+    position: relative;
+    z-index: 2;
 }
 
-.qib-content {
-    flex: 1 1 300px;
+/* Khung marquee — overflow hidden, mask 2 đầu */
+.qib-marquee {
+    flex: 1 1 auto;
     min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: .3rem;
+    height: 26px;
+    overflow: hidden;
+    position: relative;
+    mask-image: linear-gradient(90deg,
+        transparent 0%,
+        #000 6%,
+        #000 94%,
+        transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg,
+        transparent 0%,
+        #000 6%,
+        #000 94%,
+        transparent 100%);
 }
 
-.qib-title {
-    font-size: .88rem;
-    font-weight: 800;
+/* Track chạy — chứa 2 bản sao nội dung để loop mượt */
+.qib-track {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+    white-space: nowrap;
+    animation: qibScroll 45s linear infinite;
+    will-change: transform;
+}
+@keyframes qibScroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+}
+
+/* Từng item trong track */
+.qib-item {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: 0 1.5rem;
+    font-size: .8rem;
+    font-weight: 700;
     color: var(--text);
-    line-height: 1.35;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.qib-item i {
+    color: #d946ef;
+    font-size: .8rem;
+}
+.qib-item b {
+    color: #dc2626;
+    font-weight: 900;
+    margin: 0 .1em;
+}
+.qib-item.sep::after {
+    content: '·';
+    margin-left: 1.5rem;
+    color: var(--text-3);
+    opacity: .5;
+    font-size: 1.2em;
 }
 
-.qib-desc {
-    font-size: .75rem;
-    color: var(--text-2);
-    line-height: 1.4;
+[data-theme="dark"] .qib-item {
+    color: #e2e8f0;
+}
+[data-theme="dark"] .qib-item b {
+    color: #fca5a5;
+}
+[data-theme="dark"] .qib-item i {
+    color: #f0abfc;
 }
 
+/* Nút bên phải */
 .qib-actions {
     display: flex;
--title    align-items: center {;
-    gap: .4rem;
+    align-items: center;
+    gap: .35rem;
     flex-shrink: 0;
+    position: relative;
+    z-index: 2;
 }
 
 .qib-btn {
     display: inline-flex;
-    align-items: center font;
-    gap: .4rem;
-   -size padding: .5rem .9:rem;
+    align-items: center;
+    gap: .35rem;
+    padding: .4rem .8rem;
     border-radius: 50px;
     border: none;
-    font-size: .78rem;
+    font-size: .74rem;
     font-weight: 800;
     cursor: pointer;
     font-family: inherit;
     transition: all .2s cubic-bezier(.34, 1.56, .64, 1);
     white-space: nowrap;
+    line-height: 1;
 }
 .qib-btn-primary {
     background: linear-gradient(135deg, #4f46e5, #7c3aed 50%, #a855f7);
@@ -5464,10 +5521,11 @@ body.hide-floating .tiktok-bar { display: none !important; }
     transform: translateY(-2px) scale(1.03);
     box-shadow: 0 6px 16px rgba(124, 58, 237, .5);
 }
-.qib-btn-primary i { font-size: .85rem; }
+.qib-btn-primary i { font-size: .78rem; }
+
 .qib-btn-ghost {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     padding: 0;
     background: var(--surface);
     color: var(--text-3);
@@ -5481,26 +5539,44 @@ body.hide-floating .tiktok-bar { display: none !important; }
     transform: rotate(90deg);
 }
 
+/* Pause khi hover */
+.qib-marquee:hover .qib-track {
+    animation-play-state: paused;
+}
+
 /* ─── Mobile ─── */
 @media (max-width: 500px) {
     .quick-intro-banner {
-        padding: .7rem .85rem;
-        gap: .65rem;
+        padding: .5rem .65rem;
+        gap: .5rem;
     }
     .qib-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 1rem;
-        border-radius: 10px;
+        width: 28px;
+        height: 28px;
+        font-size: .82rem;
+        border-radius: 8px;
     }
-    .qib-content { flex: 1 1 100%; order: 3; margin-top: .15rem; }
-    .qib .8rem; }
-    .qib-desc { font-size: .7rem; }
-    .qib-actions { order: 2; margin-left: auto; }
-    .qib-btn-primary { padding: .45rem .75rem; font-size: .72rem; }
+    .qib-marquee { height: 22px; }
+    .qib-item {
+        font-size: .72rem;
+        padding: 0 1.15rem;
+    }
+    .qib-item.sep::after {
+        margin-left: 1.15rem;
+    }
+    .qib-btn-primary {
+        padding: .35rem .65rem;
+        font-size: .68rem;
+    }
     .qib-btn-primary span { display: none; }
-    .qib-btn-primary::after { content: 'Xem'; margin-left: .1rem; }
-    .qib-btn-ghost { width: 28px; height: 28px; }
+    .qib-btn-primary::after {
+        content: 'Xem';
+        margin-left: 0;
+    }
+    .qib-btn-ghost {
+        width: 26px;
+        height: 26px;
+    }
 }
 
 /* ═══════════════════════════════════════════════════════════════ */
@@ -10960,23 +11036,88 @@ body.has-floating-group #quickSearchRoot{
 
 
 <!-- ═══════════════════════════════════════════════════════════ -->
-<!-- QUICK INTRO BANNER — Giới thiệu Luyện tập Full Modal          -->
+<!-- QUICK INTRO BANNER — Marquee chạy chữ quảng cáo              -->
 <!-- ═══════════════════════════════════════════════════════════ -->
 <div class="quick-intro-banner" id="quickIntroBanner">
     <div class="qib-icon">
-        <i class="fas fa-expand"></i>
+        <i class="fas fa-bullhorn"></i>
     </div>
-    <div class="qib-content">
-        <div class="qib-title">
-            🎯 Tab Luyện tập Full Modal — học nhanh, nhớ lâu
-        </div>
-        <div class="qib-desc">
-            Bấm <b>⛶ mở rộng</b> trên mỗi câu để luyện tập toàn màn hình — chấm điểm tự động, gợi ý, đọc audio, luyện viết.
+
+    <div class="qib-marquee">
+        <div class="qib-track">
+            <!-- BẢN 1 -->
+            <span class="qib-item sep">
+                <i class="fas fa-bolt"></i>
+                <b>LUYỆN TẬP</b> toàn màn hình · tập trung tối đa
+            </span>
+            <span class="qib-item sep">
+                <i class="fas fa-check-double"></i>
+                Chấm điểm tự động <b>từng ký tự</b> · sai đâu sửa đó
+            </span>
+            <span class="qib-item sep">
+                <i class="fas fa-graduation-cap"></i>
+                Đầy đủ <b>HSK 1 → HSK 9</b> · phân loại theo chủ đề
+            </span>
+            <span class="qib-item sep">
+                <i class="fas fa-puzzle-piece"></i>
+                Ghép từ thông minh · tự xáo trộn sau <b>12 giây</b>
+            </span>
+            <span class="qib-item sep">
+                <i class="fas fa-lightbulb"></i>
+                Gợi ý từ vựng · pinyin · câu ví dụ
+            </span>
+            <span class="qib-item sep">
+                <i class="fas fa-pen-fancy"></i>
+                Luyện viết chữ Hán theo từng nét
+            </span>
+            <span class="qib-item sep">
+                <i class="fas fa-headphones"></i>
+                Giọng đọc chuẩn · tốc độ tùy chỉnh
+            </span>
+            <span class="qib-item sep">
+                <i class="fas fa-star"></i>
+                Đánh dấu câu yêu thích · ôn lại dễ dàng
+            </span>
+
+            <!-- BẢN 2 — copy y nguyên bản 1 để loop liền mạch -->
+            <span class="qib-item sep">
+                <i class="fas fa-bolt"></i>
+                <b>LUYỆN TẬP</b> toàn màn hình · tập trung tối đa
+            </span>
+            <span class="qib-item sep">
+                <i class="fas fa-check-double"></i>
+                Chấm điểm tự động <b>từng ký tự</b> · sai đâu sửa đó
+            </span>
+            <span class="qib-item sep">
+                <i class="fas fa-graduation-cap"></i>
+                Đầy đủ <b>HSK 1 → HSK 9</b> · phân loại theo chủ đề
+            </span>
+            <span class="qib-item sep">
+                <i class="fas fa-puzzle-piece"></i>
+                Ghép từ thông minh · tự xáo trộn sau <b>12 giây</b>
+            </span>
+            <span class="qib-item sep">
+                <i class="fas fa-lightbulb"></i>
+                Gợi ý từ vựng · pinyin · câu ví dụ
+            </span>
+            <span class="qib-item sep">
+                <i class="fas fa-pen-fancy"></i>
+                Luyện viết chữ Hán theo từng nét
+            </span>
+            <span class="qib-item sep">
+                <i class="fas fa-headphones"></i>
+                Giọng đọc chuẩn · tốc độ tùy chỉnh
+            </span>
+            <span class="qib-item sep">
+                <i class="fas fa-star"></i>
+                Đánh dấu câu yêu thích · ôn lại dễ dàng
+            </span>
         </div>
     </div>
+
     <div class="qib-actions">
         <button class="qib-btn qib-btn-primary" onclick="openIntroModal()">
-            <i class="fas fa-info-circle"></i> <span>Xem chi tiết</span>
+            <i class="fas fa-info-circle"></i> <span>Chi tiết</span>
         </button>
         <button class="qib-btn qib-btn-ghost" id="quickIntroDismiss" title="Đóng">
             <i class="fas fa-times"></i>
@@ -11045,7 +11186,7 @@ body.has-floating-group #quickSearchRoot{
                         <b>Chấm điểm tự động</b> — gõ câu tiếng Trung, hệ thống so khớp từng ký tự.
                     </div>
                 </div>
-                <div class="intro                       -feature">
+                <div class="intro-feature">
                     <div class="intro-feature-icon green"><i class="fas fa-lightbulb"></i></div>
                     <div class="intro-feature-text">
                         <b>Gợi ý thông minh</b> — bấm 💡 để xem từ vựng, pinyin, câu ví dụ.
@@ -11054,7 +11195,7 @@ body.has-floating-group #quickSearchRoot{
                 <div class="intro-feature">
                     <div class="intro-feature-icon amber"><i class="fas fa-puzzle-piece"></i></div>
                     <div class="intro-feature-text">
- <b>Chế độ Ghép từ</b> — bấm từng từ để ghép câu, tự động xáo trộn sau 12 giây.
+                        <b>Chế độ Ghép từ</b> — bấm từng từ để ghép câu, tự động xáo trộn sau 12 giây.
                     </div>
                 </div>
                 <div class="intro-feature">
@@ -20336,7 +20477,7 @@ window.testTelegram = function() {
 /* INTRO */
 
 /* ═══════════════════════════════════════════════════════════════ */
-/* QUICK INTRO BANNER                                              */
+/* QUICK INTRO BANNER — Marquee                                 */
 /* ═══════════════════════════════════════════════════════════════ */
 function initQuickIntroBanner() {
     var banner = $('quickIntroBanner');
@@ -20352,6 +20493,21 @@ function initQuickIntroBanner() {
             banner.classList.add('dismissed');
             try { localStorage.setItem('quick_intro_dismissed', '1'); } catch(e) {}
         });
+    }
+
+    /* ⭐ Auto-tính tốc độ marquee dựa trên chiều rộng track */
+    var track = banner.querySelector('.qib-track');
+    if (track) {
+        var updateSpeed = function() {
+            var w = track.scrollWidth / 2;   /* chỉ đo bản 1 */
+            if (w <= 0) return;
+            var pxPerSec = 60;                /* 60px/s — đổi tùy ý */
+            var dur = w / pxPerSec;
+            track.style.animationDuration = dur + 's';
+        };
+        setTimeout(updateSpeed, 100);
+        setTimeout(updateSpeed, 800);   /* retry sau khi FA load xong */
+        window.addEventListener('resize', updateSpeed);
     }
 }
 
@@ -20387,19 +20543,29 @@ function initIntroModal() {
     var modal = $('introModal');
     var closeBtn = $('introClose');
 
-    if (btn) btn.addEventListener('click', openIntroModal);
-    if (closeBtn) closeBtn.addEventListener('click', closeIntroModal);
+    if (btn && !btn.__introBound) {
+        btn.__introBound = true;
+        btn.addEventListener('click', openIntroModal);
+    }
+    if (closeBtn && !closeBtn.__introBound) {
+        closeBtn.__introBound = true;
+        closeBtn.addEventListener('click', closeIntroModal);
+    }
 
-    if (modal) {
+    if (modal && !modal.__introBound) {
+        modal.__introBound = true;
         modal.addEventListener('click', function(e) {
             if (e.target === modal) closeIntroModal();
         });
     }
 
-    document.addEventListener('keydown', function(e) {
-        if (!modal || !modal.classList.contains('show')) return;
-        if (e.key === 'Escape') closeIntroModal();
-    });
+    if (!document.__introEscBound) {
+        document.__introEscBound = true;
+        document.addEventListener('keydown', function(e) {
+            if (!modal || !modal.classList.contains('show')) return;
+            if (e.key === 'Escape') closeIntroModal();
+        });
+    }
 }
 
 function maybeAutoOpenIntro() {
@@ -20416,15 +20582,31 @@ function maybeAutoOpenIntro() {
 }
 
 /* Hook vào initApp */
-if (typeof window.initApp === 'function') {
-    var _origInitApp = window.initApp;
-    window.initApp = function() {
-        _origInitApp.apply(this, arguments);
-        initIntroModal();
-        initQuickIntroBanner();
-        maybeAutoOpenIntro();
-    };
-}
+(function() {
+    function wrapInitApp() {
+        if (typeof window.initApp !== 'function') return false;
+        if (window.initApp.__introHooked) return true;
+
+        var _origInitApp = window.initApp;
+        window.initApp = function() {
+            _origInitApp.apply(this, arguments);
+            initIntroModal();
+            initQuickIntroBanner();
+            maybeAutoOpenIntro();
+        };
+        window.initApp.__introHooked = true;
+        return true;
+    }
+
+    if (!wrapInitApp()) {
+        /* Nếu initApp chưa được định nghĩa — retry */
+        var tries = 0;
+        var iv = setInterval(function() {
+            tries++;
+            if (wrapInitApp() || tries > 20) clearInterval(iv);
+        }, 100);
+    }
+})();
 
 /* FAVORITES */
 
