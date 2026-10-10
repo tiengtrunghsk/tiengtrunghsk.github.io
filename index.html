@@ -16432,6 +16432,35 @@ function favBuildFavButton(stt) {
         '<i class="' + iconClass + '"></i>' +
         '</button>';
 }
+/* ⭐ Tự động ẩn #demoBanner khi ở tab Từ vựng */
+(function autoHideDemoBannerInVocab() {
+    var _updateDemoBanner = updateDemoBanner;
+    window.__getUpdateDemoBanner = function() { return _updateDemoBanner; };
+
+    /* Override updateDemoBanner để kiểm tra tab hiện tại */
+    var origFunc = updateDemoBanner;
+    updateDemoBanner = function() {
+        var banner = document.getElementById('demoBanner');
+        if (!banner) return;
+        var curDs = (typeof CURRENT_DATASET !== 'undefined') ? CURRENT_DATASET : 'tonghop';
+        if (curDs === 'tu-vung') {
+            banner.style.display = 'none';
+            return;
+        }
+        return origFunc.apply(this, arguments);
+    };
+    window.updateDemoBanner = updateDemoBanner;
+
+    /* Chạy lại khi dataset thay đổi */
+    var _lastDs = null;
+    setInterval(function() {
+        var curDs = (typeof CURRENT_DATASET !== 'undefined') ? CURRENT_DATASET : 'tonghop';
+        if (curDs !== _lastDs) {
+            _lastDs = curDs;
+            try { updateDemoBanner(); } catch(e) {}
+        }
+    }, 300);
+})();
 window.pfApplyFilter = pfApplyFilter;
 window.pfBuildQuickNav = pfBuildQuickNav;
 window.pfUpdateFilterUI = pfUpdateFilterUI;
