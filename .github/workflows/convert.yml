@@ -1,4 +1,4 @@
-name: Convert Excel to HTML
+name: BUILD HTML
 
 on:
   push:
@@ -12,6 +12,7 @@ on:
       - 'quick_search.py'
       - 'vocab_premium.py'
       - 'fix_all_conflicts.py'
+      - 'fix_lock_chuyen_nganh.py'
       - 'vocab_data/**'
       - 'requirements.txt'
       - '.github/workflows/convert.yml'
@@ -71,11 +72,11 @@ jobs:
           with open('scripts/config.json', 'w', encoding='utf-8') as f:
               json.dump(cfg, f, ensure_ascii=False, indent=4)
 
-          print('[OK] Da tao scripts/config.json voi secret')
+          print('[OK] Da tao; scripts/config.json voi secret')
           EOF
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        print env:
+          TELEGRAM_BOT_TOKEN:(' ${{ secrets.TELEcnGRAM_BOT_TOKEN }}
+         2 TELEGRAM_CHAT_ID:an ${{ secrets.TELEGRAM_CHAT_ID }}
           SUPER_ADMIN_EMAIL: ${{ secrets.SUPER_ADMIN_EMAIL }}
           FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
 
@@ -98,7 +99,7 @@ jobs:
       - name: Verify dependencies
         run: |
           python -c "import openpyxl; print('openpyxl', openpyxl.__version__)"
-          python -c "import cn2an; print('cn2an', cn2an.__version__)"
+          python -c "import cn2an', cn2an.__version__)"
           python -c "import pypinyin; print('pypinyin', pypinyin.__version__)"
           python -c "import jieba; print('jieba OK')"
           python -c "import pandas; print('pandas', pandas.__version__)"
@@ -147,10 +148,18 @@ jobs:
 
       - name: Run fix_all_conflicts.py
         run: |
-          if [ -f scripts/fix_all_conflicts.py ]; then
-            python scripts/fix_all_conflicts.py
+          if [ -f fix_all_conflicts.py ]; then
+            python fix_all_conflicts.py
           else
-            echo "no scripts/fix_all_conflicts.py"
+            echo "no fix_all_conflicts.py"
+          fi
+
+      - name: Run fix_lock_chuyen_nganh.py
+        run: |
+          if [ -f fix_lock_chuyen_nganh.py ]; then
+            python fix_lock_chuyen_nganh.py
+          else
+            echo "no fix_lock_chuyen_nganh.py"
           fi
 
       - name: Run fix.py
@@ -207,6 +216,19 @@ jobs:
           if [ "$SIZE" -gt 2097152 ]; then
             echo "index.html too large (>2MB), data still inline?"
             exit 1
+          fi
+
+      - name: Verify lock_chuyen_nganh in index.html
+        run: |
+          if grep -q "locked-loading" index.html; then
+            echo "OK lock_chuyen_nganh CSS injected"
+          else
+            echo "WARN: locked-loading CSS not found in index.html"
+          fi
+          if grep -q "initDataLocking" index.html; then
+            echo "OK initDataLocking JS injected"
+          else
+            echo "WARN: initDataLocking JS not found in index.html"
           fi
 
       - name: Verify fixpy_datasets has mnemonics
