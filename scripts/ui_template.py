@@ -3837,6 +3837,26 @@ function autoFitLabel(el) {
         safety++;
     }
 }
+function bindChuyenNganhToggle() {
+    var cnBtn = $('dsChuyenNganhBtn');
+    if (!cnBtn || cnBtn.__boundToggle) return;
+    cnBtn.__boundToggle = true;
+    cnBtn.addEventListener('click', function() {
+        var sub = $('dsSubWrap');
+        if (!sub) return;
+        var isOpen = sub.style.display !== 'none';
+        if (isOpen) {
+            sub.style.display = 'none';
+            cnBtn.classList.remove('active');
+        } else {
+            sub.style.display = 'block';
+            document.querySelectorAll('.ds-btn').forEach(function(b) {
+                b.classList.remove('active');
+            });
+            cnBtn.classList.add('active');
+        }
+    });
+}
 /* ============================================================ */
 /* DATASET SWITCHING                                             */
 /* ============================================================ */
@@ -3953,26 +3973,7 @@ function initDatasetSelector() {
         });
     });
 
-    /* NÚT CHUYÊN NGÀNH — Click để mở/đóng dropdown */
-    if (cnBtn && !cnBtn.__boundToggle) {
-        cnBtn.__boundToggle = true;
-        cnBtn.addEventListener('click', function() {
-            var sub = $('dsSubWrap');
-            if (!sub) return;
-            var isOpen = sub.style.display !== 'none';
-            if (isOpen) {
-                sub.style.display = 'none';
-                cnBtn.classList.remove('active');
-            } else {
-                sub.style.display = 'block';
-
-                document.querySelectorAll('.ds-btn').forEach(function(b) {
-                    b.classList.remove('active');
-                });
-                cnBtn.classList.add('active');
-            }
-        });
-    }
+   
 
     /* SUB-BUTTONS CHUYÊN NGÀNH — Click để chuyển dataset */
     document.querySelectorAll('.ds-sub-btn').forEach(function(btn) {
@@ -5552,6 +5553,8 @@ function initApp() {
 
     loadVoiceSettings();
     initDatasetSelector();
+    /* ⭐ FIX: Bind nút Chuyên ngành NGAY — không cần chờ data */
+    bindChuyenNganhToggle();
 
     if (typeof initSocial === 'function') initSocial();
     if (typeof updateFloatingLeftVisibility === 'function') updateFloatingLeftVisibility();
