@@ -64,8 +64,6 @@ body.pf-assemble-active .pf-assemble-mode {
     letter-spacing: 0;
     font-size: clamp(.68rem, .82vw, .78rem);
 }
-
-/* ⭐ TU VUNG - IN DAM, NOI BAT, CLICKABLE -> mo modal */
 .pf-assemble-info .pf-info-word {
     font-family: var(--font-zh, 'PingFang SC', sans-serif);
     font-size: clamp(1.15rem, 1.6vw, 1.35rem);
@@ -123,8 +121,6 @@ body.pf-assemble-active .pf-assemble-mode {
 [data-theme="dark"] .pf-assemble-info .pf-info-word:hover::after {
     color: #fff;
 }
-
-/* ⭐ CAU VI DU ZH - KHONG co nen/vien, click -> doc TTS */
 .pf-assemble-info .pf-info-example {
     font-family: var(--font-zh, 'PingFang SC', sans-serif);
     font-size: clamp(.85rem, 1.1vw, .95rem);
@@ -168,7 +164,22 @@ body.pf-assemble-active .pf-assemble-mode {
     background: var(--surface-2);
     color: var(--text);
 }
-
+.pf-assemble-info .pf-info-plain {
+    font-family: var(--font-zh, 'PingFang SC', sans-serif);
+    font-size: clamp(.95rem, 1.2vw, 1.05rem);
+    color: var(--text);
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: .15rem .4rem;
+    border-radius: 6px;
+    user-select: text;
+    cursor: default;
+    letter-spacing: .02em;
+}
+[data-theme="dark"] .pf-assemble-info .pf-info-plain {
+    color: #f1f5f9;
+}
 .pf-assemble-info .pf-info-pinyin {
     font-style: italic;
     color: var(--text-3);
@@ -185,7 +196,6 @@ body.pf-assemble-active .pf-assemble-mode {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
 .pf-assemble-answer {
     min-height: clamp(56px, 8vh, 72px);
     padding: clamp(.5rem, 1vh, .75rem) clamp(.6rem, 1.2vw, .9rem);
@@ -208,22 +218,64 @@ body.pf-assemble-active .pf-assemble-mode {
 .pf-assemble-answer.correct {
     border-color: var(--success);
     border-style: solid;
-    background: var(--surface-2);
-    animation: pfAssembleCorrect .5s ease;
+    border-width: 2.5px;
+    background: linear-gradient(135deg,
+        rgba(22, 163, 74, .06),
+        rgba(34, 197, 94, .03));
+    animation: pfAssembleCorrectGlow 1.2s cubic-bezier(.34, 1.4, .64, 1);
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(.4rem, .8vw, .6rem);
+    align-items: flex-end;
+    justify-content: center;
+    padding: clamp(.7rem, 1.4vh, 1rem) clamp(.7rem, 1.4vw, 1rem);
 }
 .pf-assemble-answer.wrong {
     border-color: var(--danger);
     animation: pfAssembleWrong .4s ease;
 }
-@keyframes pfAssembleCorrect {
-    0%   { transform: scale(1); }
-    40%  { transform: scale(1.02); }
-    100% { transform: scale(1); }
+@keyframes pfAssembleCorrectGlow {
+    0% {
+        border-color: var(--success);
+        box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
+        transform: scale(1);
+    }
+    30% {
+        border-color: var(--success);
+        box-shadow: 0 0 0 12px rgba(22, 163, 74, .18),
+                    0 8px 32px rgba(22, 163, 74, .35);
+        transform: scale(1.015);
+    }
+    100% {
+        border-color: var(--success);
+        box-shadow: 0 0 0 4px rgba(22, 163, 74, .12),
+                    0 4px 16px rgba(22, 163, 74, .2);
+        transform: scale(1);
+    }
 }
 @keyframes pfAssembleWrong {
     0%,100% { transform: translateX(0); }
     25%     { transform: translateX(-4px); }
     75%     { transform: translateX(4px); }
+}
+@keyframes pfCorrectRipple {
+    0% {
+        opacity: .6;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(2.2);
+    }
+}
+.pf-assemble-answer.correct::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    border: 2px solid var(--success);
+    pointer-events: none;
+    animation: pfCorrectRipple 1s ease-out;
 }
 .pf-assemble-hint {
     color: var(--text-3);
@@ -282,7 +334,7 @@ body.pf-assemble-active .pf-assemble-mode {
     color: var(--text);
     border-color: var(--border-strong);
     box-shadow: 0 1px 3px rgba(15,23,42,.06);
-    animation: pfWordPop .2s cubic-bezier(.34,1.56,.64,1);
+    animation: pfWordPop .25s cubic-bezier(.34,1.56,.64,1);
     font-weight: 500;
 }
 @keyframes pfWordPop {
@@ -310,6 +362,136 @@ body.pf-assemble-active .pf-assemble-mode {
 @keyframes pfWordBadBlink {
     0%, 100% { border-color: var(--danger); }
     50%      { border-color: rgba(220,38,38,.35); }
+}
+@keyframes pfWordCorrectPop {
+    0% {
+        transform: scale(1);
+        color: var(--text);
+        background: var(--surface);
+        border-color: var(--border-strong);
+        box-shadow: 0 1px 3px rgba(15, 23, 42, .06);
+    }
+    35% {
+        transform: scale(1.18) translateY(-3px);
+        color: #fff;
+        background: linear-gradient(135deg, #16a34a, #22c55e);
+        border-color: #16a34a;
+        box-shadow: 0 10px 26px rgba(22, 163, 74, .5),
+                    0 0 0 5px rgba(22, 163, 74, .18);
+    }
+    70% {
+        transform: scale(1.04) translateY(0);
+        color: #fff;
+        background: linear-gradient(135deg, #16a34a, #22c55e);
+        border-color: #16a34a;
+        box-shadow: 0 6px 16px rgba(22, 163, 74, .35);
+    }
+    100% {
+        transform: scale(1) translateY(0);
+        color: #fff;
+        background: linear-gradient(135deg, #16a34a, #22c55e);
+        border-color: #16a34a;
+        box-shadow: 0 4px 12px rgba(22, 163, 74, .3);
+        font-weight: 700;
+    }
+}
+.pf-assemble-answer.correct .pf-word {
+    animation: pfWordCorrectPop .9s cubic-bezier(.34, 1.4, .64, 1) forwards;
+    animation-delay: calc(var(--word-idx, 0) * 80ms);
+}
+.pf-assemble-answer.correct .pf-word:hover {
+    transform: scale(1.06) translateY(-2px);
+    box-shadow: 0 8px 20px rgba(22, 163, 74, .5);
+    border-color: #16a34a;
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+    color: #fff;
+}
+.pf-assemble-answer.correct .pf-word:nth-child(odd) {
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+    color: #fff;
+    border-color: #16a34a;
+}
+.pf-assemble-answer.correct .pf-word:nth-child(even) {
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: #fff;
+    border-color: #059669;
+}
+.pf-assemble-answer.correct .pf-insert-cursor {
+    display: none;
+}
+.pf-assemble-answer.correct .pf-insert-gap {
+    width: 2px;
+    pointer-events: none;
+}
+.pf-assemble-answer.correct .pf-insert-gap:hover::before {
+    display: none;
+}
+@keyframes pfConfettiBurst {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--cx), var(--cy)) scale(.3) rotate(var(--cr));
+    }
+}
+.pf-confetti {
+    position: fixed;
+    width: 8px;
+    height: 12px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 99999;
+    animation: pfConfettiBurst 1.4s cubic-bezier(.25, .6, .35, 1) forwards;
+}
+.pf-confetti.c-green { background: #22c55e; }
+.pf-confetti.c-emerald { background: #10b981; }
+.pf-confetti.c-lime { background: #84cc16; }
+.pf-confetti.c-yellow { background: #fbbf24; }
+.pf-confetti.c-blue { background: #3b82f6; }
+@keyframes pfNextBtnIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px) scale(.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+.pf-assemble-next-btn {
+    margin-top: .75rem;
+    padding: .65rem 1.3rem;
+    border-radius: 50px;
+    border: none;
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+    color: #fff;
+    font-size: .88rem;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    box-shadow: 0 6px 18px rgba(22, 163, 74, .45);
+    transition: transform .2s, box-shadow .2s;
+    animation: pfNextBtnIn .4s cubic-bezier(.34, 1.56, .64, 1);
+    align-self: center;
+}
+.pf-assemble-next-btn:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 10px 26px rgba(22, 163, 74, .6);
+}
+.pf-assemble-next-btn:active {
+    transform: translateY(0) scale(.97);
+}
+.pf-assemble-next-btn i {
+    animation: pfNextBtnArrow 1s ease-in-out infinite;
+}
+@keyframes pfNextBtnArrow {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(4px); }
 }
 .pf-assemble-actions {
     display: flex;
@@ -404,6 +586,7 @@ body.pf-assemble-active .pf-assemble-mode {
 body.pf-assemble-active #pfInputMode { display: none !important; }
 body.pf-assemble-active #pfPreview { display: none !important; }
 body.pf-assemble-active .practice-full-input { display: none !important; }
+body.pf-assemble-active #pfSpeakBtn { display: none !important; }
 body.pf-assemble-active #pfHintBtn,
 body.pf-assemble-active #pfRevealBtn,
 body.pf-assemble-active .reveal-actions {
@@ -666,7 +849,251 @@ body.pf-assemble-active .reveal-actions {
 .pf-settings-backdrop.show {
     display: block;
 }
-
+.pf-particle-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 99999;
+    overflow: hidden;
+}
+.pf-particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary, #2563eb);
+    pointer-events: none;
+    will-change: transform, opacity;
+    box-shadow: 0 0 6px rgba(37,99,235,.6);
+}
+.pf-particle.c1 { background: #2563eb; box-shadow: 0 0 8px rgba(37,99,235,.7); }
+.pf-particle.c2 { background: #3b82f6; box-shadow: 0 0 8px rgba(59,130,246,.7); }
+.pf-particle.c3 { background: #60a5fa; box-shadow: 0 0 8px rgba(96,165,250,.7); }
+.pf-particle.c4 { background: #1e40af; box-shadow: 0 0 8px rgba(30,64,175,.7); }
+.pf-particle.small {
+    width: 4px;
+    height: 4px;
+}
+.pf-particle.large {
+    width: 8px;
+    height: 8px;
+}
+@keyframes pfParticleFly {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+    30% {
+        opacity: .95;
+    }
+    70% {
+        opacity: .5;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--tx), var(--ty)) scale(.15);
+    }
+}
+@keyframes pfWordCrumble {
+    0% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg) translateY(0);
+        filter: blur(0);
+    }
+    30% {
+        opacity: .95;
+        transform: scale(1.08) rotate(1deg) translateY(-2px);
+        filter: blur(.3px);
+    }
+    60% {
+        opacity: .5;
+        transform: scale(1.15) rotate(3deg) translateY(-3px);
+        filter: blur(1.5px);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(.4) rotate(-6deg) translateY(0);
+        filter: blur(4px);
+    }
+}
+.pf-assemble-pool.pf-pool-crumbling .pf-word {
+    animation: pfWordCrumble .85s cubic-bezier(.4, 0, .5, 1) forwards;
+    pointer-events: none;
+    transform-origin: center center;
+}
+@keyframes pfWordGather {
+    0% {
+        opacity: 0;
+        transform: scale(.4) rotate(-6deg) translateY(8px);
+        filter: blur(4px);
+    }
+    40% {
+        opacity: .5;
+        transform: scale(1.08) rotate(2deg) translateY(-2px);
+        filter: blur(1px);
+    }
+    70% {
+        opacity: .95;
+        transform: scale(1.05) rotate(.5deg) translateY(0);
+        filter: blur(0);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg) translateY(0);
+        filter: blur(0);
+    }
+}
+.pf-assemble-pool.pf-pool-gathering .pf-word {
+    animation: pfWordGather 1.1s cubic-bezier(.34, 1.4, .64, 1) backwards;
+    transform-origin: center center;
+}
+@keyframes pfWordJumpUp {
+    0% {
+        transform: scale(1) translateY(0);
+        box-shadow: 0 1px 3px rgba(15,23,42,.06);
+        background: var(--surface);
+        border-color: var(--border-strong);
+    }
+    25% {
+        transform: scale(1.18) translateY(-16px);
+        box-shadow: 0 14px 32px rgba(37,99,235,.4),
+                    0 0 0 5px rgba(37,99,235,.18);
+        background: var(--primary-light, #dbeafe);
+        border-color: var(--primary, #2563eb);
+    }
+    55% {
+        transform: scale(1.05) translateY(-6px);
+        box-shadow: 0 8px 20px rgba(37,99,235,.28),
+                    0 0 0 2px rgba(37,99,235,.1);
+        background: var(--primary-light, #dbeafe);
+        border-color: var(--primary, #2563eb);
+    }
+    80% {
+        transform: scale(1.02) translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37,99,235,.15);
+        background: var(--surface);
+        border-color: var(--border-strong);
+    }
+    100% {
+        transform: scale(1) translateY(0);
+        box-shadow: 0 1px 3px rgba(15,23,42,.06);
+        background: var(--surface);
+        border-color: var(--border-strong);
+    }
+}
+.pf-assemble-answer .pf-word.pf-word-jumping {
+    animation: pfWordJumpUp .85s cubic-bezier(.34,1.4,.64,1) !important;
+    z-index: 100;
+    position: relative;
+}
+@keyframes pfWordRipple {
+    0% {
+        box-shadow: 0 0 0 0 rgba(37,99,235,.55);
+    }
+    100% {
+        box-shadow: 0 0 0 24px rgba(37,99,235,0);
+    }
+}
+.pf-assemble-pool .pf-word:active {
+    animation: pfWordRipple .55s cubic-bezier(.2, .8, .3, 1);
+}
+.pf-phrase-word {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .15rem;
+    padding: .35rem .65rem .3rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+    color: #fff;
+    border: 1.5px solid #16a34a;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, .3);
+    animation: pfPhraseIn .5s cubic-bezier(.34, 1.4, .64, 1) backwards;
+    animation-delay: calc(var(--phrase-idx, 0) * 100ms);
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .18s ease, box-shadow .18s ease;
+    flex-shrink: 0;
+}
+.pf-phrase-word:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 22px rgba(22, 163, 74, .5);
+}
+.pf-phrase-word:active {
+    transform: scale(.96);
+}
+.pf-phrase-word .pf-phrase-zh {
+    font-family: var(--font-zh, 'PingFang SC', sans-serif);
+    font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: .02em;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .15);
+}
+.pf-phrase-word .pf-phrase-pinyin {
+    font-family: inherit;
+    font-size: clamp(.62rem, .8vw, .72rem);
+    font-weight: 600;
+    font-style: italic;
+    line-height: 1;
+    color: rgba(255, 255, 255, .92);
+    letter-spacing: .01em;
+    padding-bottom: .05rem;
+}
+.pf-phrase-word::after {
+    content: '\f028';
+    font-family: 'Font Awesome 6 Free', 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 4px;
+    right: 5px;
+    font-size: .55em;
+    color: rgba(255, 255, 255, .55);
+    opacity: 0;
+    transition: opacity .18s ease;
+}
+.pf-phrase-word:hover::after {
+    opacity: 1;
+    color: rgba(255, 255, 255, .95);
+}
+.pf-phrase-word.playing {
+    animation: pfPhraseSpeak 1s ease-in-out infinite;
+}
+@keyframes pfPhraseSpeak {
+    0%, 100% { box-shadow: 0 4px 12px rgba(22, 163, 74, .3); }
+    50%      { box-shadow: 0 4px 22px rgba(22, 163, 74, .7), 0 0 0 5px rgba(22, 163, 74, .18); }
+}
+@keyframes pfPhraseIn {
+    0% {
+        opacity: 0;
+        transform: scale(.7) translateY(12px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+.pf-phrase-vi {
+    width: 100%;
+    text-align: center;
+    font-size: clamp(.8rem, 1vw, .9rem);
+    font-style: italic;
+    color: var(--text-2);
+    margin-top: .35rem;
+    padding: .4rem .6rem;
+    border-radius: 8px;
+    background: var(--surface-2);
+    border-left: 3px solid #22c55e;
+    animation: pfPhraseIn .6s ease-out backwards;
+    animation-delay: calc(var(--phrase-count, 0) * 100ms + 200ms);
+}
+[data-theme="dark"] .pf-phrase-vi {
+    color: #cbd5e1;
+    background: rgba(255, 255, 255, .04);
+}
 @media (min-width: 501px) {
     .pf-assemble-info {
         flex-wrap: nowrap;
@@ -677,7 +1104,6 @@ body.pf-assemble-active .reveal-actions {
         display: none;
     }
 }
-
 @media (max-width: 500px) {
     .pf-assemble-info {
         padding: .35rem .55rem;
@@ -698,6 +1124,9 @@ body.pf-assemble-active .reveal-actions {
     }
     .pf-assemble-info .pf-info-example {
         font-size: .78rem;
+    }
+    .pf-assemble-info .pf-info-plain {
+        font-size: .85rem;
     }
     .pf-assemble-info .pf-info-pinyin {
         font-size: .65rem;
@@ -752,6 +1181,36 @@ body.pf-assemble-active .reveal-actions {
     .pf-insert-gap {
         width: 4px;
     }
+    .pf-particle {
+        width: 5px;
+        height: 5px;
+    }
+    .pf-particle.small {
+        width: 3px;
+        height: 3px;
+    }
+    .pf-particle.large {
+        width: 6px;
+        height: 6px;
+    }
+    .pf-assemble-next-btn {
+        padding: .55rem 1.1rem;
+        font-size: .82rem;
+    }
+    .pf-assemble-answer.correct {
+        gap: .3rem;
+        padding: .55rem .5rem;
+    }
+    .pf-phrase-word {
+        padding: .28rem .5rem .25rem;
+        border-radius: 10px;
+    }
+    .pf-phrase-word .pf-phrase-zh {
+        font-size: 1.05rem;
+    }
+    .pf-phrase-word .pf-phrase-pinyin {
+        font-size: .58rem;
+    }
 }
 @media (max-width: 400px) {
     .pf-nav-icon.mini-nav.assemble-toggle.with-label .assemble-toggle-label {
@@ -774,9 +1233,9 @@ def build_assemble_html():
         '    </div>\n'
         '    <div class="pf-assemble-pool" id="pfAssemblePool"></div>\n'
         '    <div class="pf-assemble-actions">\n'
-        '        <button type="button" class="pf-assemble-btn auto-shuffle" id="pfAssembleShuffleBtn" title="Xáo trộn - sau 10s sẽ tự động xáo lại">\n'
+        '        <button type="button" class="pf-assemble-btn auto-shuffle" id="pfAssembleShuffleBtn" title="Xáo trộn - sau 12s sẽ tự động xáo lại">\n'
         '            <i class="fas fa-random pf-assemble-icon"></i>\n'
-        '            <span class="pf-shuffle-countdown" id="pfShuffleCountdown">10</span>\n'
+        '            <span class="pf-shuffle-countdown" id="pfShuffleCountdown">12</span>\n'
         '        </button>\n'
         '        <button type="button" class="pf-assemble-btn" id="pfAssembleClearBtn">\n'
         '            <i class="fas fa-undo-alt"></i> Xóa hết\n'
@@ -791,11 +1250,11 @@ def build_assemble_html():
 
 def inject_assemble_html(ui_html):
     toggle_btn = (
-        '<button class="pf-nav-icon mini-nav assemble-toggle with-label" '
+        '<button class="pf-nav-icon mini-nav assemble-toggle with-label active" '
         'id="pfAssembleToggleBtn" type="button" '
-        'title="Đang ở chế độ Gõ tự do - bấm để chuyển sang Ghép từ" aria-label="Đang ở chế độ Gõ tự do">'
-        '<i class="fas fa-keyboard"></i>'
-        '<span class="assemble-toggle-label">Gõ tự do</span>'
+        'title="Đang ở chế độ Ghép từ - bấm để chuyển sang Gõ tự do" aria-label="Đang ở chế độ Ghép từ">'
+        '<i class="fas fa-puzzle-piece"></i>'
+        '<span class="assemble-toggle-label">Ghép từ</span>'
         '<span class="assemble-new-badge">MỚI</span>'
         '</button>'
     )
@@ -881,16 +1340,22 @@ _JS_PART_1 = r"""
 
     var pfAutoShuffleTimer = null;
     var pfAutoShuffleCountdown = null;
-    var pfAutoShuffleRemain = 10;
-    var AUTO_SHUFFLE_SECONDS = 10;
+    var pfAutoShuffleRemain = 12;
+    var AUTO_SHUFFLE_SECONDS = 12;
     var PF_AUTO_SHUFFLE_PREF_KEY = 'pfAutoShufflePref';
+
+    function pfIsHanzi(ch) {
+        if (!ch) return false;
+        var cp = ch.charCodeAt(0);
+        return (cp >= 0x4e00 && cp <= 0x9fff);
+    }
 
     function pfSplitIntoWords(zh) {
         if (!zh) return [];
         var words = [];
         for (var i = 0; i < zh.length; i++) {
             var c = zh[i];
-            if (/[\u4e00-\u9fa5]/.test(c)) words.push(c);
+            if (pfIsHanzi(c)) words.push(c);
         }
         return words;
     }
@@ -1033,12 +1498,104 @@ _JS_PART_1 = r"""
         return clusters;
     }
 
+    function pfCreateParticles(sourceEl, count) {
+        if (!sourceEl) return;
+
+        var pfModal = document.getElementById('practiceFullModal');
+        if (!pfModal || !pfModal.classList.contains('show')) {
+            return;
+        }
+
+        var rect = sourceEl.getBoundingClientRect();
+        var width = rect.width;
+        var height = rect.height;
+
+        var layer = document.getElementById('pfParticleLayer');
+        if (!layer) {
+            layer = document.createElement('div');
+            layer.id = 'pfParticleLayer';
+            layer.className = 'pf-particle-layer';
+            document.body.appendChild(layer);
+        }
+
+        for (var i = 0; i < count; i++) {
+            var p = document.createElement('div');
+            p.className = 'pf-particle';
+
+            var r = Math.random();
+            if (r < 0.4) p.classList.add('small');
+            else if (r > 0.85) p.classList.add('large');
+
+            p.classList.add('c' + (Math.floor(Math.random() * 4) + 1));
+
+            var startX = rect.left + Math.random() * width;
+            var startY = rect.top + Math.random() * height;
+            p.style.left = startX + 'px';
+            p.style.top = startY + 'px';
+
+            var angle = Math.random() * Math.PI * 2;
+            var distance = 50 + Math.random() * 100;
+            var tx = Math.cos(angle) * distance;
+            var ty = Math.sin(angle) * distance - 25;
+
+            p.style.setProperty('--tx', tx + 'px');
+            p.style.setProperty('--ty', ty + 'px');
+
+            var delay = Math.random() * 150;
+            var duration = 1200 + Math.random() * 800;
+            p.style.animation = 'pfParticleFly ' + duration + 'ms '
+                              + 'cubic-bezier(.25, .6, .35, 1) '
+                              + delay + 'ms forwards';
+
+            layer.appendChild(p);
+
+            (function(el) {
+                setTimeout(function() {
+                    if (el.parentNode) el.parentNode.removeChild(el);
+                }, 2200 + delay);
+            })(p);
+        }
+    }
+
+    function pfCleanupParticles() {
+        var layer = document.getElementById('pfParticleLayer');
+        if (layer) {
+            layer.innerHTML = '';
+            if (layer.parentNode) {
+                layer.parentNode.removeChild(layer);
+            }
+        }
+    }
+
     function pfPickWord(poolIdx) {
         if (pfAssembleAnswerIdx.indexOf(poolIdx) !== -1) return;
 
+        var pickedWord = pfAssembleWords[poolIdx];
+
         pfAssembleAnswerIdx.splice(pfInsertPos, 0, poolIdx);
+        var insertPos = pfInsertPos;
         pfInsertPos++;
+
         pfRenderAssemble();
+
+        setTimeout(function() {
+            var answerEl = document.getElementById('pfAssembleAnswer');
+            if (!answerEl) return;
+
+            var btns = answerEl.querySelectorAll('.pf-word');
+            for (var i = 0; i < btns.length; i++) {
+                var btn = btns[i];
+                if (String(btn.dataset.pos) === String(insertPos) &&
+                    btn.textContent === pickedWord) {
+                    btn.classList.add('pf-word-jumping');
+
+                    setTimeout(function() {
+                        btn.classList.remove('pf-word-jumping');
+                    }, 900);
+                    break;
+                }
+            }
+        }, 20);
 
         var status = pfCheckAssembleStatus();
         if (status === 'correct') {
@@ -1122,29 +1679,68 @@ _JS_PART_1 = r"""
         var status = pfCheckAssembleStatus();
         if (status === 'correct') return;
 
-        if (pfAssembleAnswerIdx.length === 0) {
-            pfAssembleWords = pfShuffleArray(pfAssembleWords);
-        } else {
-            var usedSet = {};
-            pfAssembleAnswerIdx.forEach(function(i) { usedSet[i] = true; });
+        var pfModal = document.getElementById('practiceFullModal');
+        if (!pfModal || !pfModal.classList.contains('show')) {
+            return;
+        }
 
-            var freeSlots = [];
-            var freeWords = [];
-            for (var i = 0; i < pfAssembleWords.length; i++) {
-                if (!usedSet[i]) {
-                    freeSlots.push(i);
-                    freeWords.push(pfAssembleWords[i]);
+        var poolEl = document.getElementById('pfAssemblePool');
+        if (!poolEl) return;
+
+        var words = poolEl.querySelectorAll('.pf-word');
+        words.forEach(function(w) {
+            var count = 6 + Math.floor(Math.random() * 5);
+            pfCreateParticles(w, count);
+        });
+
+        poolEl.classList.add('pf-pool-crumbling');
+
+        setTimeout(function() {
+            if (pfAssembleAnswerIdx.length === 0) {
+                pfAssembleWords = pfShuffleArray(pfAssembleWords);
+            } else {
+                var usedSet = {};
+                pfAssembleAnswerIdx.forEach(function(i) { usedSet[i] = true; });
+
+                var freeSlots = [];
+                var freeWords = [];
+                for (var i = 0; i < pfAssembleWords.length; i++) {
+                    if (!usedSet[i]) {
+                        freeSlots.push(i);
+                        freeWords.push(pfAssembleWords[i]);
+                    }
+                }
+
+                var shuffled = pfShuffleArray(freeWords);
+
+                for (var k = 0; k < freeSlots.length; k++) {
+                    pfAssembleWords[freeSlots[k]] = shuffled[k];
                 }
             }
 
-            var shuffled = pfShuffleArray(freeWords);
+            pfRenderAssemble();
 
-            for (var k = 0; k < freeSlots.length; k++) {
-                pfAssembleWords[freeSlots[k]] = shuffled[k];
-            }
-        }
+            setTimeout(function() {
+                var poolEl2 = document.getElementById('pfAssemblePool');
+                if (!poolEl2) return;
 
-        pfRenderAssemble();
+                poolEl2.classList.remove('pf-pool-crumbling');
+                poolEl2.classList.add('pf-pool-gathering');
+
+                var newWords = poolEl2.querySelectorAll('.pf-word');
+                newWords.forEach(function(w, idx) {
+                    w.style.animationDelay = (idx * 100) + 'ms';
+                });
+
+                setTimeout(function() {
+                    poolEl2.classList.remove('pf-pool-gathering');
+                    newWords.forEach(function(w) {
+                        w.style.animationDelay = '';
+                    });
+                }, 1200 + (newWords.length * 100));
+            }, 30);
+
+        }, 880);
     }
 
     function pfStartAutoShuffle() {
@@ -1180,7 +1776,6 @@ _JS_PART_1 = r"""
 
 
 _JS_PART_2 = r"""
-    /* ⭐ RENDER INFO BAR - tu vung click -> modal, cau VD click -> doc */
     function pfRenderInfo() {
         var infoEl = document.getElementById('pfAssembleInfo');
         if (!infoEl) return;
@@ -1205,52 +1800,64 @@ _JS_PART_2 = r"""
 
         var html = '';
 
-        /* 1. Tag HSK */
         if (currentItem.hsk) {
             html += '<span class="pf-info-tag pf-info-hsk">' +
                     escHtml(currentItem.hsk) +
                     '</span>';
         }
 
-        /* 2. Tag topic - chi hien neu khac "Tu vung" */
         if (currentItem.topic && currentItem.topic !== 'Từ vựng') {
             html += '<span class="pf-info-tag pf-info-topic">' +
                     escHtml(currentItem.topic) +
                     '</span>';
         }
 
-        /* 3. TU VUNG - IN DAM, CLICKABLE -> modal meo nho */
-        if (currentItem.zh) {
-            html += '<span class="pf-info-word" ' +
-                    'data-mnemonic-char="' + escHtml(currentItem.zh) + '" ' +
-                    'title="Bấm xem mẹo nhớ" ' +
-                    'role="button" tabindex="0">' +
-                    escHtml(currentItem.zh) +
-                    '</span>';
-        }
+        var hasExample = currentItem.vi_du_zh
+                      && String(currentItem.vi_du_zh).trim() !== ''
+                      && String(currentItem.vi_du_zh).trim() !== String(currentItem.zh || '').trim();
 
-        /* 4. CAU VI DU - click -> DOC TTS */
-        if (currentItem.vi_du_zh) {
-            html += '<span class="pf-info-example" ' +
-                    'data-tts-text="' + escHtml(currentItem.vi_du_zh) + '" ' +
-                    'title="Bấm để đọc câu" ' +
-                    'role="button" tabindex="0">' +
-                    escHtml(currentItem.vi_du_zh) +
-                    '</span>';
-        }
+        if (hasExample) {
+            if (currentItem.zh) {
+                html += '<span class="pf-info-word" ' +
+                        'data-mnemonic-char="' + escHtml(currentItem.zh) + '" ' +
+                        'title="Bấm xem mẹo nhớ" ' +
+                        'role="button" tabindex="0">' +
+                        escHtml(currentItem.zh) +
+                        '</span>';
+            }
 
-        /* 5. Pinyin cau vi du */
-        if (currentItem.vi_du_pinyin) {
-            html += '<span class="pf-info-pinyin">' +
-                    escHtml(currentItem.vi_du_pinyin) +
-                    '</span>';
-        }
+            if (currentItem.vi_du_zh) {
+                html += '<span class="pf-info-example" ' +
+                        'data-tts-text="' + escHtml(currentItem.vi_du_zh) + '" ' +
+                        'title="Bấm để đọc câu" ' +
+                        'role="button" tabindex="0">' +
+                        escHtml(currentItem.vi_du_zh) +
+                        '</span>';
+            }
 
-        /* 6. Dich cau vi du */
-        if (currentItem.vi_du_vi) {
-            html += '<span class="pf-info-meaning">' +
-                    escHtml(currentItem.vi_du_vi) +
-                    '</span>';
+            if (currentItem.vi_du_pinyin) {
+                html += '<span class="pf-info-pinyin">' +
+                        escHtml(currentItem.vi_du_pinyin) +
+                        '</span>';
+            }
+
+            if (currentItem.vi_du_vi) {
+                html += '<span class="pf-info-meaning">' +
+                        escHtml(currentItem.vi_du_vi) +
+                        '</span>';
+            }
+        } else {
+            if (currentItem.zh) {
+                html += '<span class="pf-info-plain">' +
+                        escHtml(currentItem.zh) +
+                        '</span>';
+            }
+
+            if (currentItem.pinyin) {
+                html += '<span class="pf-info-pinyin">' +
+                        escHtml(currentItem.pinyin) +
+                        '</span>';
+            }
         }
 
         infoEl.innerHTML = html;
@@ -1340,6 +1947,7 @@ _JS_PART_2 = r"""
                     btn.className = 'pf-word';
                     btn.dataset.pos = pos;
                     btn.textContent = word;
+                    btn.style.setProperty('--word-idx', String(pos));
 
                     if (isWrongFull && wrongPos[pos]) {
                         btn.classList.add('pf-word-bad');
@@ -1387,8 +1995,139 @@ _JS_PART_2 = r"""
         });
 
         answerEl.classList.remove('correct', 'wrong');
-        if (status === 'correct') answerEl.classList.add('correct');
-        else if (status === 'wrong') answerEl.classList.add('wrong');
+        if (status === 'correct') {
+            answerEl.classList.add('correct');
+            pfRenderCorrectPhrases(answerEl);
+        } else if (status === 'wrong') {
+            answerEl.classList.add('wrong');
+        }
+    }
+
+    function pfGetViDuWords() {
+        var currentItem = pfFindCurrentItem();
+        if (!currentItem) return [];
+        if (Array.isArray(currentItem.vi_du_words) && currentItem.vi_du_words.length > 0) {
+            return currentItem.vi_du_words.slice();
+        }
+        return [];
+    }
+
+    function pfCountHanzi(s) {
+        if (!s) return 0;
+        var n = 0;
+        for (var i = 0; i < s.length; i++) {
+            var cp = s.charCodeAt(i);
+            if (cp >= 0x4e00 && cp <= 0x9fff) n++;
+        }
+        return n;
+    }
+
+    function pfExtractHanzi(s) {
+        if (!s) return '';
+        var out = '';
+        for (var i = 0; i < s.length; i++) {
+            var cp = s.charCodeAt(i);
+            if (cp >= 0x4e00 && cp <= 0x9fff) out += s[i];
+        }
+        return out;
+    }
+
+    function pfGetViDuPinyinMap() {
+        var currentItem = pfFindCurrentItem();
+        var map = {};
+        if (!currentItem) return map;
+
+        var pinyinStr = String(currentItem.vi_du_pinyin || '').trim();
+        if (!pinyinStr) return map;
+
+        var zhWords = pfGetViDuWords();
+        var pinyinWords = pinyinStr.split(/\s+/).filter(function(p) { return p; });
+
+        if (zhWords.length === pinyinWords.length) {
+            for (var i = 0; i < zhWords.length; i++) {
+                map[zhWords[i]] = pinyinWords[i];
+            }
+            return map;
+        }
+
+        var hanziCount = 0;
+        for (var j = 0; j < zhWords.length; j++) {
+            hanziCount += pfCountHanzi(zhWords[j]);
+        }
+        if (hanziCount === pinyinWords.length) {
+            var k = 0;
+            for (var m = 0; m < zhWords.length; m++) {
+                var w = zhWords[m];
+                var chars = pfExtractHanzi(w);
+                var pys = [];
+                for (var c = 0; c < chars.length; c++) {
+                    pys.push(pinyinWords[k++] || '');
+                }
+                map[w] = pys.join(' ');
+            }
+            return map;
+        }
+
+        for (var n = 0; n < zhWords.length; n++) {
+            map[zhWords[n]] = pinyinWords[n] || '';
+        }
+        return map;
+    }
+
+    function pfRenderCorrectPhrases(answerEl) {
+        var zhWords = pfGetViDuWords();
+
+        if (zhWords.length === 0) {
+            return;
+        }
+
+        var pinyinMap = pfGetViDuPinyinMap();
+        var currentItem = pfFindCurrentItem();
+        var viText = currentItem ? (currentItem.vi_du_vi || '') : '';
+
+        var escHtml = (typeof escapeHtml === 'function')
+            ? escapeHtml
+            : function(s) {
+                return String(s)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            };
+
+        var html = '';
+        for (var i = 0; i < zhWords.length; i++) {
+            var w = zhWords[i];
+            var py = pinyinMap[w] || '';
+            html += '<span class="pf-phrase-word" '
+                 + 'style="--phrase-idx:' + i + '" '
+                 + 'data-tts-text="' + escHtml(w) + '" '
+                 + 'title="Bấm để đọc">'
+                 + '<span class="pf-phrase-zh">' + escHtml(w) + '</span>'
+                 + (py ? '<span class="pf-phrase-pinyin">' + escHtml(py) + '</span>' : '')
+                 + '</span>';
+        }
+
+        if (viText) {
+            html += '<div class="pf-phrase-vi" style="--phrase-count:' + zhWords.length + '">'
+                 + '📖 ' + escHtml(viText)
+                 + '</div>';
+        }
+
+        answerEl.innerHTML = html;
+
+        answerEl.querySelectorAll('.pf-phrase-word').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                var text = el.getAttribute('data-tts-text') || '';
+                if (!text) return;
+                pfSpeakText(text);
+                el.classList.add('playing');
+                setTimeout(function() { el.classList.remove('playing'); }, 1200);
+            });
+        });
     }
 
     function pfSetCursor(pos) {
@@ -1420,21 +2159,88 @@ _JS_PART_2 = r"""
         }
     }
 
+    function pfFireConfetti() {
+        var answerEl = document.getElementById('pfAssembleAnswer');
+        if (!answerEl) return;
+
+        var rect = answerEl.getBoundingClientRect();
+        var colors = ['c-green', 'c-emerald', 'c-lime', 'c-yellow', 'c-blue'];
+
+        for (var i = 0; i < 24; i++) {
+            var c = document.createElement('div');
+            c.className = 'pf-confetti ' + colors[Math.floor(Math.random() * colors.length)];
+            c.style.left = (rect.left + Math.random() * rect.width) + 'px';
+            c.style.top = (rect.top + rect.height / 2) + 'px';
+
+            var angle = Math.random() * Math.PI * 2;
+            var distance = 80 + Math.random() * 120;
+            var cx = Math.cos(angle) * distance;
+            var cy = Math.sin(angle) * distance - 80 - Math.random() * 60;
+            var cr = (Math.random() * 720 - 360) + 'deg';
+
+            c.style.setProperty('--cx', cx + 'px');
+            c.style.setProperty('--cy', cy + 'px');
+            c.style.setProperty('--cr', cr);
+
+            document.body.appendChild(c);
+
+            (function(el) {
+                setTimeout(function() {
+                    if (el.parentNode) el.parentNode.removeChild(el);
+                }, 1600);
+            })(c);
+        }
+    }
+
+    function pfRemoveNextBtn() {
+        var old = document.getElementById('pfAssembleNextBtn');
+        if (old) old.remove();
+    }
+
+    function pfShowNextBtn() {
+        if (document.getElementById('pfAssembleNextBtn')) return;
+
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.id = 'pfAssembleNextBtn';
+        btn.className = 'pf-assemble-next-btn';
+        btn.innerHTML = '<i class="fas fa-arrow-right"></i> Câu tiếp theo';
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof window.pfNext === 'function') {
+                window.pfNext();
+            }
+        });
+
+        var modeEl = document.getElementById('pfAssembleMode');
+        if (modeEl) {
+            modeEl.appendChild(btn);
+        }
+    }
+
     function pfOnAssembleCorrect() {
         var statusEl = document.getElementById('pfStatus');
         if (statusEl) {
-            statusEl.textContent = 'ĐÚNG';
+            statusEl.textContent = '🎉 CHÍNH XÁC!';
             statusEl.className = 'practice-full-status correct';
         }
         if (pfAutoShuffleTimer) {
             pfStopAutoShuffle();
         }
+
+        setTimeout(function() {
+            pfFireConfetti();
+            pfRemoveNextBtn();
+            pfShowNextBtn();
+        }, 400);
     }
 
     function pfResetAssemble() {
         pfInfoVisible = false;
         var hintBtn = document.getElementById('pfAssembleHintBtn');
         if (hintBtn) hintBtn.classList.remove('active');
+        pfRemoveNextBtn();
         pfBuildAssembleWords();
         pfRenderAssemble();
         var statusEl = document.getElementById('pfStatus');
@@ -1453,11 +2259,9 @@ _JS_PART_2 = r"""
 
 
 _JS_PART_3 = r"""
-    /* ⭐ Doc cau bang TTS - tu dong tim ham co san */
     function pfSpeakText(text) {
         if (!text) return;
 
-        /* Uu tien: cac ham TTS pho bien */
         var candidates = [
             'speakText', 'speak', 'speakChinese', 'speakZh',
             'playAudio', 'playVoice', 'readText', 'read',
@@ -1475,7 +2279,6 @@ _JS_PART_3 = r"""
             }
         }
 
-        /* Fallback: Web Speech API */
         if ('speechSynthesis' in window) {
             try {
                 window.speechSynthesis.cancel();
@@ -1502,12 +2305,6 @@ _JS_PART_3 = r"""
 
         if (!canAssemble) {
             btn.style.display = 'none';
-            if (pfAssembleMode) {
-                pfAssembleMode = false;
-                document.body.classList.remove('pf-assemble-active');
-                pfStopAutoShuffle();
-                try { localStorage.setItem('pfAssembleMode', '0'); } catch(e) {}
-            }
             return;
         } else {
             btn.style.display = '';
@@ -1564,6 +2361,7 @@ _JS_PART_3 = r"""
             pfResetAssemble();
         } else {
             pfStopAutoShuffle();
+            pfCleanupParticles();
             var statusEl2 = document.getElementById('pfStatus');
             if (statusEl2) {
                 statusEl2.textContent = '';
@@ -1695,7 +2493,6 @@ _JS_PART_4 = r"""
         window.__updateRandomSettingsUI = updateRandomStateUI;
     }
 
-    /* ⭐ BRIDGE: Goi modal meo nho */
     window.pfShowMnemonicForWord = function(char, evt) {
         if (evt) {
             evt.stopPropagation();
@@ -1745,12 +2542,10 @@ _JS_PART_4 = r"""
         }
     };
 
-    /* ⭐ Event delegation: TU VUNG -> modal, CAU VI DU -> doc */
     function initMnemonicDelegation() {
         if (document.__mnemonicDelegated) return;
         document.__mnemonicDelegated = true;
 
-        /* 1. TU VUNG -> modal meo nho */
         document.addEventListener('click', function(e) {
             var wordEl = e.target.closest
                 ? e.target.closest('.pf-info-word[data-mnemonic-char]')
@@ -1764,7 +2559,6 @@ _JS_PART_4 = r"""
             }
         });
 
-        /* 2. CAU VI DU -> doc TTS */
         document.addEventListener('click', function(e) {
             var exEl = e.target.closest
                 ? e.target.closest('.pf-info-example[data-tts-text]')
@@ -1776,7 +2570,6 @@ _JS_PART_4 = r"""
             if (text) pfSpeakText(text);
         });
 
-        /* 3. Ho tro ban phim Enter/Space */
         document.addEventListener('keydown', function(e) {
             if (e.key !== 'Enter' && e.key !== ' ') return;
 
@@ -1824,12 +2617,22 @@ _JS_PART_4 = r"""
         } catch(e) {}
 
         try {
-            var saved = localStorage.getItem('pfAssembleMode') === '1';
-            if (saved && !pfAssembleMode) {
+            var saved = localStorage.getItem('pfAssembleMode');
+            if (saved === '1') {
                 pfAssembleMode = true;
                 document.body.classList.add('pf-assemble-active');
+            } else if (saved === '0') {
+                pfAssembleMode = false;
+                document.body.classList.remove('pf-assemble-active');
+            } else {
+                pfAssembleMode = true;
+                document.body.classList.add('pf-assemble-active');
+                try { localStorage.setItem('pfAssembleMode', '1'); } catch(e2) {}
             }
-        } catch(e) {}
+        } catch(e) {
+            pfAssembleMode = true;
+            document.body.classList.add('pf-assemble-active');
+        }
 
         pfUpdateToggleBtnUI();
 
@@ -1849,6 +2652,7 @@ _JS_PART_4 = r"""
                 e.preventDefault();
                 pfAssembleAnswerIdx = [];
                 pfInsertPos = 0;
+                pfRemoveNextBtn();
                 pfRenderAssemble();
                 var statusEl = document.getElementById('pfStatus');
                 if (statusEl) {
@@ -1877,6 +2681,36 @@ _JS_PART_4 = r"""
             });
         }
 
+        (function hookCloseModal() {
+            if (window.__assembleCloseHooked) return;
+            window.__assembleCloseHooked = true;
+
+            var origClose = window.closePracticeFull;
+            if (typeof origClose === 'function') {
+                window.closePracticeFull = function() {
+                    if (pfAutoShuffleTimer) pfStopAutoShuffle();
+                    pfCleanupParticles();
+                    pfRemoveNextBtn();
+                    return origClose.apply(this, arguments);
+                };
+                console.log('[Assemble] Da hook closePracticeFull - cleanup particles');
+            } else {
+                setTimeout(function() {
+                    var origClose2 = window.closePracticeFull;
+                    if (typeof origClose2 === 'function' && !window.__assembleCloseHooked2) {
+                        window.__assembleCloseHooked2 = true;
+                        window.closePracticeFull = function() {
+                            if (pfAutoShuffleTimer) pfStopAutoShuffle();
+                            pfCleanupParticles();
+                            pfRemoveNextBtn();
+                            return origClose2.apply(this, arguments);
+                        };
+                        console.log('[Assemble] Da hook closePracticeFull (retry)');
+                    }
+                }, 500);
+            }
+        })();
+
         setInterval(function() {
             pfUpdateToggleBtnUI();
         }, 800);
@@ -1904,7 +2738,8 @@ _JS_PART_4 = r"""
         toggleInfo: pfToggleInfo,
         isInfoVisible: function() { return pfInfoVisible; },
         showMnemonicForWord: window.pfShowMnemonicForWord,
-        speakText: pfSpeakText
+        speakText: pfSpeakText,
+        cleanupParticles: pfCleanupParticles
     };
 
 })();
