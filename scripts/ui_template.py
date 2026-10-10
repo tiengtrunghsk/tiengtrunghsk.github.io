@@ -3881,8 +3881,46 @@ function initDatasetSelector() {
 
     var cnBtn = $('dsChuyenNganhBtn');
     if (chuyenNganhKeys.length === 0) {
-        if (cnBtn) cnBtn.style.display = 'none';
+        /* ⭐ FIX: Data chưa load → KHOÁ nút, KHÔNG ẩn */
+        if (cnBtn) {
+            cnBtn.classList.add('locked-loading');
+            cnBtn.style.display = '';
+            cnBtn.title = 'Đang tải dữ liệu chuyên ngành...';
+
+            /* Auto-retry khi data load xong */
+            if (!window.__dataLoaded && window.__dataLoadPromise) {
+                window.__dataLoadPromise.then(function() {
+                    /* Chờ DOM sẵn sàng rồi rebuild */
+                    setTimeout(function() {
+                        if (typeof initDatasetSelector === 'function') {
+                            initDatasetSelector();
+                        }
+                    }, 150);
+                }).catch(function() {
+                    /* Data load fail → mở khoá để user dùng được gì thì dùng */
+                    if (cnBtn) {
+                        cnBtn.classList.remove('locked-loading');
+                        cnBtn.title = 'Không tải được dữ liệu chuyên ngành';
+                    }
+                });
+            } else {
+                /* Fallback: chờ event dataLoaded */
+                window.addEventListener('dataLoaded', function() {
+                    setTimeout(function() {
+                        if (typeof initDatasetSelector === 'function') {
+                            initDatasetSelector();
+                        }
+                    }, 150);
+                }, { once: true });
+            }
+        }
         return;
+    }
+
+    /* ⭐ Data đã có → MỞ KHOÁ nút */
+    if (cnBtn) {
+        cnBtn.classList.remove('locked-loading');
+        cnBtn.title = 'Chọn chuyên ngành';
     }
 
     var canAccess = canAccessChuyenNganh();
@@ -3957,6 +3995,14 @@ function initDatasetSelector() {
     if (cnBtn && !cnBtn.__boundToggle) {
         cnBtn.__boundToggle = true;
         cnBtn.addEventListener('click', function() {
+            /* ⭐ FIX: Chặn click nếu data chưa load */
+            if (!window.__dataLoaded) {
+                if (typeof showTagToast === 'function') {
+                    showTagToast('Đang tải dữ liệu, vui lòng đợi...');
+                }
+                return;
+            }
+
             var sub = $('dsSubWrap');
             if (!sub) return;
             var isOpen = sub.style.display !== 'none';
@@ -3979,6 +4025,16 @@ function initDatasetSelector() {
         if (btn.__boundSub) return;
         btn.__boundSub = true;
         btn.addEventListener('click', function(e) {
+            /* ⭐ FIX: Chặn nếu data chưa load */
+            if (!window.__dataLoaded) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof showTagToast === 'function') {
+                    showTagToast('Đang tải dữ liệu, vui lòng đợi...');
+                }
+                return;
+            }
+
             if (this.dataset.locked === '1') {
                 e.preventDefault();
                 e.stopPropagation();

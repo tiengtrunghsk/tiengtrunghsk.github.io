@@ -579,6 +579,12 @@ def add_active_fix_js(html):
         var btn = e.target.closest('.ds-btn, .ds-sub-btn');
         if (!btn) return;
 
+
+        // FIX_CONFLICT: bỏ qua nút Chuyên ngành
+        if (btn.id === 'dsChuyenNganhBtn' ||
+            btn.getAttribute('data-dataset-group') === 'chuyen-nganh') {
+            return;
+        }
         // Nút Chuyên ngành (mở dropdown) → clear Yêu thích + Từ vựng
         // ⭐ KHÔNG return — để dropdown handler chạy bình thường
         if (btn.id === 'dsChuyenNganhBtn' ||
