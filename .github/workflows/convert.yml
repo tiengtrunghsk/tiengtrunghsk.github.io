@@ -147,10 +147,10 @@ jobs:
 
       - name: Run fix_all_conflicts.py
         run: |
-          if [ -f fix_all_conflicts.py ]; then
-            python fix_all_conflicts.py
+          if [ -f scripts/fix_all_conflicts.py ]; then
+            python scripts/fix_all_conflicts.py
           else
-            echo "no fix_all_conflicts.py"
+            echo "no scripts/fix_all_conflicts.py"
           fi
 
       - name: Run fix.py
