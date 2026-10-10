@@ -2206,7 +2206,7 @@ window.__SIMILAR_CHARS__ = __SIMILAR_JSON__;
     var storyPart = '';
 
     var storyMatch = text.match(
-        /🎬\s*([\s\S]*?)(?=(?:\n\s*📎\s*Ví\s*dụ)|\n\s*🔗|\n\s*💡|\n\s*📌|\s*$)/
+        /(?:🎬|📌)\s*([\s\S]*?)(?=(?:\n\s*📎\s*Ví\s*dụ)|\n\s*🔗|\n\s*💡|\s*$)/
     );
 
     if (storyMatch) {
@@ -2274,8 +2274,7 @@ window.__SIMILAR_CHARS__ = __SIMILAR_JSON__;
 
     var storyHtml = '';
     if (storyPart) {
-        var storyBody = storyPart.replace(/^🎬\s*/, '').trim();
-        var storyContentHtml = _processText(storyBody);
+        var storyContentHtml = _processText(storyPart);
 
         storyHtml =
             '<div class="mnemonic-story-wrap" data-story="1">' +
