@@ -897,6 +897,14 @@ def build_chat_js():
         }
         syncSubBadges();
     }
+    function scrollToBottom(bodyEl) {
+        var body = bodyEl || $id('chatBody');
+        if (!body) return;
+        body.scrollTop = body.scrollHeight;
+        setTimeout(function() { body.scrollTop = body.scrollHeight; }, 50);
+        setTimeout(function() { body.scrollTop = body.scrollHeight; }, 200);
+        setTimeout(function() { body.scrollTop = body.scrollHeight; }, 400);
+    }
 
     function positionChatBox() {
         var fab = $id('chatFloatBtn');
@@ -1068,8 +1076,10 @@ def build_chat_js():
         });
         html += '<div class="chat-typing" id="chatTypingIndicator"><span>Đang trả lời</span><span class="dots"><span></span><span></span><span></span></span></div>';
         body.innerHTML = html;
-        var nearBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 150;
-        if (nearBottom) setTimeout(function(){ body.scrollTop = body.scrollHeight; }, 30);
+
+        /* ⭐ Luôn scroll xuống tin nhắn mới nhất */
+        scrollToBottom(body);
+
         if (CHAT.isOpen) { setTimeout(positionChatBox, 30); setTimeout(positionChatBox, 300); }
     }
 
@@ -1248,8 +1258,10 @@ def build_chat_js():
         });
         html += '<div class="chat-typing" id="chatTypingIndicator"><span>Đang trả lời</span><span class="dots"><span></span><span></span><span></span></span></div>';
         body.innerHTML = html;
-        var nearBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 150;
-        if (nearBottom) setTimeout(function(){ body.scrollTop = body.scrollHeight; }, 30);
+
+        /* ⭐ Luôn scroll xuống tin nhắn mới nhất */
+        scrollToBottom(body);
+
         if (CHAT.isOpen) { setTimeout(positionChatBox, 30); setTimeout(positionChatBox, 300); }
     }
 
@@ -1271,6 +1283,9 @@ def build_chat_js():
         }
         setTimeout(positionChatBox, 30);
         setTimeout(positionChatBox, 320);
+
+        /* ⭐ Scroll xuống tin nhắn mới nhất khi mở chat */
+        scrollToBottom();
     }
 
     function closeChat() {
@@ -1324,8 +1339,10 @@ def build_chat_js():
         startAdminThreadWatch(email);
         setTimeout(positionChatBox, 30);
         setTimeout(positionChatBox, 320);
-    }
 
+        /* ⭐ Scroll xuống tin nhắn mới nhất khi mở thread */
+        scrollToBottom();
+    }
     function sendMessage() {
         var input = $id('chatInput');
         var text = input.value.trim();
