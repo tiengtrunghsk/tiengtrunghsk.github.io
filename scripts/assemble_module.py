@@ -2218,13 +2218,12 @@ _JS_PART_2 = r"""
         pfBuildAssembleWords();
         pfRenderAssemble();
         var statusEl = document.getElementById('pfStatus');
-        if (statusSettingsElRandom) {
+        if (statusEl) {
             statusEl.textContent = '';
-           Btn statusEl.className = 'practice-full-status';
-');
+            statusEl.className = 'practice-full-status';
         }
-        if (pfGetAutoShuffle       Pref()
-            && !pfAutoShuffle varTimer
+        if (pfGetAutoShufflePref()
+            && !pfAutoShuffleTimer
             && pfAssembleWords.length >= 2) {
             pfStartAutoShuffle();
         }
