@@ -1,0 +1,315 @@
+name: 🔧 Fix All Conflicts
+
+# ═══════════════════════════════════════════════════════════════════
+#  Trigger: Chạy thủ công (workflow_dispatch) HOẶC khi push file fix
+# ═══════════════════════════════════════════════════════════════════
+on:
+  workflow_dispatch:
+    inputs:
+      rebuild:
+        description: 'Rebuild index.html sau khi fix?'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      commit:
+        description: 'Commit kết quả trở lại repo?'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      branch:
+        description: 'Branch để commit (để trống = branch hiện tại)'
+        required: false
+        default: ''
+      commit_message:
+        description: 'Commit message'
+        required: false
+        default: '🔧 Auto-fix: resolve Chuyên ngành conflicts'
+
+  push:
+    paths:
+      - 'fix_all_conflicts.py'
+      - '.github/workflows/fix-conflicts.yml'
+
+  # Cho phép gọi từ workflow khác
+  workflow_call:
+    inputs:
+      rebuild:
+        type: string
+        default: 'true'
+      commit:
+        type: string
+        default: 'true'
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  Permissions
+# ═══════════════════════════════════════════════════════════════════
+permissions:
+  contents: write
+
+
+jobs:
+  # ═══════════════════════════════════════════════════════════════
+  #  JOB 1: Dry run — kiểm tra trước khi sửa thật
+  # ═══════════════════════════════════════════════════════════════
+  dry-run:
+    name: 🔍 Kiểm tra (Dry Run)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      should_continue: ${{ steps.check.outputs.should_continue }}
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: 🐍 Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 📋 Kiểm tra file cần thiết
+        id: check
+        run: |
+          echo "=== Kiểm tra file ==="
+          MISSING=0
+          REQUIRED=("fix_all_conflicts.py")
+          OPTIONAL=("fix.py" "patch_buttons.py" "favorites_module.py" "ui_template.py" "index.html")
+
+          for f in "${REQUIRED[@]}"; do
+            if [ -f "$f" ]; then
+              echo "✅ $f"
+            else
+              echo "❌ THIẾU: $f (bắt buộc)"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+
+          for f in "${OPTIONAL[@]}"; do
+            if [ -f "$f" ]; then
+              echo "✅ $f"
+            else
+              echo "⚠️  Không có: $f (bỏ qua)"
+            fi
+          done
+
+          if [ $MISSING -gt 0 ]; then
+            echo "should_continue=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+          echo "should_continue=true" >> $GITHUB_OUTPUT
+
+      - name: 🧪 Verify Python syntax trước khi fix
+        run: |
+          echo "=== Syntax check các file Python hiện tại ==="
+          for f in fix.py patch_buttons.py favorites_module.py ui_template.py; do
+            if [ -f "$f" ]; then
+              python -c "import ast; ast.parse(open('$f', encoding='utf-8').read())" \
+                && echo "✅ $f OK" \
+                || echo "⚠️  $f có lỗi sẵn (sẽ được fix)"
+            fi
+          done
+
+
+  # ═══════════════════════════════════════════════════════════════
+  #  JOB 2: Chạy fix thật
+  # ═══════════════════════════════════════════════════════════════
+  fix:
+    name: 🔧 Chạy Fix
+    needs: dry-run
+    if: needs.dry-run.outputs.should_continue == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🐍 Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 📦 Cài dependencies (nếu có)
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+
+      - name: 🔧 Chạy fix_all_conflicts.py
+        id: fix
+        run: |
+          set -o pipefail
+
+          # Tạo thư mục log
+          mkdir -p logs
+
+          # Chạy và capture output
+          python fix_all_conflicts.py 2>&1 | tee logs/fix_output.log
+
+          # Lưu exit code
+          EXIT_CODE=${PIPESTATUS[0]}
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "❌ fix_all_conflicts.py thất bại (exit $EXIT_CODE)"
+            exit $EXIT_CODE
+          fi
+
+          echo "✅ fix_all_conflicts.py thành công"
+
+      - name: 📤 Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fix-logs-${{ github.run_number }}
+          path: logs/
+          retention-days: 7
+
+      - name: 🧪 Verify syntax sau khi fix
+        run: |
+          echo "=== Syntax check sau khi fix ==="
+          FAILED=0
+          for f in fix.py patch_buttons.py favorites_module.py ui_template.py; do
+            if [ -f "$f" ]; then
+              python -c "import ast; ast.parse(open('$f', encoding='utf-8').read())" \
+                && echo "✅ $f" \
+                || { echo "❌ $f LỖI"; FAILED=$((FAILED + 1)); }
+            fi
+          done
+
+          if [ $FAILED -gt 0 ]; then
+            echo "❌ $FAILED file bị lỗi cú pháp"
+            exit 1
+          fi
+          echo "✅ Tất cả file OK"
+
+      - name: 📊 Xem diff sau khi fix
+        run: |
+          echo "=== Diff summary ==="
+          git diff --stat || true
+          echo ""
+          echo "=== Chi tiết thay đổi (giới hạn 200 dòng) ==="
+          git diff | head -200 || true
+
+      - name: 🔨 Rebuild index.html (nếu bật)
+        if: ${{ inputs.rebuild == 'true' || github.event.inputs.rebuild == 'true' }}
+        run: |
+          if [ -f build_html.py ]; then
+            echo "▶️  Chạy build_html.py..."
+            python build_html.py
+            echo "✅ Rebuild xong"
+          else
+            echo "⚠️  Không có build_html.py — bỏ qua"
+          fi
+
+      - name: 🎯 Chạy fix.py + patch_buttons.py (nếu có)
+        run: |
+          # fix.py tự gọi patch_buttons.py, nhưng chạy riêng cho chắc
+          if [ -f fix.py ]; then
+            echo "▶️  Chạy fix.py..."
+            python fix.py || echo "⚠️  fix.py có warning"
+          fi
+
+          if [ -f patch_buttons.py ]; then
+            echo "▶️  Chạy patch_buttons.py..."
+            python patch_buttons.py || echo "⚠️  patch_buttons.py có warning"
+          fi
+
+      - name: 📤 Upload file đã sửa
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixed-files-${{ github.run_number }}
+          path: |
+            fix.py
+            patch_buttons.py
+            favorites_module.py
+            ui_template.py
+            index.html
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: 📤 Upload backup files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backups-${{ github.run_number }}
+          path: |
+            **/*.bak_*
+          retention-days: 7
+          if─-no-files-found: ignore
+
+      - name: ✅ Commit & Push Check (nếu bật)
+        ifout: ${{ inputs.commit == ' codetrue' || github.event.inputs.commit == 'true' }}
+        run: |
+          # Config git
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Kiểm tra có thay đổi không
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "⚠️  Không có thay đổi nào để commit"
+            exit 0
+          fi
+
+          # Add files
+          git add fix.py 2>/dev/null || true
+          git add patch_buttons.py 2>/dev/null || true
+          git add favorites_module.py 2>/dev/null || true
+          git add ui_template.py 2>/dev/null || true
+          git add index.html 2>/dev/null || true
+          git add '*.bak_*' 2>/dev/null || true
+
+          # Commit
+          COMMIT_MSG="${{ inputs.commit_message || github.event.inputs.commit_message || '🔧 Auto-fix: resolve Chuyên ngành conflicts' }}"
+          git commit -m "$COMMIT_MSG" \
+                     -m "Auto-generated by fix-conflicts workflow" \
+                     -m "Run: ${{ github.run_number }}" || echo "⚠️  Commit thất bại"
+
+          # Push lên branch
+          TARGET_BRANCH="${{ inputs.branch || github.event.inputs.branch || github.ref_name }}"
+          echo "📤 Push lên branch: $TARGET_BRANCH"
+          git push origin HEAD:$TARGET_BRANCH || {
+            echo "❌ Push thất bại"
+            exit 1
+          }
+
+          echo "✅ Đã push thành công"
+
+      - name: 📝 Tóm tắt
+        if: always()
+        run: |
+          echo "## 🔧 Fix Conflicts — Kết quả" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Mục | Giá trị |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Run | #${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Rebuild | ${{ inputs.rebuild || github.event.inputs.rebuild || 'true' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | ${{ inputs.commit || github.event.inputs.commit || 'true' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | ${{ job.status }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Files thay đổi" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          git diff --stat HEAD~1 2>/dev/null || git diff --stat || echo "(no diff)" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- \`fix-logs-${{ github.run_number }}\` — Log chi tiết" >> $GITHUB_STEP_SUMMARY
+          echo "- \`fixed-files-${{ github.run_number }}\` — Files đã sửa" >> $GITHUB_STEP_SUMMARY
+          echo "- \`backups-${{ github.run_number }}\` — Backup files" >> $GITHUB_STEP_SUMMARY
