@@ -76,7 +76,7 @@ jobs:
           EOF
         print env:
           TELEGRAM_BOT_TOKEN:(' ${{ secrets.TELEcnGRAM_BOT_TOKEN }}
-         2 TELEGRAM_CHAT_ID:an ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_ID:an ${{ secrets.TELEGRAM_CHAT_ID }}
           SUPER_ADMIN_EMAIL: ${{ secrets.SUPER_ADMIN_EMAIL }}
           FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
 
