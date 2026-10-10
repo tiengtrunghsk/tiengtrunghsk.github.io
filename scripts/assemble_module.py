@@ -65,7 +65,6 @@ body.pf-assemble-active .pf-assemble-mode {
     font-size: clamp(.68rem, .82vw, .78rem);
 }
 
-/* ⭐ TU VUNG - IN DAM, NOI BAT, CLICKABLE -> mo modal */
 .pf-assemble-info .pf-info-word {
     font-family: var(--font-zh, 'PingFang SC', sans-serif);
     font-size: clamp(1.15rem, 1.6vw, 1.35rem);
@@ -124,7 +123,6 @@ body.pf-assemble-active .pf-assemble-mode {
     color: #fff;
 }
 
-/* ⭐ CAU VI DU ZH - KHONG co nen/vien, click -> doc TTS */
 .pf-assemble-info .pf-info-example {
     font-family: var(--font-zh, 'PingFang SC', sans-serif);
     font-size: clamp(.85rem, 1.1vw, .95rem);
@@ -169,7 +167,6 @@ body.pf-assemble-active .pf-assemble-mode {
     color: var(--text);
 }
 
-/* ⭐ CAU HIEN THI THUAN - khong click (cho cac tab khac) */
 .pf-assemble-info .pf-info-plain {
     font-family: var(--font-zh, 'PingFang SC', sans-serif);
     font-size: clamp(.95rem, 1.2vw, 1.05rem);
@@ -300,7 +297,7 @@ body.pf-assemble-active .pf-assemble-mode {
     color: var(--text);
     border-color: var(--border-strong);
     box-shadow: 0 1px 3px rgba(15,23,42,.06);
-    animation: pfWordPop .2s cubic-bezier(.34,1.56,.64,1);
+    animation: pfWordPop .25s cubic-bezier(.34,1.56,.64,1);
     font-weight: 500;
 }
 @keyframes pfWordPop {
@@ -422,6 +419,7 @@ body.pf-assemble-active .pf-assemble-mode {
 body.pf-assemble-active #pfInputMode { display: none !important; }
 body.pf-assemble-active #pfPreview { display: none !important; }
 body.pf-assemble-active .practice-full-input { display: none !important; }
+body.pf-assemble-active #pfSpeakBtn { display: none !important; }
 body.pf-assemble-active #pfHintBtn,
 body.pf-assemble-active #pfRevealBtn,
 body.pf-assemble-active .reveal-actions {
@@ -686,7 +684,7 @@ body.pf-assemble-active .reveal-actions {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   ⭐ HIEU UNG TAN THANH CHAM NHO BAY RA (PARTICLE EXPLOSION)
+   ⭐ HIEU UNG TAN THANH CHAM NHO BAY RA - SLOW & SMOOTH
    ═══════════════════════════════════════════════════════════ */
 .pf-particle-layer {
     position: fixed;
@@ -705,10 +703,10 @@ body.pf-assemble-active .reveal-actions {
     will-change: transform, opacity;
     box-shadow: 0 0 6px rgba(37,99,235,.6);
 }
-.pf-particle.c1 { background: #2563eb; box-shadow: 0 0 6px rgba(37,99,235,.7); }
-.pf-particle.c2 { background: #3b82f6; box-shadow: 0 0 6px rgba(59,130,246,.7); }
-.pf-particle.c3 { background: #60a5fa; box-shadow: 0 0 6px rgba(96,165,250,.7); }
-.pf-particle.c4 { background: #1e40af; box-shadow: 0 0 6px rgba(30,64,175,.7); }
+.pf-particle.c1 { background: #2563eb; box-shadow: 0 0 8px rgba(37,99,235,.7); }
+.pf-particle.c2 { background: #3b82f6; box-shadow: 0 0 8px rgba(59,130,246,.7); }
+.pf-particle.c3 { background: #60a5fa; box-shadow: 0 0 8px rgba(96,165,250,.7); }
+.pf-particle.c4 { background: #1e40af; box-shadow: 0 0 8px rgba(30,64,175,.7); }
 .pf-particle.small {
     width: 4px;
     height: 4px;
@@ -722,63 +720,73 @@ body.pf-assemble-active .reveal-actions {
         opacity: 1;
         transform: translate(0, 0) scale(1);
     }
-    50% {
-        opacity: .8;
+    30% {
+        opacity: .95;
+    }
+    70% {
+        opacity: .5;
     }
     100% {
         opacity: 0;
-        transform: translate(var(--tx), var(--ty)) scale(.2);
+        transform: translate(var(--tx), var(--ty)) scale(.15);
     }
 }
 
-/* Word "vo" ra truoc khi tao hat */
 @keyframes pfWordCrumble {
     0% {
         opacity: 1;
-        transform: scale(1) rotate(0deg);
+        transform: scale(1) rotate(0deg) translateY(0);
         filter: blur(0);
     }
-    50% {
-        opacity: .6;
-        transform: scale(1.15) rotate(3deg);
-        filter: blur(1px);
+    30% {
+        opacity: .95;
+        transform: scale(1.08) rotate(1deg) translateY(-2px);
+        filter: blur(.3px);
+    }
+    60% {
+        opacity: .5;
+        transform: scale(1.15) rotate(3deg) translateY(-3px);
+        filter: blur(1.5px);
     }
     100% {
         opacity: 0;
-        transform: scale(.5) rotate(-5deg);
-        filter: blur(3px);
+        transform: scale(.4) rotate(-6deg) translateY(0);
+        filter: blur(4px);
     }
 }
 .pf-assemble-pool.pf-pool-crumbling .pf-word {
-    animation: pfWordCrumble .35s cubic-bezier(.4, 0, .6, 1) forwards;
+    animation: pfWordCrumble .85s cubic-bezier(.4, 0, .5, 1) forwards;
     pointer-events: none;
     transform-origin: center center;
 }
 
-/* Word moi hien ra */
 @keyframes pfWordGather {
     0% {
         opacity: 0;
-        transform: scale(.5) rotate(-4deg);
-        filter: blur(2px);
+        transform: scale(.4) rotate(-6deg) translateY(8px);
+        filter: blur(4px);
     }
-    60% {
-        opacity: .9;
-        transform: scale(1.1) rotate(1deg);
+    40% {
+        opacity: .5;
+        transform: scale(1.08) rotate(2deg) translateY(-2px);
+        filter: blur(1px);
+    }
+    70% {
+        opacity: .95;
+        transform: scale(1.05) rotate(.5deg) translateY(0);
         filter: blur(0);
     }
     100% {
         opacity: 1;
-        transform: scale(1) rotate(0deg);
+        transform: scale(1) rotate(0deg) translateY(0);
         filter: blur(0);
     }
 }
 .pf-assemble-pool.pf-pool-gathering .pf-word {
-    animation: pfWordGather .5s cubic-bezier(.34, 1.56, .64, 1) backwards;
+    animation: pfWordGather 1.1s cubic-bezier(.34, 1.4, .64, 1) backwards;
     transform-origin: center center;
 }
 
-/* ⭐ HIEU UNG: WORD NHAY LEN KHUNG KHI CLICK CHON */
 @keyframes pfWordJumpUp {
     0% {
         transform: scale(1) translateY(0);
@@ -786,18 +794,25 @@ body.pf-assemble-active .reveal-actions {
         background: var(--surface);
         border-color: var(--border-strong);
     }
-    30% {
-        transform: scale(1.25) translateY(-14px);
-        box-shadow: 0 12px 28px rgba(37,99,235,.35),
-                    0 0 0 4px rgba(37,99,235,.15);
+    25% {
+        transform: scale(1.18) translateY(-16px);
+        box-shadow: 0 14px 32px rgba(37,99,235,.4),
+                    0 0 0 5px rgba(37,99,235,.18);
         background: var(--primary-light, #dbeafe);
         border-color: var(--primary, #2563eb);
     }
-    60% {
-        transform: scale(1.1) translateY(-4px);
-        box-shadow: 0 8px 20px rgba(37,99,235,.25);
+    55% {
+        transform: scale(1.05) translateY(-6px);
+        box-shadow: 0 8px 20px rgba(37,99,235,.28),
+                    0 0 0 2px rgba(37,99,235,.1);
         background: var(--primary-light, #dbeafe);
         border-color: var(--primary, #2563eb);
+    }
+    80% {
+        transform: scale(1.02) translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37,99,235,.15);
+        background: var(--surface);
+        border-color: var(--border-strong);
     }
     100% {
         transform: scale(1) translateY(0);
@@ -807,22 +822,21 @@ body.pf-assemble-active .reveal-actions {
     }
 }
 .pf-assemble-answer .pf-word.pf-word-jumping {
-    animation: pfWordJumpUp .55s cubic-bezier(.34,1.56,.64,1) !important;
+    animation: pfWordJumpUp .85s cubic-bezier(.34,1.4,.64,1) !important;
     z-index: 100;
     position: relative;
 }
 
-/* ⭐ HIEU UNG RIPPLE KHI CLICK */
 @keyframes pfWordRipple {
     0% {
-        box-shadow: 0 0 0 0 rgba(37,99,235,.5);
+        box-shadow: 0 0 0 0 rgba(37,99,235,.55);
     }
     100% {
-        box-shadow: 0 0 0 20px rgba(37,99,235,0);
+        box-shadow: 0 0 0 24px rgba(37,99,235,0);
     }
 }
 .pf-assemble-pool .pf-word:active {
-    animation: pfWordRipple .4s ease-out;
+    animation: pfWordRipple .55s cubic-bezier(.2, .8, .3, 1);
 }
 
 @media (min-width: 501px) {
@@ -947,9 +961,9 @@ def build_assemble_html():
         '    </div>\n'
         '    <div class="pf-assemble-pool" id="pfAssemblePool"></div>\n'
         '    <div class="pf-assemble-actions">\n'
-        '        <button type="button" class="pf-assemble-btn auto-shuffle" id="pfAssembleShuffleBtn" title="Xáo trộn - sau 10s sẽ tự động xáo lại">\n'
+        '        <button type="button" class="pf-assemble-btn auto-shuffle" id="pfAssembleShuffleBtn" title="Xáo trộn - sau 12s sẽ tự động xáo lại">\n'
         '            <i class="fas fa-random pf-assemble-icon"></i>\n'
-        '            <span class="pf-shuffle-countdown" id="pfShuffleCountdown">10</span>\n'
+        '            <span class="pf-shuffle-countdown" id="pfShuffleCountdown">12</span>\n'
         '        </button>\n'
         '        <button type="button" class="pf-assemble-btn" id="pfAssembleClearBtn">\n'
         '            <i class="fas fa-undo-alt"></i> Xóa hết\n'
@@ -1045,7 +1059,6 @@ _JS_PART_1 = r"""
 (function() {
     'use strict';
 
-    /* ⭐ MAC DINH BAN DAU LA GHEP TU - nhung user co the doi thanh Go tu do */
     var pfAssembleMode = true;
     var pfAssembleWords = [];
     var pfAssembleAnswerIdx = [];
@@ -1055,8 +1068,8 @@ _JS_PART_1 = r"""
 
     var pfAutoShuffleTimer = null;
     var pfAutoShuffleCountdown = null;
-    var pfAutoShuffleRemain = 10;
-    var AUTO_SHUFFLE_SECONDS = 10;
+    var pfAutoShuffleRemain = 12;
+    var AUTO_SHUFFLE_SECONDS = 12;
     var PF_AUTO_SHUFFLE_PREF_KEY = 'pfAutoShufflePref';
 
     function pfSplitIntoWords(zh) {
@@ -1207,7 +1220,6 @@ _JS_PART_1 = r"""
         return clusters;
     }
 
-    /* ⭐ Tao cac hat bay ra tu 1 element */
     function pfCreateParticles(sourceEl, count) {
         if (!sourceEl) return;
 
@@ -1239,16 +1251,17 @@ _JS_PART_1 = r"""
             p.style.top = startY + 'px';
 
             var angle = Math.random() * Math.PI * 2;
-            var distance = 40 + Math.random() * 80;
+            var distance = 50 + Math.random() * 100;
             var tx = Math.cos(angle) * distance;
-            var ty = Math.sin(angle) * distance - 20;
+            var ty = Math.sin(angle) * distance - 25;
 
             p.style.setProperty('--tx', tx + 'px');
             p.style.setProperty('--ty', ty + 'px');
 
-            var delay = Math.random() * 80;
-            p.style.animation = 'pfParticleFly ' + (500 + Math.random() * 300) + 'ms '
-                              + 'cubic-bezier(.2, .8, .3, 1) '
+            var delay = Math.random() * 150;
+            var duration = 1200 + Math.random() * 800;
+            p.style.animation = 'pfParticleFly ' + duration + 'ms '
+                              + 'cubic-bezier(.25, .6, .35, 1) '
                               + delay + 'ms forwards';
 
             layer.appendChild(p);
@@ -1256,7 +1269,7 @@ _JS_PART_1 = r"""
             (function(el) {
                 setTimeout(function() {
                     if (el.parentNode) el.parentNode.removeChild(el);
-                }, 900 + delay);
+                }, 2200 + delay);
             })(p);
         }
     }
@@ -1272,7 +1285,6 @@ _JS_PART_1 = r"""
 
         pfRenderAssemble();
 
-        /* ⭐ Hieu ung nhay len khung */
         setTimeout(function() {
             var answerEl = document.getElementById('pfAssembleAnswer');
             if (!answerEl) return;
@@ -1286,7 +1298,7 @@ _JS_PART_1 = r"""
 
                     setTimeout(function() {
                         btn.classList.remove('pf-word-jumping');
-                    }, 600);
+                    }, 900);
                     break;
                 }
             }
@@ -1377,17 +1389,14 @@ _JS_PART_1 = r"""
         var poolEl = document.getElementById('pfAssemblePool');
         if (!poolEl) return;
 
-        /* ⭐ BUOC 1: Tao hat bay ra tu tung word */
         var words = poolEl.querySelectorAll('.pf-word');
         words.forEach(function(w) {
             var count = 6 + Math.floor(Math.random() * 5);
             pfCreateParticles(w, count);
         });
 
-        /* ⭐ BUOC 2: Word "vo" ra */
         poolEl.classList.add('pf-pool-crumbling');
 
-        /* ⭐ BUOC 3: Xao lai + hien ra */
         setTimeout(function() {
             if (pfAssembleAnswerIdx.length === 0) {
                 pfAssembleWords = pfShuffleArray(pfAssembleWords);
@@ -1422,7 +1431,7 @@ _JS_PART_1 = r"""
 
                 var newWords = poolEl2.querySelectorAll('.pf-word');
                 newWords.forEach(function(w, idx) {
-                    w.style.animationDelay = (idx * 55) + 'ms';
+                    w.style.animationDelay = (idx * 100) + 'ms';
                 });
 
                 setTimeout(function() {
@@ -1430,10 +1439,10 @@ _JS_PART_1 = r"""
                     newWords.forEach(function(w) {
                         w.style.animationDelay = '';
                     });
-                }, 600 + (newWords.length * 55));
+                }, 1200 + (newWords.length * 100));
             }, 30);
 
-        }, 360);
+        }, 880);
     }
 
     function pfStartAutoShuffle() {
@@ -1469,9 +1478,6 @@ _JS_PART_1 = r"""
 
 
 _JS_PART_2 = r"""
-    /* ⭐ RENDER INFO BAR - PHAN BIET 2 LOAI TAB
-       - Tab TU VUNG (co vi_du_zh khac zh): tu vung click -> modal, cau VD click -> doc
-       - Cac tab khac (khong co vi_du_zh): chi hien thi cau + pinyin, KHONG click */
     function pfRenderInfo() {
         var infoEl = document.getElementById('pfAssembleInfo');
         if (!infoEl) return;
@@ -1513,7 +1519,6 @@ _JS_PART_2 = r"""
                       && String(currentItem.vi_du_zh).trim() !== String(currentItem.zh || '').trim();
 
         if (hasExample) {
-            /* ═══ TAB TU VUNG ═══ */
             if (currentItem.zh) {
                 html += '<span class="pf-info-word" ' +
                         'data-mnemonic-char="' + escHtml(currentItem.zh) + '" ' +
@@ -1544,7 +1549,6 @@ _JS_PART_2 = r"""
                         '</span>';
             }
         } else {
-            /* ═══ CAC TAB KHAC - chi hien thi, khong click ═══ */
             if (currentItem.zh) {
                 html += '<span class="pf-info-plain">' +
                         escHtml(currentItem.zh) +
@@ -1758,7 +1762,6 @@ _JS_PART_2 = r"""
 
 
 _JS_PART_3 = r"""
-    /* ⭐ Doc cau bang TTS */
     function pfSpeakText(text) {
         if (!text) return;
 
@@ -1805,7 +1808,6 @@ _JS_PART_3 = r"""
 
         if (!canAssemble) {
             btn.style.display = 'none';
-            /* ⭐ KHONG RESET MODE - chi an nut. Cau tiep theo >=2 tu se ap dung lai mode user da chon */
             return;
         } else {
             btn.style.display = '';
@@ -1829,10 +1831,8 @@ _JS_PART_3 = r"""
         }
     }
 
-    /* ⭐ CHO PHEP CHUYEN DOI 2 CHIEU */
     function pfToggleAssembleMode() {
         if (!pfAssembleMode) {
-            /* Dang Go tu do -> muon sang Ghep tu */
             var testWords = pfGetCurrentTestWords();
             if (testWords.length < 2) {
                 var statusEl = document.getElementById('pfStatus');
@@ -1875,7 +1875,6 @@ _JS_PART_3 = r"""
             }, 100);
         }
 
-        /* ⭐ Luu preference cua user */
         try {
             localStorage.setItem('pfAssembleMode', pfAssembleMode ? '1' : '0');
         } catch(e) {}
@@ -2119,10 +2118,6 @@ _JS_PART_4 = r"""
             if (visited && toggleBtn) toggleBtn.classList.add('visited');
         } catch(e) {}
 
-        /* ⭐ Load preference cua user:
-           - Da luu '1' -> Ghep tu
-           - Da luu '0' -> Go tu do
-           - Chua luu (lan dau) -> MAC DINH GHEP TU */
         try {
             var saved = localStorage.getItem('pfAssembleMode');
             if (saved === '1') {
@@ -2132,7 +2127,6 @@ _JS_PART_4 = r"""
                 pfAssembleMode = false;
                 document.body.classList.remove('pf-assemble-active');
             } else {
-                /* Lan dau - mac dinh Ghep tu */
                 pfAssembleMode = true;
                 document.body.classList.add('pf-assemble-active');
                 try { localStorage.setItem('pfAssembleMode', '1'); } catch(e2) {}
