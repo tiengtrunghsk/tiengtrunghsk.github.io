@@ -255,7 +255,7 @@ jobs:
           if─-no-files-found: ignore
 
       - name: ✅ Commit & Push Check (nếu bật)
-        ifout: ${{ inputs.commit == ' codetrue' || github.event.inputs.commit == 'true' }}
+        if: ${{ inputs.commit == ' codetrue' || github.event.inputs.commit == 'true' }}
         run: |
           # Config git
           git config user.name "github-actions[bot]"
