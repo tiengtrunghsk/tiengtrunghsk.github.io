@@ -1344,12 +1344,18 @@ _JS_PART_1 = r"""
     var AUTO_SHUFFLE_SECONDS = 12;
     var PF_AUTO_SHUFFLE_PREF_KEY = 'pfAutoShufflePref';
 
+    function pfIsHanzi(ch) {
+        if (!ch) return false;
+        var cp = ch.charCodeAt(0);
+        return (cp >= 0x4e00 && cp <= 0x9fff);
+    }
+
     function pfSplitIntoWords(zh) {
         if (!zh) return [];
         var words = [];
         for (var i = 0; i < zh.length; i++) {
             var c = zh[i];
-            if (/[\u4e00-\u9fa5]/.test(c)) words.push(c);
+            if (pfIsHanzi(c)) words.push(c);
         }
         return words;
     }
@@ -2006,6 +2012,26 @@ _JS_PART_2 = r"""
         return [];
     }
 
+    function pfCountHanzi(s) {
+        if (!s) return 0;
+        var n = 0;
+        for (var i = 0; i < s.length; i++) {
+            var cp = s.charCodeAt(i);
+            if (cp >= 0x4e00 && cp <= 0x9fff) n++;
+        }
+        return n;
+    }
+
+    function pfExtractHanzi(s) {
+        if (!s) return '';
+        var out = '';
+        for (var i = 0; i < s.length; i++) {
+            var cp = s.charCodeAt(i);
+            if (cp >= 0x4e00 && cp <= 0x9fff) out += s[i];
+        }
+        return out;
+    }
+
     function pfGetViDuPinyinMap() {
         var currentItem = pfFindCurrentItem();
         var map = {};
@@ -2026,13 +2052,13 @@ _JS_PART_2 = r"""
 
         var hanziCount = 0;
         for (var j = 0; j < zhWords.length; j++) {
-            hanziCount += zhWords[j].replace(/[^\u4e00-\u9fff]/g, '').length;
+            hanziCount += pfCountHanzi(zhWords[j]);
         }
         if (hanziCount === pinyinWords.length) {
             var k = 0;
             for (var m = 0; m < zhWords.length; m++) {
                 var w = zhWords[m];
-                var chars = w.replace(/[^\u4e00-\u9fff]/g, '');
+                var chars = pfExtractHanzi(w);
                 var pys = [];
                 for (var c = 0; c < chars.length; c++) {
                     pys.push(pinyinWords[k++] || '');
@@ -2374,7 +2400,8 @@ _JS_PART_4 = r"""
         var settingsBtn = document.getElementById('pfSettingsBtn');
         var settingsMenu = document.getElementById('pfSettingsMenu');
         var backdrop = document.getElementById('pfSettingsBackdrop');
-        var randomBtn = document.getElementById('pf randomState = document.getElementById('pfSettingsRandomState');
+        var randomBtn = document.getElementById('pfSettingsRandomBtn');
+        var randomState = document.getElementById('pfSettingsRandomState');
         var voiceBtn = document.getElementById('pfSettingsVoiceBtn');
 
         if (!settingsBtn || !settingsMenu) return;
