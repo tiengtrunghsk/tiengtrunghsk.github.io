@@ -1703,8 +1703,9 @@ def build_admin_chat_js():
         try {
             var email = ACM.pendingDelete.email;
             var userName = ACM.pendingDelete.userName;
-            var threadRef = db.collection('chat_threads').doc(email);
 
+            /* ⭐ 1. XOÁ TIN NHẮN TRONG chat_threads */
+            var threadRef = db.collection('chat_threads').doc(email);
             await threadRef.set({
                 messages: [],
                 lastMessage: '',
@@ -1718,6 +1719,29 @@ def build_admin_chat_js():
                 historyClearedBy: (getCu() && getCu().email) || 'admin'
             }, { merge: true });
 
+            /* ⭐ 2. XOÁ activity_logs loại 'chat' của user (batch, tối đa 500) */
+            try {
+                var chatLogsSnap = await db.collection('activity_logs')
+                    .where('email', '==', email)
+                    .where('type', '==', 'chat')
+                    .limit(500)
+                    .get();
+
+                if (!chatLogsSnap.empty) {
+                    var batch = db.batch();
+                    var deletedCount = 0;
+                    chatLogsSnap.forEach(function(doc) {
+                        batch.delete(doc.ref);
+                        deletedCount++;
+                    });
+                    await batch.commit();
+                    console.log('[ACM] Đã xoá ' + deletedCount + ' chat activity log');
+                }
+            } catch(e) {
+                console.warn('[ACM] Không xoá được activity_logs:', e);
+            }
+
+            /* ⭐ 3. Update local state */
             if (ACM.threadsMap && ACM.threadsMap[email]) {
                 ACM.threadsMap[email].lastMessage = '';
                 ACM.threadsMap[email].lastMessageAt = null;
@@ -1735,6 +1759,7 @@ def build_admin_chat_js():
             updateStats();
             hideDeleteConfirm();
 
+            /* ⭐ 4. Xoá luôn khung chat user nếu đang mở */
             try {
                 var chatBody = $id('chatBody');
                 if (chatBody && chatBody.offsetParent !== null) {
@@ -1749,6 +1774,7 @@ def build_admin_chat_js():
                 }
             } catch(e) {}
 
+            /* ⭐ 5. Ghi activity log việc xoá */
             try {
                 db.collection('activity_logs').add({
                     email: email,
@@ -1759,6 +1785,7 @@ def build_admin_chat_js():
                 });
             } catch(e) {}
 
+            /* ⭐ 6. Refresh lại UI sau 800ms + 2s để chắc chắn */
             setTimeout(function() {
                 rebuildList();
                 updateStats();
