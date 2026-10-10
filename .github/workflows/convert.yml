@@ -11,8 +11,6 @@ on:
       - 'patch_buttons.py'
       - 'quick_search.py'
       - 'vocab_premium.py'
-      - 'fix_all_conflicts.py'
-      - 'fix_lock_chuyen_nganh.py'
       - 'vocab_data/**'
       - 'requirements.txt'
       - '.github/workflows/convert.yml'
@@ -34,11 +32,6 @@ concurrency:
 jobs:
   convert:
     runs-on: ubuntu-latest
-    # ⭐ Bỏ qua nếu commit message có [skip ci] → tránh loop vô hạn
-    if: |
-      github.event_name != 'push' ||
-      !contains(github.event.head_commit.message, '[skip ci]')
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -151,22 +144,6 @@ jobs:
       - name: Run convert script
         run: python scripts/convert.py
 
-      - name: Run fix_all_conflicts.py
-        run: |
-          if [ -f fix_all_conflicts.py ]; then
-            python fix_all_conflicts.py
-          else
-            echo "no fix_all_conflicts.py"
-          fi
-
-      - name: Run fix_lock_chuyen_nganh.py
-        run: |
-          if [ -f fix_lock_chuyen_nganh.py ]; then
-            python fix_lock_chuyen_nganh.py
-          else
-            echo "no fix_lock_chuyen_nganh.py"
-          fi
-
       - name: Run fix.py
         run: |
           if [ -f fix.py ]; then
@@ -206,7 +183,7 @@ jobs:
             if grep -q "$el" index.html; then
               echo "OK $el"
             else
-              echo "Missing $el"
+              echo "MISSING $el"
               exit 1
             fi
           done
@@ -221,19 +198,6 @@ jobs:
           if [ "$SIZE" -gt 2097152 ]; then
             echo "index.html too large (>2MB), data still inline?"
             exit 1
-          fi
-
-      - name: Verify lock_chuyen_nganh in index.html
-        run: |
-          if grep -q "locked-loading" index.html; then
-            echo "✅ lock_chuyen_nganh CSS injected"
-          else
-            echo "⚠️  locked-loading CSS not found in index.html"
-          fi
-          if grep -q "initDatasetSelector" index.html; then
-            echo "✅ initDatasetSelector found"
-          else
-            echo "⚠️  initDatasetSelector not found"
           fi
 
       - name: Verify fixpy_datasets has mnemonics
@@ -291,79 +255,31 @@ jobs:
           fi
           echo "No secrets leaked OK"
 
-      # ═══════════════════════════════════════════════════════════
-      #  ⭐ DỌN BACKUP FILES TRƯỚC KHI COMMIT
-      # ═══════════════════════════════════════════════════════════
-      - name: Cleanup backup files
-        run: |
-          echo "=== Xoá backup files trước khi commit ==="
-          rm -f *.bak_* 2>/dev/null || true
-          rm -f scripts/*.bak_* 2>/dev/null || true
-          rm -f **/*.bak_* 2>/dev/null || true
-          rm -f fix_conflicts.log 2>/dev/null || true
-          echo "Remaining .bak files:"
-          find . -name "*.bak_*" -type f 2>/dev/null | head -5 || echo "(none)"
-
-      # ═══════════════════════════════════════════════════════════
-      #  ⭐ COMMIT & PUSH — ĐÃ FIX: add đủ các file .py bị patch
-      # ═══════════════════════════════════════════════════════════
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # ═══ Data files ═══
           git add index.html
-          for f in \
-            data/ai_mnemonics.json \
-            data/all_datasets.json \
-            data/dataset_registry.json \
-            data/fixpy_datasets.json \
-            data/fixpy_preview.json \
-            data/similar_chars.json
-          do
-            if [ -f "$f" ]; then git add "$f"; fi
-          done
+          if [ -f "data/ai_mnemonics.json" ]; then git add data/ai_mnemonics.json; fi
+          if [ -f "data/all_datasets.json" ]; then git add data/all_datasets.json; fi
+          if [ -f "data/dataset_registry.json" ]; then git add data/dataset_registry.json; fi
+          if [ -f "data/fixpy_datasets.json" ]; then git add data/fixpy_datasets.json; fi
+          if [ -f "data/similar_chars.json" ]; then git add data/similar_chars.json; fi
 
-          # ═══ ⭐ Python files bị patch bởi fix_all_conflicts / fix_lock ═══
-          for f in \
-            fix.py \
-            patch_buttons.py \
-            scripts/ui_template.py \
-            scripts/favorites_module.py
-          do
-            if [ -f "$f" ]; then git add "$f"; fi
-          done
-
-          # ═══ Double-check: xoá mọi .bak files còn sót ═══
-          rm -f *.bak_* 2>/dev/null || true
-          rm -f scripts/*.bak_* 2>/dev/null || true
-
-          # ═══ Check staged changes ═══
-          if git diff --cached --quiet; then
-            echo "ℹ️  No changes to commit"
-            exit 0
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "no changes"
+          else
+            AI_COUNT="${{ steps.count_ai.outputs.ai_count }}"
+            MNEMONIC_COUNT="${{ steps.verify_mnemonic.outputs.mnemonic_count }}"
+            QS_TAG=""
+            if grep -q "QUICK_SEARCH_MODULE_JS" index.html; then
+              QS_TAG=" + QS"
+            fi
+            git commit -m "Auto convert Excel to HTML (mnemonic: ${MNEMONIC_COUNT}, ai: ${AI_COUNT}${QS_TAG}) [skip ci]"
+            git pull --rebase origin ${{ github.ref_name }} || true
+            git push origin HEAD:${{ github.ref_name }}
           fi
-
-          # ═══ Tạo commit message với tags ═══
-          AI_COUNT="${{ steps.count_ai.outputs.ai_count }}"
-          MNEMONIC_COUNT="${{ steps.verify_mnemonic.outputs.mnemonic_count }}"
-
-          QS_TAG=""
-          if grep -q "QUICK_SEARCH_MODULE_JS" index.html; then
-            QS_TAG=" + QS"
-          fi
-
-          FIX_TAG=""
-          if grep -q "locked-loading" index.html; then
-            FIX_TAG=" + LockCN"
-          fi
-
-          git commit -m "Auto convert Excel to HTML (mnemonic: ${MNEMONIC_COUNT}, ai: ${AI_COUNT}${QS_TAG}${FIX_TAG}) [skip ci]"
-
-          # ═══ Pull + push ═══
-          git pull --rebase origin ${{ github.ref_name }} || true
-          git push origin HEAD:${{ github.ref_name }}
 
       - name: Prepare Pages artifact
         run: |
@@ -374,16 +290,21 @@ jobs:
           if [ -d "static" ]; then cp -r static _site/; fi
           if [ -f "404.html" ]; then cp 404.html _site/; fi
           mkdir -p _site/data
-          for f in \
-            data/ai_mnemonics.json \
-            data/all_datasets.json \
-            data/dataset_registry.json \
-            data/fixpy_datasets.json \
-            data/fixpy_preview.json \
-            data/similar_chars.json
-          do
-            if [ -f "$f" ]; then cp "$f" _site/data/; fi
-          done
+          if [ -f "data/ai_mnemonics.json" ]; then
+            cp data/ai_mnemonics.json _site/data/
+          fi
+          if [ -f "data/all_datasets.json" ]; then
+            cp data/all_datasets.json _site/data/
+          fi
+          if [ -f "data/dataset_registry.json" ]; then
+            cp data/dataset_registry.json _site/data/
+          fi
+          if [ -f "data/fixpy_datasets.json" ]; then
+            cp data/fixpy_datasets.json _site/data/
+          fi
+          if [ -f "data/similar_chars.json" ]; then
+            cp data/similar_chars.json _site/data/
+          fi
           echo "=== _site contents ==="
           find _site -type f | head -30
 
