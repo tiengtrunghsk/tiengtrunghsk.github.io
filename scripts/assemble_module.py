@@ -229,6 +229,7 @@ body.pf-assemble-active .pf-assemble-mode {
     align-items: flex-end;
     justify-content: center;
     padding: clamp(.7rem, 1.4vh, 1rem) clamp(.7rem, 1.4vw, 1rem);
+    min-height: auto;
 }
 .pf-assemble-answer.wrong {
     border-color: var(--danger);
@@ -295,6 +296,15 @@ body.pf-assemble-active .pf-assemble-mode {
     gap: clamp(.3rem, .6vw, .5rem);
     align-items: center;
     justify-content: center;
+}
+.pf-assemble-pool.pf-pool-hidden {
+    display: none !important;
+}
+.pf-assemble-mode.pf-mode-complete {
+    gap: clamp(.6rem, 1.2vh, 1rem);
+}
+.pf-assemble-mode.pf-mode-complete .pf-assemble-next-btn {
+    margin-top: .35rem;
 }
 .pf-word {
     font-family: var(--font-zh, 'PingFang SC', sans-serif);
@@ -2023,11 +2033,19 @@ _JS_PART_2 = r"""
         });
 
         answerEl.classList.remove('correct', 'wrong');
+        var modeEl = document.getElementById('pfAssembleMode');
+
         if (status === 'correct') {
             answerEl.classList.add('correct');
             pfRenderCorrectPhrases(answerEl);
-        } else if (status === 'wrong') {
-            answerEl.classList.add('wrong');
+            poolEl.classList.add('pf-pool-hidden');
+            if (modeEl) modeEl.classList.add('pf-mode-complete');
+        } else {
+            poolEl.classList.remove('pf-pool-hidden');
+            if (modeEl) modeEl.classList.remove('pf-mode-complete');
+            if (status === 'wrong') {
+                answerEl.classList.add('wrong');
+            }
         }
     }
 
@@ -2413,6 +2431,12 @@ _JS_PART_2 = r"""
         var hintBtn = document.getElementById('pfAssembleHintBtn');
         if (hintBtn) hintBtn.classList.remove('active');
         pfRemoveNextBtn();
+
+        var poolEl = document.getElementById('pfAssemblePool');
+        if (poolEl) poolEl.classList.remove('pf-pool-hidden');
+        var modeEl = document.getElementById('pfAssembleMode');
+        if (modeEl) modeEl.classList.remove('pf-mode-complete');
+
         pfBuildAssembleWords();
         pfRenderAssemble();
         var statusEl = document.getElementById('pfStatus');
@@ -2825,6 +2849,12 @@ _JS_PART_4 = r"""
                 pfAssembleAnswerIdx = [];
                 pfInsertPos = 0;
                 pfRemoveNextBtn();
+
+                var poolEl = document.getElementById('pfAssemblePool');
+                if (poolEl) poolEl.classList.remove('pf-pool-hidden');
+                var modeEl = document.getElementById('pfAssembleMode');
+                if (modeEl) modeEl.classList.remove('pf-mode-complete');
+
                 pfRenderAssemble();
                 var statusEl = document.getElementById('pfStatus');
                 if (statusEl) {
