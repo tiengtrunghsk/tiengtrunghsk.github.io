@@ -172,15 +172,15 @@ def build_vocab_js_patch():
 
         if (tier === 'expired') {
             return { allowed: false, tier: 'expired', hskAllowed: [], maxQuestions: 0,
-                label: 'Tai khoan het han',
-                warning: 'Tai khoan da het han - gia han de tiep tuc dung Tu vung HSK.' };
+                label: 'Tài khoản hết hạn',
+                warning: 'Tài khoản đã hết hạn, gia hạn để không gián đoạn quá trình học.' };
         }
         if (tier === 'demo') {
             return { allowed: true, tier: 'demo', hskAllowed: hskArr, maxQuestions: maxQ,
                 label: 'Demo - ' + hskRange,
-                warning: 'Ban Demo gioi han ' + hskRange + ' va toi da ' +
-                         (maxQ > 0 ? maxQ + ' tu' : 'mot so tu') +
-                         ' - dang nhap de dung day du.' };
+                warning: 'Bản dùng thử giới hạn ' + hskRange + ' và tối đa ' +
+                         (maxQ > 0 ? maxQ + ' từ' : 'một số từ') +
+                         ' - Đăng nhập để sử dụng đầy đủ.' };
         }
         if (tier === 'trial') {
             if (isUnlimited) {
@@ -191,9 +191,9 @@ def build_vocab_js_patch():
             }
             return { allowed: true, tier: 'trial', hskAllowed: hskArr, maxQuestions: maxQ,
                 label: 'Trial - ' + hskRange,
-                warning: 'Ban Trial gioi han ' + hskRange + ' va ' +
-                         (maxQ > 0 ? maxQ + ' tu' : 'mot so tu') +
-                         ' - nang cap Premium de mo toan bo.' };
+                warning: 'Bản Trial học thử ' + hskRange + ' và ' +
+                         (maxQ > 0 ? maxQ + ' từ' : 'một số từ') +
+                         ' - Chỉ từ 50k mở khoá toàn bộ.' };
         }
         if (isUnlimited) {
             return { allowed: true, tier: 'active',
