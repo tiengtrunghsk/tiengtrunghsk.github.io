@@ -924,6 +924,64 @@ body.acm-bulk-mode .acm-select-all-row{display:flex;}
     transition:width .3s ease;
     width:0%;
 }
+.acm-clear-all-btn{
+    width:36px;height:36px;border-radius:50%;
+    border:none;
+    background:rgba(220,38,38,.25);
+    color:#fff;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:.95rem;flex-shrink:0;transition:.15s;
+}
+.acm-clear-all-btn:hover{
+    background:#dc2626;
+    transform:scale(1.08);
+    box-shadow:0 4px 12px rgba(220,38,38,.4);
+}
+.acm-clear-all-btn:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+    transform:none;
+}
+[data-theme="dark"] .acm-clear-all-btn{
+    background:rgba(220,38,38,.35);
+}
+[data-theme="dark"] .acm-clear-all-btn:hover:not(:disabled){
+    background:#dc2626;
+}
+
+.acm-clear-all-progress{
+    padding:1rem 1.25rem;
+    background:linear-gradient(135deg,#fef2f2,#fee2e2);
+    border-bottom:1px solid #fecaca;
+    flex-shrink:0;
+}
+[data-theme="dark"] .acm-clear-all-progress{
+    background:linear-gradient(135deg,rgba(220,38,38,.2),rgba(185,28,28,.15));
+    border-color:rgba(220,38,38,.4);
+}
+.acm-clear-all-progress-text{
+    font-size:.82rem;
+    font-weight:800;
+    color:#dc2626;
+    margin-bottom:.5rem;
+    display:flex;
+    justify-content:space-between;
+    gap:.5rem;
+}
+[data-theme="dark"] .acm-clear-all-progress-text{color:#fca5a5;}
+.acm-clear-all-bar{
+    height:8px;
+    background:rgba(220,38,38,.2);
+    border-radius:50px;
+    overflow:hidden;
+}
+.acm-clear-all-fill{
+    height:100%;
+    background:linear-gradient(90deg,#dc2626,#b91c1c);
+    border-radius:50px;
+    transition:width .3s ease;
+    width:0%;
+}
 """
 
 
@@ -934,12 +992,25 @@ def build_admin_chat_html():
 
         <div class="acm-header" id="acmHeaderList">
             <h3><i class="fas fa-users-cog"></i> Quản lý Chat — Tất cả User</h3>
+            <button class="acm-clear-all-btn" id="acmClearAllBtn" type="button" title="Xoá TẤT CẢ lịch sử chat của mọi user">
+                <i class="fas fa-broom"></i>
+            </button>
             <button class="acm-bulk-toggle" id="acmBulkToggle" type="button" title="Chọn nhiều user để gửi hàng loạt">
                 <i class="fas fa-check-square"></i>
             </button>
             <button class="acm-close" id="acmClose" type="button" title="Đóng">
                 <i class="fas fa-times"></i>
             </button>
+        </div>
+
+        <div class="acm-clear-all-progress" id="acmClearAllProgress" style="display:none;">
+            <div class="acm-clear-all-progress-text">
+                <span><i class="fas fa-spinner fa-pulse"></i> Đang xoá tất cả chat...</span>
+                <span id="acmClearAllProgressText">0/0</span>
+            </div>
+            <div class="acm-clear-all-bar">
+                <div class="acm-clear-all-fill" id="acmClearAllProgressFill"></div>
+            </div>
         </div>
 
         <div class="acm-stats" id="acmStats">
@@ -1122,9 +1193,9 @@ def build_admin_chat_js():
         renderTimer: null,
         pendingDelete: null,
         bulkMode: false,
-        selectedUsers: []
+        selectedUsers: [],
+        clearAllRunning: false
     };
-
     function $id(id) { return document.getElementById(id); }
     function esc(s) {
         if (s == null) return '';
@@ -2214,6 +2285,164 @@ def build_admin_chat_js():
     window.__acmShowHistory = function(email) {
         showHistory(email);
     };
+    function openClearAllConfirm() {
+        if (!isAdmin()) {
+            alert('Chỉ admin mới có quyền xoá!');
+            return;
+        }
+        if (ACM.clearAllRunning) {
+            alert('Đang xoá, vui lòng chờ...');
+            return;
+        }
+
+        var usersWithChat = ACM.allUsers.filter(function(u) { return !!u.thread; });
+        var totalThreads = usersWithChat.length;
+
+        if (totalThreads === 0) {
+            alert('Không có lịch sử chat nào để xoá.');
+            return;
+        }
+
+        var confirmed = confirm(
+            '⚠️ XOÁ TẤT CẢ LỊCH SỬ CHAT\n\n' +
+            'Sẽ xoá vĩnh viễn tin nhắn của:\n' +
+            '• Tổng số user có chat: ' + totalThreads + '\n\n' +
+            'Hành động này KHÔNG THỂ KHÔI PHỤC.\n\n' +
+            'Tiếp tục?'
+        );
+
+        if (!confirmed) return;
+
+        var finalConfirm = confirm(
+            'BẠN CHẮC CHẮN?\n\n' +
+            'Xoá ' + totalThreads + ' cuộc trò chuyện.\n\n' +
+            '(Đây là xác nhận cuối cùng)'
+        );
+
+        if (!finalConfirm) return;
+
+        doClearAllThreads(usersWithChat);
+    }
+
+    async function doClearAllThreads(usersWithChat) {
+        var db = getDb();
+        if (!db) return;
+
+        ACM.clearAllRunning = true;
+
+        var prog = $id('acmClearAllProgress');
+        if (prog) prog.style.display = 'block';
+
+        var progText = $id('acmClearAllProgressText');
+        var progFill = $id('acmClearAllProgressFill');
+
+        var total = usersWithChat.length;
+        var success = 0;
+        var failed = 0;
+        var adminEmail = (getCu() && getCu().email) || 'admin';
+
+        var clearBtn = $id('acmClearAllBtn');
+        if (clearBtn) clearBtn.disabled = true;
+
+        for (var i = 0; i < usersWithChat.length; i++) {
+            var email = usersWithChat[i].email;
+
+            if (progText) progText.textContent = (i + 1) + '/' + total;
+            if (progFill) progFill.style.width = Math.round(((i + 1) / total) * 100) + '%';
+
+            try {
+                await db.collection('chat_threads').doc(email).set({
+                    messages: [],
+                    lastMessage: '',
+                    lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastMessageFrom: '',
+                    unreadByAdmin: 0,
+                    unreadByUser: 0,
+                    userTypingAt: null,
+                    adminTypingAt: null,
+                    historyClearedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    historyClearedBy: adminEmail
+                }, { merge: true });
+
+                try {
+                    var logsSnap = await db.collection('activity_logs')
+                        .where('email', '==', email)
+                        .where('type', '==', 'chat')
+                        .limit(500)
+                        .get();
+
+                    if (!logsSnap.empty) {
+                        var batch = db.batch();
+                        logsSnap.forEach(function(doc) {
+                            batch.delete(doc.ref);
+                        });
+                        await batch.commit();
+                    }
+                } catch(e) {
+                    console.warn('[ACM] Xoá activity_logs cho ' + email + ' lỗi:', e);
+                }
+
+                success++;
+            } catch(e) {
+                console.error('[ACM] Xoá chat cho ' + email + ' lỗi:', e);
+                failed++;
+            }
+
+            if (i < usersWithChat.length - 1) {
+                await new Promise(function(r) { setTimeout(r, 60); });
+            }
+        }
+
+        Object.keys(ACM.threadsMap).forEach(function(email) {
+            if (ACM.threadsMap[email]) {
+                ACM.threadsMap[email].lastMessage = '';
+                ACM.threadsMap[email].lastMessageAt = null;
+                ACM.threadsMap[email].lastMessageFrom = '';
+                ACM.threadsMap[email].unreadByAdmin = 0;
+            }
+        });
+
+        ACM.selectedUsers = [];
+        updateBulkCount();
+
+        try { localStorage.removeItem('admin_users_cache'); } catch(e) {}
+
+        rebuildList();
+        updateStats();
+
+        setTimeout(function() {
+            if (prog) prog.style.display = 'none';
+            if (progFill) progFill.style.width = '0%';
+        }, 1500);
+
+        try {
+            db.collection('activity_logs').add({
+                email: adminEmail,
+                type: 'admin',
+                title: 'Xoá TẤT CẢ lịch sử chat',
+                detail: 'Xoá ' + success + '/' + total + ' cuộc trò chuyện' +
+                        (failed > 0 ? ' (' + failed + ' lỗi)' : ''),
+                at: firebase.firestore.FieldValue.serverTimestamp(),
+                metadata: { total: total, success: success, failed: failed }
+            });
+        } catch(e) {}
+
+        if (clearBtn) clearBtn.disabled = false;
+        ACM.clearAllRunning = false;
+
+        if (failed === 0) {
+            showSmallToast('Đã xoá tất cả ' + success + ' cuộc trò chuyện');
+        } else {
+            showSmallToast('Đã xoá ' + success + '/' + total + ' (lỗi: ' + failed + ')');
+        }
+
+        setTimeout(function() {
+            rebuildList();
+            updateStats();
+        }, 2000);
+    }
+
+    window.__acmClearAll = openClearAllConfirm;
 
     function init() {
         if (ACM.inited) return;
@@ -2222,6 +2451,14 @@ def build_admin_chat_js():
         var closeBtn = $id('acmClose');
         if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
+        var clearAllBtn = $id('acmClearAllBtn');
+        if (clearAllBtn) {
+            clearAllBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openClearAllConfirm();
+            });
+        }
         var closeHistBtn = $id('acmCloseHistory');
         if (closeHistBtn) closeHistBtn.addEventListener('click', closeModal);
 
