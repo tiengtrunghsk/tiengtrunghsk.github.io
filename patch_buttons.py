@@ -34,7 +34,7 @@ BUTTON_CONFIG = {
 DEFAULT_CONFIG = {
     "icon": "fa-comments",
     "title_template": "<b>{count}</b> {name}",
-    "sub_template": "Hội thoại thực tế",   # ⭐ ĐÃ SỬA từ "Câu giao tiếp"
+    "sub_template": "Hội thoại thực tế",
 }
 
 
@@ -559,6 +559,7 @@ def add_active_fix_js(html):
     Thêm JS nhỏ vào cuối HTML để:
     - Khi bấm Chuyên ngành / Từ vựng / bất kỳ tab → clear active của Yêu thích
     - Khi bấm sub-ngành → clear Yêu thích + Từ vựng
+    - ⭐ KHÔNG return sớm khi bấm Chuyên ngành → để dropdown vẫn mở được
     """
     MARKER = "/* PATCH_BUTTONS: FIX ACTIVE TAB */"
     if MARKER in html:
@@ -572,18 +573,14 @@ def add_active_fix_js(html):
     'use strict';
     console.log('[patch_buttons] Fix active tab ready');
 
-    function clearOthers(except) {
-        document.querySelectorAll('.ds-btn, .ds-sub-btn').forEach(function(b) {
-            if (b !== except) b.classList.remove('active');
-        });
-    }
-
     // Bấm bất kỳ nút dataset nào → clear Yêu thích ngay
+    // ⭐ KHÔNG stopPropagation → để handler khác (mở dropdown) vẫn chạy
     document.addEventListener('click', function(e) {
         var btn = e.target.closest('.ds-btn, .ds-sub-btn');
         if (!btn) return;
 
         // Nút Chuyên ngành (mở dropdown) → clear Yêu thích + Từ vựng
+        // ⭐ KHÔNG return — để dropdown handler chạy bình thường
         if (btn.id === 'dsChuyenNganhBtn' ||
             btn.getAttribute('data-dataset-group') === 'chuyen-nganh') {
 
@@ -591,7 +588,7 @@ def add_active_fix_js(html):
             if (fav) fav.classList.remove('active');
             var tv = document.querySelector('.ds-btn[data-dataset="tu-vung"]');
             if (tv) tv.classList.remove('active');
-            return;
+            // KHÔNG return ở đây — để handler khác tự do chạy
         }
 
         // Sub-ngành → clear Yêu thích + Từ vựng, active Chuyên ngành
@@ -602,12 +599,14 @@ def add_active_fix_js(html):
             if (tv2) tv2.classList.remove('active');
             var cn = document.querySelector('.ds-btn[data-dataset-group="chuyen-nganh"]');
             if (cn) cn.classList.add('active');
-            return;
         }
 
         // Các tab khác (Từ vựng, Tổng hợp, Giao tiếp...) → clear Yêu thích
+        // Trừ khi chính là nút Yêu thích
         var favBtn = document.querySelector('.ds-btn[data-dataset-group="favorites"]');
-        if (favBtn && btn !== favBtn) {
+        if (favBtn && btn !== favBtn &&
+            !btn.classList.contains('ds-sub-btn') &&
+            btn.getAttribute('data-dataset-group') !== 'chuyen-nganh') {
             favBtn.classList.remove('active');
         }
     }, true);
