@@ -1797,6 +1797,35 @@ body[data-vocab-mode="1"] .mobile-view { gap: .5rem !important; }
         transform: translate(-50%, -100%) scale(1) translateY(0);
     }
 }
+
+.card-mnemonic-body .mnemonic-story-wrap{display:block;margin:.55rem 0 .1rem;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,rgba(99,102,241,.07) 0%,rgba(139,92,246,.05) 100%);border:1px solid rgba(139,92,246,.18);transition:border-color .25s ease,box-shadow .25s ease}
+.card-mnemonic-body .mnemonic-story-wrap.open{border-color:rgba(139,92,246,.4);box-shadow:0 4px 14px rgba(139,92,246,.12)}
+.card-mnemonic-body .mnemonic-story-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;padding:.55rem .75rem;background:transparent;border:none;font-family:inherit;font-size:.82rem;font-weight:800;color:#6d28d9;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;text-align:left;letter-spacing:.02em;transition:background .18s ease,color .18s ease;gap:.5rem}
+.card-mnemonic-body .mnemonic-story-toggle:hover{background:rgba(139,92,246,.08);color:#5b21b6}
+.card-mnemonic-body .mnemonic-story-toggle:active{background:rgba(139,92,246,.14)}
+.card-mnemonic-body .mnemonic-story-toggle-label{display:inline-flex;align-items:center;gap:.4rem;flex:1;min-width:0}
+.card-mnemonic-body .mnemonic-story-toggle-arrow{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:rgba(139,92,246,.15);color:#7c3aed;font-size:.7rem;transition:transform .3s cubic-bezier(.34,1.56,.64,1),background .2s ease}
+.card-mnemonic-body .mnemonic-story-wrap.open .mnemonic-story-toggle-arrow{transform:rotate(180deg);background:#7c3aed;color:#fff}
+.card-mnemonic-body .mnemonic-story-content{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s cubic-bezier(.4,0,.2,1);overflow:hidden}
+.card-mnemonic-body .mnemonic-story-wrap.open .mnemonic-story-content{grid-template-rows:1fr}
+.card-mnemonic-body .mnemonic-story-inner{overflow:hidden;padding:0 .75rem;font-size:.82rem;color:var(--text-2);line-height:1.6;transition:padding .3s ease}
+.card-mnemonic-body .mnemonic-story-wrap.open .mnemonic-story-inner{padding:.1rem .75rem .7rem}
+.card-mnemonic-body .mnemonic-story-inner .char-zh{font-family:var(--font-zh);font-size:1rem;font-weight:600;color:var(--text);padding:0 .15rem}
+.card-mnemonic-body .mnemonic-story-inner .arrow{color:#f59e0b;font-weight:800;padding:0 .2rem}
+.card-mnemonic-body .mnemonic-story-inner .hint{color:#b45309;font-weight:700}
+[data-theme="dark"] .card-mnemonic-body .mnemonic-story-wrap{background:linear-gradient(135deg,rgba(139,92,246,.12) 0%,rgba(99,102,241,.08) 100%);border-color:rgba(167,139,250,.25)}
+[data-theme="dark"] .card-mnemonic-body .mnemonic-story-wrap.open{border-color:rgba(167,139,250,.5);box-shadow:0 4px 14px rgba(139,92,246,.25)}
+[data-theme="dark"] .card-mnemonic-body .mnemonic-story-toggle{color:#c4b5fd}
+[data-theme="dark"] .card-mnemonic-body .mnemonic-story-toggle:hover{background:rgba(139,92,246,.15);color:#ddd6fe}
+[data-theme="dark"] .card-mnemonic-body .mnemonic-story-toggle-arrow{background:rgba(167,139,250,.25);color:#c4b5fd}
+[data-theme="dark"] .card-mnemonic-body .mnemonic-story-wrap.open .mnemonic-story-toggle-arrow{background:#a78bfa;color:#1e1b4b}
+[data-theme="dark"] .card-mnemonic-body .mnemonic-story-inner{color:#cbd5e1}
+[data-theme="dark"] .card-mnemonic-body .mnemonic-story-inner .char-zh{color:#e0f2fe}
+body[data-vocab-mode="1"] .card-mnemonic-body .mnemonic-story-wrap{margin:.35rem 0 .1rem!important;border-radius:8px!important}
+body[data-vocab-mode="1"] .card-mnemonic-body .mnemonic-story-toggle{padding:.4rem .55rem!important;font-size:.72rem!important}
+body[data-vocab-mode="1"] .card-mnemonic-body .mnemonic-story-toggle-arrow{width:18px!important;height:18px!important;font-size:.6rem!important}
+body[data-vocab-mode="1"] .card-mnemonic-body .mnemonic-story-inner{font-size:.74rem!important;line-height:1.5!important}
+body[data-vocab-mode="1"] .card-mnemonic-body .mnemonic-story-wrap.open .mnemonic-story-inner{padding:.05rem .55rem .55rem!important}
 """
     return css.replace("__VOCAB_ID__", vocab_id)
 
@@ -2044,6 +2073,14 @@ window.__SIMILAR_CHARS__ = __SIMILAR_JSON__;
         };
         setTimeout(function() { speechSynthesis.speak(u); }, 30);
     };
+    window.vocabToggleStory = function(btn, evt) {
+    if (evt) { evt.stopPropagation(); evt.preventDefault(); }
+    if (!btn) return;
+    var wrap = btn.closest('.mnemonic-story-wrap');
+    if (!wrap) return;
+    var isOpen = wrap.classList.toggle('open');
+    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+};
 
     window.vocabJumpToChar = function(char, btn, evt) {
         if (evt) { evt.stopPropagation(); evt.preventDefault(); }
@@ -2165,68 +2202,110 @@ window.__SIMILAR_CHARS__ = __SIMILAR_JSON__;
     currentChar = currentChar || '';
     if (!text || !text.trim()) return '';
 
-    // BƯỚC 1: Transform ký tự đặc biệt TRƯỚC KHI ESCAPE
-    var raw = text;
-    raw = raw.replace(/\s=\s/g, ' __ARROW__ ');
-    raw = raw.replace(/→/g, ' __RARR__ ');
-    raw = raw.replace(/\(([^)]+)\)/g, ' __PAREN_L__$1__PAREN_R__');
+    var mnemonicPart = text;
+    var storyPart = '';
 
-    // BƯỚC 2: Escape
-    var safe = _esc(raw);
-
-    // BƯỚC 3: Helper normalize
-    function _normZh(s) {
-        if (!s) return '';
-        return s.replace(/[\s，。！？、；：""''（）]/g, '').trim();
-    }
-
-    var viDuNormMap = {};
-    if (viDuList && viDuList.length > 0) {
-        viDuList.forEach(function(ex) {
-            if (ex && ex.zh) {
-                viDuNormMap[_normZh(ex.zh)] = ex;
-            }
-        });
-    }
-
-    // BƯỚC 4: Wrap mọi cụm ≥2 chữ Hán — bấm được để phát âm
-    // - Nếu cụm nằm trong block "📎 Ví dụ:" → .card-example-zh (đậm hơn)
-    // - Nếu không → .card-char-speakable (cùng style, chỉ khác tên class)
-    safe = safe.replace(
-        /([\u4e00-\u9fff][\u4e00-\u9fff\s]*[\u4e00-\u9fff，。！？、；：""''（）])/g,
-        function(match) {
-            var trimmed = match.trim();
-            var hanziOnly = trimmed.replace(/[^\u4e00-\u9fff]/g, '');
-            if (hanziOnly.length < 2) return match;
-
-            var mJs = trimmed
-                .replace(/\\/g, '\\\\')
-                .replace(/'/g, "\\'")
-                .replace(/"/g, '\\"');
-            var mNorm = _normZh(trimmed);
-
-            var isExample = !!viDuNormMap[mNorm];
-            var cls = isExample ? 'card-example-zh' : 'card-char-speakable';
-            var title = isExample ? 'Bấm để nghe câu ví dụ' : 'Bấm để nghe';
-
-            return '<span class="' + cls + '" '
-                 + 'onclick="vocabSpeakChar(\'' + mJs + '\', this, event)" '
-                 + 'title="' + title + '">'
-                 + match + '</span>';
-        }
+    var storyMatch = text.match(
+        /🎬\s*([\s\S]*?)(?=(?:\n\s*📎\s*Ví\s*dụ)|\n\s*🔗|\n\s*💡|\n\s*📌|\s*$)/
     );
 
-    // BƯỚC 5: Thay placeholder thành HTML thật
-    safe = safe.replace(/__ARROW__/g, '<span class="arrow">=</span>');
-    safe = safe.replace(/__RARR__/g, '<span class="arrow">→</span>');
-    safe = safe.replace(/__PAREN_L__/g, '(<span class="hint">');
-    safe = safe.replace(/__PAREN_R__/g, '</span>)');
+    if (storyMatch) {
+        storyPart = storyMatch[0].trim();
+        mnemonicPart = text.replace(storyPart, '').replace(/\n{2,}/g, '\n').trim();
+    }
+
+    function _processText(rawIn) {
+        if (!rawIn) return '';
+
+        var raw = rawIn;
+        raw = raw.replace(/\s=\s/g, ' __ARROW__ ');
+        raw = raw.replace(/→/g, ' __RARR__ ');
+        raw = raw.replace(/\(([^)]+)\)/g, ' __PAREN_L__$1__PAREN_R__');
+
+        var safe = _esc(raw);
+
+        function _normZh(s) {
+            if (!s) return '';
+            return s.replace(/[\s，。！？、；：""''（）]/g, '').trim();
+        }
+
+        var viDuNormMap = {};
+        if (viDuList && viDuList.length > 0) {
+            viDuList.forEach(function(ex) {
+                if (ex && ex.zh) {
+                    viDuNormMap[_normZh(ex.zh)] = ex;
+                }
+            });
+        }
+
+        safe = safe.replace(
+            /([\u4e00-\u9fff][\u4e00-\u9fff\s]*[\u4e00-\u9fff，。！？、；：""''（）])/g,
+            function(match) {
+                var trimmed = match.trim();
+                var hanziOnly = trimmed.replace(/[^\u4e00-\u9fff]/g, '');
+                if (hanziOnly.length < 2) return match;
+
+                var mJs = trimmed
+                    .replace(/\\/g, '\\\\')
+                    .replace(/'/g, "\\'")
+                    .replace(/"/g, '\\"');
+                var mNorm = _normZh(trimmed);
+
+                var isExample = !!viDuNormMap[mNorm];
+                var cls = isExample ? 'card-example-zh' : 'card-char-speakable';
+                var title = isExample ? 'Bấm để nghe câu ví dụ' : 'Bấm để nghe';
+
+                return '<span class="' + cls + '" '
+                     + 'onclick="vocabSpeakChar(\'' + mJs + '\', this, event)" '
+                     + 'title="' + title + '">'
+                     + match + '</span>';
+            }
+        );
+
+        safe = safe.replace(/__ARROW__/g, '<span class="arrow">=</span>');
+        safe = safe.replace(/__RARR__/g, '<span class="arrow">→</span>');
+        safe = safe.replace(/__PAREN_L__/g, '(<span class="hint">');
+        safe = safe.replace(/__PAREN_R__/g, '</span>)');
+
+        return safe;
+    }
+
+    var mnemonicHtml = _processText(mnemonicPart);
+
+    var storyHtml = '';
+    if (storyPart) {
+        var storyBody = storyPart.replace(/^🎬\s*/, '').trim();
+        var storyContentHtml = _processText(storyBody);
+
+        storyHtml =
+            '<div class="mnemonic-story-wrap" data-story="1">' +
+                '<button class="mnemonic-story-toggle" type="button" ' +
+                        'onclick="vocabToggleStory(this, event)" ' +
+                        'aria-expanded="false">' +
+                    '<span class="mnemonic-story-toggle-label">' +
+                        '<span>🎬</span>' +
+                        '<span>Câu chuyện ghi nhớ</span>' +
+                    '</span>' +
+                    '<span class="mnemonic-story-toggle-arrow">' +
+                        '<i class="fas fa-chevron-down"></i>' +
+                    '</span>' +
+                '</button>' +
+                '<div class="mnemonic-story-content">' +
+                    '<div class="mnemonic-story-inner">' +
+                        storyContentHtml +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+    }
 
     return '<div class="card-mnemonic">'
         + '<div class="card-mnemonic-label">MẸO NHỚ</div>'
-        + '<div class="card-mnemonic-body">' + safe + '</div>'
+        + '<div class="card-mnemonic-body">'
+        + mnemonicHtml
+        + storyHtml
+        + '</div>'
         + '</div>';
-    }
+}
     function buildSimilarCharsBlock(currentChar) {
         currentChar = currentChar || '';
         if (!currentChar) return '';
