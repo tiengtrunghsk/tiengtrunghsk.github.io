@@ -1076,24 +1076,6 @@ body.pf-assemble-active .reveal-actions {
         transform: scale(1) translateY(0);
     }
 }
-.pf-phrase-vi {
-    width: 100%;
-    text-align: center;
-    font-size: clamp(.8rem, 1vw, .9rem);
-    font-style: italic;
-    color: var(--text-2);
-    margin-top: .35rem;
-    padding: .4rem .6rem;
-    border-radius: 8px;
-    background: var(--surface-2);
-    border-left: 3px solid #22c55e;
-    animation: pfPhraseIn .6s ease-out backwards;
-    animation-delay: calc(var(--phrase-count, 0) * 100ms + 200ms);
-}
-[data-theme="dark"] .pf-phrase-vi {
-    color: #cbd5e1;
-    background: rgba(255, 255, 255, .04);
-}
 @media (min-width: 501px) {
     .pf-assemble-info {
         flex-wrap: nowrap;
@@ -1348,6 +1330,52 @@ _JS_PART_1 = r"""
         if (!ch) return false;
         var cp = ch.charCodeAt(0);
         return (cp >= 0x4e00 && cp <= 0x9fff);
+    }
+
+    function pfCountHanzi(s) {
+        if (!s) return 0;
+        var n = 0;
+        for (var i = 0; i < s.length; i++) {
+            var cp = s.charCodeAt(i);
+            if (cp >= 0x4e00 && cp <= 0x9fff) n++;
+        }
+        return n;
+    }
+
+    function pfExtractHanzi(s) {
+        if (!s) return '';
+        var out = '';
+        for (var i = 0; i < s.length; i++) {
+            var cp = s.charCodeAt(i);
+            if (cp >= 0x4e00 && cp <= 0x9fff) out += s[i];
+        }
+        return out;
+    }
+
+    function pfCountSyllables(pinyinWord) {
+        if (!pinyinWord) return 0;
+        var cleaned = pinyinWord
+            .replace(/[.,!?;:'"()\[\]{}\-~`@#$%^&*+=|\\/<>。，！？、；：\s]/g, '')
+            .toLowerCase();
+        if (!cleaned) return 0;
+        var map = {
+            'ā':'a','á':'a','ǎ':'a','à':'a','ē':'e','é':'e','ě':'e','è':'e',
+            'ī':'i','í':'i','ǐ':'i','ì':'i','ō':'o','ó':'o','ǒ':'o','ò':'o',
+            'ū':'u','ú':'u','ǔ':'u','ù':'u','ǖ':'v','ǘ':'v','ǚ':'v','ǜ':'v','ü':'v'
+        };
+        cleaned = cleaned.replace(/[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü]/g, function(c) { return map[c] || c; });
+        var vowels = 'aeiouv';
+        var count = 0;
+        var i = 0;
+        while (i < cleaned.length) {
+            if (vowels.indexOf(cleaned[i]) !== -1) {
+                count++;
+                while (i < cleaned.length && vowels.indexOf(cleaned[i]) !== -1) i++;
+            } else {
+                i++;
+            }
+        }
+        return count || 1;
     }
 
     function pfSplitIntoWords(zh) {
@@ -2006,30 +2034,159 @@ _JS_PART_2 = r"""
     function pfGetViDuWords() {
         var currentItem = pfFindCurrentItem();
         if (!currentItem) return [];
+
         if (Array.isArray(currentItem.vi_du_words) && currentItem.vi_du_words.length > 0) {
             return currentItem.vi_du_words.slice();
         }
-        return [];
+
+        var zh = '';
+        if (currentItem.vi_du_zh && String(currentItem.vi_du_zh).trim() !== '') {
+            zh = String(currentItem.vi_du_zh);
+        } else if (currentItem.zh && String(currentItem.zh).trim() !== '') {
+            zh = String(currentItem.zh);
+        }
+
+        if (!zh) return [];
+
+        var pinyin = String(currentItem.vi_du_pinyin || '').trim();
+        if (!pinyin) pinyin = String(currentItem.pinyin || '').trim();
+
+        return pfSplitByPinyin(zh, pinyin);
     }
 
-    function pfCountHanzi(s) {
-        if (!s) return 0;
-        var n = 0;
-        for (var i = 0; i < s.length; i++) {
-            var cp = s.charCodeAt(i);
-            if (cp >= 0x4e00 && cp <= 0x9fff) n++;
+    function pfSplitByPinyin(zh, pinyin) {
+        if (!zh) return [];
+        var hanziChars = [];
+        for (var i = 0; i < zh.length; i++) {
+            var cp = zh.charCodeAt(i);
+            if (cp >= 0x4e00 && cp <= 0x9fff) hanziChars.push(zh[i]);
         }
-        return n;
+        if (hanziChars.length === 0) return [];
+
+        if (!pinyin || !pinyin.trim()) {
+            return hanziChars.slice();
+        }
+
+        var normalizedPinyin = pinyin
+            .replace(/[.,!?;:'"()\[\]{}\-~`@#$%^&*+=|\\/<>。，！？、；：""'']/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        var pinyinWords = normalizedPinyin.split(/\s+/).filter(function(w) { return w.length > 0; });
+        var syllableCounts = pinyinWords.map(function(w) { return pfCountSyllables(w); });
+        var totalSyllables = syllableCounts.reduce(function(a, b) { return a + b; }, 0);
+
+        if (totalSyllables === hanziChars.length) {
+            var result = [];
+            var charIdx = 0;
+            for (var j = 0; j < syllableCounts.length; j++) {
+                var cnt = syllableCounts[j];
+                if (cnt <= 0) continue;
+                var phrase = hanziChars.slice(charIdx, charIdx + cnt).join('');
+                if (phrase) result.push(phrase);
+                charIdx += cnt;
+            }
+            if (charIdx < hanziChars.length) {
+                var remaining = hanziChars.slice(charIdx).join('');
+                if (result.length > 0) {
+                    result[result.length - 1] += remaining;
+                } else {
+                    result.push(remaining);
+                }
+            }
+            return result;
+        }
+
+        return hanziChars.slice();
     }
 
-    function pfExtractHanzi(s) {
-        if (!s) return '';
-        var out = '';
-        for (var i = 0; i < s.length; i++) {
-            var cp = s.charCodeAt(i);
-            if (cp >= 0x4e00 && cp <= 0x9fff) out += s[i];
+    function pfGetPinyinFromVocab(zhWords) {
+        var map = {};
+        if (!zhWords || zhWords.length === 0) return map;
+
+        var vocabList = null;
+
+        try {
+            if (typeof window !== 'undefined' && window.FIXPY_DATASETS) {
+                var keys = Object.keys(window.FIXPY_DATASETS);
+                for (var i = 0; i < keys.length; i++) {
+                    var ds = window.FIXPY_DATASETS[keys[i]];
+                    if (ds && ds.data && Array.isArray(ds.data) && ds.data.length >= 1000) {
+                        vocabList = ds.data;
+                        break;
+                    }
+                }
+            }
+        } catch(e) {}
+
+        if (!vocabList) {
+            try {
+                if (typeof DATASET_REGISTRY !== 'undefined' && DATASET_REGISTRY) {
+                    var dsKeys = Object.keys(DATASET_REGISTRY);
+                    for (var d = 0; d < dsKeys.length; d++) {
+                        var dsr = DATASET_REGISTRY[dsKeys[d]];
+                        if (dsr && dsr.data && Array.isArray(dsr.data) && dsr.data.length >= 500) {
+                            vocabList = dsr.data;
+                            break;
+                        }
+                    }
+                }
+            } catch(e) {}
         }
-        return out;
+
+        if (!vocabList) {
+            try {
+                if (typeof RAW_DATA !== 'undefined' && Array.isArray(RAW_DATA)) {
+                    vocabList = RAW_DATA;
+                }
+            } catch(e) {}
+        }
+
+        if (!vocabList) return map;
+
+        for (var w = 0; w < zhWords.length; w++) {
+            var word = zhWords[w];
+
+            for (var v = 0; v < vocabList.length; v++) {
+                var it = vocabList[v];
+                if (!it || !it.zh) continue;
+                if (it.zh === word && it.pinyin) {
+                    map[word] = it.pinyin;
+                    break;
+                }
+            }
+        }
+
+        for (var w2 = 0; w2 < zhWords.length; w2++) {
+            var word2 = zhWords[w2];
+            if (map[word2]) continue;
+
+            var chars2 = pfExtractHanzi(word2);
+            if (chars2.length === 0) continue;
+
+            var pys = [];
+            var allFound = true;
+
+            for (var c2 = 0; c2 < chars2.length; c2++) {
+                var ch = chars2[c2];
+                var found = '';
+                for (var v2 = 0; v2 < vocabList.length; v2++) {
+                    var it2 = vocabList[v2];
+                    if (it2 && it2.zh === ch && it2.pinyin) {
+                        found = it2.pinyin;
+                        break;
+                    }
+                }
+                if (!found) { allFound = false; break; }
+                pys.push(found);
+            }
+
+            if (allFound && pys.length > 0) {
+                map[word2] = pys.join(' ');
+            }
+        }
+
+        return map;
     }
 
     function pfGetViDuPinyinMap() {
@@ -2038,38 +2195,61 @@ _JS_PART_2 = r"""
         if (!currentItem) return map;
 
         var pinyinStr = String(currentItem.vi_du_pinyin || '').trim();
-        if (!pinyinStr) return map;
+        if (!pinyinStr) pinyinStr = String(currentItem.pinyin || '').trim();
 
         var zhWords = pfGetViDuWords();
-        var pinyinWords = pinyinStr.split(/\s+/).filter(function(p) { return p; });
+        if (zhWords.length === 0) return map;
 
-        if (zhWords.length === pinyinWords.length) {
-            for (var i = 0; i < zhWords.length; i++) {
-                map[zhWords[i]] = pinyinWords[i];
-            }
-            return map;
+        if (!pinyinStr) {
+            return pfGetPinyinFromVocab(zhWords);
         }
+
+        var normalizedPinyin = pinyinStr
+            .replace(/[.,!?;:'"()\[\]{}\-~`@#$%^&*+=|\\/<>。，！？、；：""'']/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        var pinyinWords = normalizedPinyin.split(/\s+/).filter(function(p) { return p; });
+
+        var syllableCounts = pinyinWords.map(function(w) { return pfCountSyllables(w); });
+        var totalSyllables = syllableCounts.reduce(function(a, b) { return a + b; }, 0);
 
         var hanziCount = 0;
-        for (var j = 0; j < zhWords.length; j++) {
-            hanziCount += pfCountHanzi(zhWords[j]);
+        for (var i = 0; i < zhWords.length; i++) {
+            hanziCount += pfCountHanzi(zhWords[i]);
         }
-        if (hanziCount === pinyinWords.length) {
-            var k = 0;
-            for (var m = 0; m < zhWords.length; m++) {
-                var w = zhWords[m];
-                var chars = pfExtractHanzi(w);
+
+        if (totalSyllables === hanziCount) {
+            var wi = 0;
+            for (var z = 0; z < zhWords.length; z++) {
+                var wHanziCount = pfCountHanzi(zhWords[z]);
                 var pys = [];
-                for (var c = 0; c < chars.length; c++) {
-                    pys.push(pinyinWords[k++] || '');
+                var remain = wHanziCount;
+                while (remain > 0 && wi < syllableCounts.length) {
+                    pys.push(pinyinWords[wi]);
+                    remain -= syllableCounts[wi];
+                    wi++;
                 }
-                map[w] = pys.join(' ');
+                map[zhWords[z]] = pys.join(' ');
             }
             return map;
         }
 
+        if (zhWords.length === pinyinWords.length) {
+            for (var k = 0; k < zhWords.length; k++) {
+                map[zhWords[k]] = pinyinWords[k];
+            }
+            return map;
+        }
+
+        var fallbackMap = pfGetPinyinFromVocab(zhWords);
         for (var n = 0; n < zhWords.length; n++) {
-            map[zhWords[n]] = pinyinWords[n] || '';
+            var word = zhWords[n];
+            if (fallbackMap[word]) {
+                map[word] = fallbackMap[word];
+            } else if (pinyinWords[n]) {
+                map[word] = pinyinWords[n];
+            }
         }
         return map;
     }
@@ -2082,8 +2262,6 @@ _JS_PART_2 = r"""
         }
 
         var pinyinMap = pfGetViDuPinyinMap();
-        var currentItem = pfFindCurrentItem();
-        var viText = currentItem ? (currentItem.vi_du_vi || '') : '';
 
         var escHtml = (typeof escapeHtml === 'function')
             ? escapeHtml
@@ -2107,12 +2285,6 @@ _JS_PART_2 = r"""
                  + '<span class="pf-phrase-zh">' + escHtml(w) + '</span>'
                  + (py ? '<span class="pf-phrase-pinyin">' + escHtml(py) + '</span>' : '')
                  + '</span>';
-        }
-
-        if (viText) {
-            html += '<div class="pf-phrase-vi" style="--phrase-count:' + zhWords.length + '">'
-                 + '📖 ' + escHtml(viText)
-                 + '</div>';
         }
 
         answerEl.innerHTML = html;
