@@ -1637,23 +1637,19 @@ function stopRTDBPresence() {
 }
 
 /* ============ AUTH STATE ============ */
-/* ============ AUTH STATE ============ */
 async function handleAuthChange(user) {
     if (!user) {
-        /* ═══════════════════════════════════════════════════════════
-           ⭐ LOGOUT → RESET TOÀN BỘ STATE + VỀ DEMO MODE
-           ═══════════════════════════════════════════════════════════ */
         resetAppState();
 
         publishTierState();
         applyUserUI();
         enterDemoMode();
 
-        /* Cập nhật lại bộ lọc + dataset theo tier mới (demo) */
         if (typeof buildFilters === 'function') buildFilters();
         if (typeof applyFilter === 'function') applyFilter();
         if (typeof updateResultCount === 'function') updateResultCount();
         if (typeof markCurrentDatasetActive === 'function') markCurrentDatasetActive();
+
         if (typeof maybeShowOnboarding === 'function') {
             setTimeout(maybeShowOnboarding, 300);
         }
@@ -1667,11 +1663,9 @@ async function handleAuthChange(user) {
     try { cached = JSON.parse(localStorage.getItem(cacheKey) || 'null'); } catch(e) {}
 
     if (cached && cached.expires > Date.now() && cached.data) {
-        /* ═══ DÙNG CACHE — NHƯNG VẪN PHẢI REFRESH UI ═══ */
         currentUser = cached.data;
         isDemo = false;
 
-        /* ⭐ Re-check expired từ cache (phòng cache cũ sai) */
         if (currentUser.role !== 'admin' && !currentUser.isPermanent && currentUser.expiresAt) {
             var expDate = getExpiryDate(currentUser.expiresAt);
             if (expDate && !isNaN(expDate.getTime())) {
@@ -1692,12 +1686,15 @@ async function handleAuthChange(user) {
             if (typeof refreshApp === 'function') refreshApp();
         }
 
-        /* ⭐ Refresh lại toàn bộ UI theo tier mới */
         if (typeof buildFilters === 'function') buildFilters();
         if (typeof applyFilter === 'function') applyFilter();
         if (typeof updateResultCount === 'function') updateResultCount();
         if (typeof markCurrentDatasetActive === 'function') markCurrentDatasetActive();
         if (typeof favUpdateLockState === 'function') favUpdateLockState();
+
+        if (typeof window.removeOnboardingBannerIfNeeded === 'function') {
+            window.removeOnboardingBannerIfNeeded();
+        }
 
         watchCurrentUser();
         startRTDBPresence();
@@ -1705,7 +1702,6 @@ async function handleAuthChange(user) {
         return;
     }
 
-    /* ═══ FETCH TỪ SERVER ═══ */
     try {
         var docRef = db.collection('allowed_users').doc(email);
         var doc = await docRef.get({ source: 'server' });
@@ -1760,7 +1756,6 @@ async function handleAuthChange(user) {
 
         currentUser = userData;
 
-        /* ═══ CHECK EXPIRED ═══ */
         var isExpiredUser = false;
 
         if (currentUser.role !== 'admin' && !currentUser.isPermanent) {
@@ -1770,16 +1765,13 @@ async function handleAuthChange(user) {
                     isExpiredUser = expDate2.getTime() < Date.now();
 
                     if (isExpiredUser && (currentUser.isTrial || currentUser.tier === 'trial')) {
-                        console.log('⚠️ Trial user expired → chuyển sang tier expired');
                         try {
                             db.collection('allowed_users').doc(email).update({
                                 tier: 'expired',
                                 isTrial: false,
                                 expiredAt: firebase.firestore.FieldValue.serverTimestamp()
                             });
-                        } catch(e) {
-                            console.warn('Update expired trial error:', e);
-                        }
+                        } catch(e) {}
                     }
                 }
             }
@@ -1802,9 +1794,6 @@ async function handleAuthChange(user) {
             }));
         } catch(e) {}
 
-        /* ═══════════════════════════════════════════════════════════
-           ⭐ REFRESH TOÀN BỘ UI THEO TIER MỚI SAU KHI LOGIN
-           ═══════════════════════════════════════════════════════════ */
         publishTierState();
         applyUserUI();
         logLogin(currentUser);
@@ -1820,6 +1809,10 @@ async function handleAuthChange(user) {
         if (typeof applyFilter === 'function') applyFilter();
         if (typeof updateResultCount === 'function') updateResultCount();
         if (typeof markCurrentDatasetActive === 'function') markCurrentDatasetActive();
+
+        if (typeof window.removeOnboardingBannerIfNeeded === 'function') {
+            window.removeOnboardingBannerIfNeeded();
+        }
 
         if (typeof maybeShowOnboarding === 'function') {
             setTimeout(maybeShowOnboarding, 500);
