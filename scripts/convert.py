@@ -53,6 +53,11 @@ from login_fallback import (
     build_login_fallback_html,
     build_login_fallback_js,
 )
+from device_limiter import (
+    build_device_css,
+    build_device_html,
+    build_device_js,
+)
 
 def _js_str(s):
     if s is None:
@@ -347,6 +352,7 @@ full_css = (
     + "\n/* ASSEMBLE */\n" + build_assemble_css()
     + "\n/* FULLWIDTH */\n" + FULLWIDTH_CSS
     + "\n/* LOGIN FALLBACK */\n" + build_login_fallback_css()
+    + "\n/* DEVICE LIMITER */\n" + build_device_css()
 )
 ui_html = build_ui_html()
 ui_html = patch_html(ui_html)
@@ -409,6 +415,7 @@ full_body = (
     + "\n" + build_chat_html()
     + "\n" + build_admin_chat_html()
     + "\n" + build_login_fallback_html()
+    + "\n" + build_device_html()
     + '\n</div>'
 )
 
@@ -1080,6 +1087,7 @@ full_js = (
     + "\n/* ASSEMBLE */\n" + build_assemble_js()
     + "\n/* GRADING */\n" + _build_grading_js()
     + "\n/* LOGIN FALLBACK */\n" + build_login_fallback_js()
+    + "\n/* DEVICE LIMITER */\n" + build_device_js()
 )
 full_js = full_js.replace('<script>', '').replace('</script>', '')
 full_js = full_js.replace('<SCRIPT>', '').replace('</SCRIPT>', '')
