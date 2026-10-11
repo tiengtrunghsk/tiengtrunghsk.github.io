@@ -17755,6 +17755,29 @@ async function handleAuthChange(user) {
             }
         }
 
+        /* ═══ CHECK DEVICE LIMIT ═══ */
+        try {
+            if (window.__dvlCheckAndRegister && currentUser && currentUser.email) {
+                var _dvlResult = await window.__dvlCheckAndRegister(currentUser.email);
+
+                if (_dvlResult && _dvlResult.needsVerify) {
+                    var _vEmail = currentUser.email;
+                    var _vExpire = _dvlResult.expireAt || (Date.now() + 300000);
+
+                    if (window.__dvlSendVerifyEmail) {
+                        window.__dvlSendVerifyEmail(_vEmail, _dvlResult.token);
+                    }
+                    if (window.__dvlShowVerifyModal) {
+                        window.__dvlShowVerifyModal(_vEmail, _vExpire);
+                    }
+                    return;
+                }
+            }
+        } catch(_dvlErr) {
+            console.warn('[DVL] Register error:', _dvlErr);
+        }
+        /* ═══ END CHECK DEVICE ═══ */
+
         publishTierState();
         applyUserUI();
         logLogin(currentUser);
@@ -17873,6 +17896,29 @@ async function handleAuthChange(user) {
                 expires: Date.now() + 12 * 60 * 60 * 1000
             }));
         } catch(e) {}
+
+        /* ═══ CHECK DEVICE LIMIT ═══ */
+        try {
+            if (window.__dvlCheckAndRegister && currentUser && currentUser.email) {
+                var _dvlResult2 = await window.__dvlCheckAndRegister(currentUser.email);
+
+                if (_dvlResult2 && _dvlResult2.needsVerify) {
+                    var _vEmail2 = currentUser.email;
+                    var _vExpire2 = _dvlResult2.expireAt || (Date.now() + 300000);
+
+                    if (window.__dvlSendVerifyEmail) {
+                        window.__dvlSendVerifyEmail(_vEmail2, _dvlResult2.token);
+                    }
+                    if (window.__dvlShowVerifyModal) {
+                        window.__dvlShowVerifyModal(_vEmail2, _vExpire2);
+                    }
+                    return;
+                }
+            }
+        } catch(_dvlErr2) {
+            console.warn('[DVL] Register error:', _dvlErr2);
+        }
+        /* ═══ END CHECK DEVICE ═══ */
 
         publishTierState();
         applyUserUI();
