@@ -48,6 +48,11 @@ from assemble_module import (
     build_assemble_js,
     inject_assemble_html,
 )
+from login_fallback import (
+    build_login_fallback_css,
+    build_login_fallback_html,
+    build_login_fallback_js,
+)
 
 def _js_str(s):
     if s is None:
@@ -341,6 +346,7 @@ full_css = (
     + "\n/* DRAGGABLE FAB */\n" + build_draggable_fab_css()
     + "\n/* ASSEMBLE */\n" + build_assemble_css()
     + "\n/* FULLWIDTH */\n" + FULLWIDTH_CSS
+    + "\n/* LOGIN FALLBACK */\n" + build_login_fallback_css()
 )
 ui_html = build_ui_html()
 ui_html = patch_html(ui_html)
@@ -402,9 +408,9 @@ full_body = (
     + "\n" + auth_html
     + "\n" + build_chat_html()
     + "\n" + build_admin_chat_html()
+    + "\n" + build_login_fallback_html()
     + '\n</div>'
 )
-
 
 def _build_grading_js():
     js = r"""
@@ -1073,8 +1079,8 @@ full_js = (
     + "\n/* QUOTA INIT */\n" + build_quota_init_js()
     + "\n/* ASSEMBLE */\n" + build_assemble_js()
     + "\n/* GRADING */\n" + _build_grading_js()
+    + "\n/* LOGIN FALLBACK */\n" + build_login_fallback_js()
 )
-
 full_js = full_js.replace('<script>', '').replace('</script>', '')
 full_js = full_js.replace('<SCRIPT>', '').replace('</SCRIPT>', '')
 
