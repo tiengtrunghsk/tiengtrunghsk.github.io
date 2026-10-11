@@ -1,0 +1,111 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function userEmail() {
+      return request.auth != null 
+        ? request.auth.token.email.lower() 
+        : '';
+    }
+    
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/allowed_users/$(userEmail()))
+        && get(/databases/$(database)/documents/allowed_users/$(userEmail())).data.role == 'admin';
+    }
+    
+    function onlyNameChanged() {
+      let changedKeys = request.resource.data.diff(resource.data).affectedKeys();
+      return changedKeys.hasOnly(['name']);
+    }
+    
+    function isActive() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/allowed_users/$(userEmail()))
+        && (
+          get(/databases/$(database)/documents/allowed_users/$(userEmail())).data.role == 'admin'
+          || get(/databases/$(database)/documents/allowed_users/$(userEmail())).data.isPermanent == true
+          || (
+            get(/databases/$(database)/documents/allowed_users/$(userEmail())).data.expiresAt != null
+            && get(/databases/$(database)/documents/allowed_users/$(userEmail())).data.expiresAt > request.time
+          )
+        );
+    }
+    
+    function canUseFavorites() {
+      return isAdmin() || isActive();
+    }
+    
+    function isOwnEmail(email) {
+      return isSignedIn() && userEmail() == email.lower();
+    }
+    
+    match /allowed_users/{email} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+                    && (
+                      (
+                        request.auth.token.email.lower() == email.lower()
+                        && request.resource.data.role == 'user'
+                      )
+                      || isAdmin()
+                    );
+      allow update: if isAdmin()
+                    || (
+                      isSignedIn()
+                      && request.auth.token.email.lower() == email.lower()
+                      && onlyNameChanged()
+                    );
+      allow delete: if isAdmin();
+    }
+    
+    match /login_logs/{logId} {
+      allow create: if isSignedIn();
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+    
+    match /renewal_requests/{reqId} {
+      allow create: if isSignedIn()
+                    && request.resource.data.email == request.auth.token.email.lower();
+      allow read: if isSignedIn()
+                  && (
+                    resource.data.email == request.auth.token.email.lower()
+                    || isAdmin()
+                  );
+      allow update: if isSignedIn()
+                    && (
+                      resource.data.email == request.auth.token.email.lower()
+                      || isAdmin()
+                    );
+      allow delete: if isAdmin();
+    }
+    
+    match /favorites/{email}/items/{stt} {
+      allow read: if isOwnEmail(email);
+      allow create, update: if isOwnEmail(email)
+                            && canUseFavorites();
+      allow delete: if isOwnEmail(email)
+                    && canUseFavorites();
+    }
+    
+    // ═══════════════════════════════════════════════════════
+    // 💬 CHAT SUPPORT
+    // ═══════════════════════════════════════════════════════
+    match /chat_threads/{email} {
+      // User: chỉ đọc/ghi thread của chính mình
+      // Admin: đọc/ghi tất cả
+      allow read, write: if isOwnEmail(email) || isAdmin();
+      
+      // Sub-collection: messages trong thread
+      match /messages/{msgId} {
+        allow read, write: if isOwnEmail(email) || isAdmin();
+      }
+    }
+    
+  }
+}
