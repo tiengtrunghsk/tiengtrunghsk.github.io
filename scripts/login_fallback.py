@@ -1,362 +1,107 @@
 # -*- coding: utf-8 -*-
-"""
-Module ĐẶT MẬT KHẨU LẦN ĐẦU (sau khi login Google)
-────────────────────────────────────────────────────
-Logic:
-  1. Mỗi khi user (kể cả ADMIN) vào trang, nếu:
-       - Đã login Google
-       - CHƯA đặt mật khẩu (không có provider 'password')
-     → Hỏi "Đặt mật khẩu?"
-  2. User đặt mật khẩu → từ đó KHÔNG hỏi nữa (đã có provider password)
-  3. User bấm "Để sau" → chỉ có tác dụng trong PHIÊN HIỆN TẠI
-     → Lần sau vào tab mới → HỎI LẠI
-  4. Từ đó user có thể login bằng Google HOẶC Email/Password
-  5. Quên mật khẩu → sendPasswordResetEmail
-
-Không đụng mã cũ. Chỉ thêm:
-  - Modal "Đặt mật khẩu" (hiện mỗi khi vào trang nếu chưa có password)
-  - Modal login Email/Password (fallback khi Google lỗi)
-  - Nút "Đăng nhập bằng Email" trong modal login cũ
-
-Dùng:
-    from login_fallback import (
-        build_login_fallback_css,
-        build_login_fallback_html,
-        build_login_fallback_js,
-    )
-    full_css += build_login_fallback_css()
-    full_body += build_login_fallback_html()
-    full_js += build_login_fallback_js()
-"""
+"""Module đặt mật khẩu lần đầu + đăng nhập Email/Password fallback."""
 
 
 def build_login_fallback_css():
     return r"""
-/* ═══════════════════════════════════════════════════════════════
-   🔐 LOGIN FALLBACK + SET PASSWORD — CSS
-   ═══════════════════════════════════════════════════════════════ */
-
-/* ─── Modal chung ─── */
-.elf-modal{
-    position:fixed;inset:0;
-    background:rgba(15,23,42,.85);
-    backdrop-filter:blur(6px);
-    -webkit-backdrop-filter:blur(6px);
-    z-index:3100;
-    display:none;
-    align-items:center;justify-content:center;
-    padding:1.25rem;
-    overflow-y:auto;
-    animation:elfFadeIn .2s ease;
-}
-.elf-modal.show{display:flex;}
+.elf-modal{position:fixed;inset:0;background:rgba(15,23,42,.85);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:3100;display:none;align-items:center;justify-content:center;padding:1.25rem;overflow-y:auto;animation:elfFadeIn .2s ease}
+.elf-modal.show{display:flex}
 @keyframes elfFadeIn{from{opacity:0}to{opacity:1}}
-
-.elf-box{
-    background:#fff;
-    border-radius:20px;
-    padding:2rem 1.75rem;
-    max-width:440px;
-    width:100%;
-    max-height:calc(100vh - 2.5rem);
-    overflow-y:auto;
-    box-shadow:0 24px 70px rgba(0,0,0,.35);
-    text-align:center;
-    position:relative;
-    animation:elfSlideUp .32s cubic-bezier(.34,1.56,.64,1);
-}
-[data-theme="dark"] .elf-box{
-    background:#1e293b;color:#f1f5f9;
-}
-@keyframes elfSlideUp{
-    from{transform:translateY(30px) scale(.95);opacity:0}
-    to{transform:translateY(0) scale(1);opacity:1}
-}
-
-.elf-close{
-    position:absolute;top:12px;right:12px;
-    width:34px;height:34px;border-radius:50%;
-    border:none;background:#f1f5f9;color:#475569;
-    cursor:pointer;font-size:1rem;
-    display:flex;align-items:center;justify-content:center;
-    transition:.15s;
-}
-.elf-close:hover{background:#fee2e2;color:#dc2626;}
-[data-theme="dark"] .elf-close{background:#334155;color:#cbd5e1;}
-[data-theme="dark"] .elf-close:hover{background:#7f1d1d;color:#fecaca;}
-
-.elf-logo{
-    width:64px;height:64px;
-    background:linear-gradient(135deg,#4f46e5,#7c3aed);
-    border-radius:18px;
-    display:flex;align-items:center;justify-content:center;
-    color:#fff;font-size:1.75rem;
-    margin:0 auto 1.25rem;
-    box-shadow:0 8px 20px rgba(124,58,237,.35);
-}
-.elf-logo.success{background:linear-gradient(135deg,#16a34a,#22c55e);}
-
-.elf-title{
-    font-size:1.3rem;color:#0f172a;
-    margin-bottom:.4rem;font-weight:800;
-}
-[data-theme="dark"] .elf-title{color:#f1f5f9;}
-
-.elf-subtitle{
-    color:#64748b;font-size:.85rem;
-    margin-bottom:1.5rem;line-height:1.55;
-}
-[data-theme="dark"] .elf-subtitle{color:#94a3b8;}
-
-.elf-account-info{
-    display:flex;align-items:center;gap:.75rem;
-    padding:.85rem 1rem;
-    background:#f8fafc;
-    border:1px solid #e2e8f0;
-    border-radius:12px;
-    margin-bottom:1.25rem;
-    text-align:left;
-}
-[data-theme="dark"] .elf-account-info{
-    background:#0f172a;border-color:#334155;
-}
-.elf-account-avatar{
-    width:42px;height:42px;border-radius:50%;
-    background:linear-gradient(135deg,#7c3aed,#4f46e5);
-    color:#fff;
-    display:flex;align-items:center;justify-content:center;
-    font-weight:800;font-size:1.15rem;
-    flex-shrink:0;
-    overflow:hidden;
-}
-.elf-account-avatar img{width:100%;height:100%;object-fit:cover;}
-.elf-account-info .elf-acc-text{
-    flex:1;min-width:0;
-}
-.elf-account-info .elf-acc-name{
-    font-weight:700;font-size:.9rem;
-    color:#0f172a;margin-bottom:.15rem;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-}
-.elf-account-info .elf-acc-email{
-    font-size:.75rem;color:#64748b;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-}
-[data-theme="dark"] .elf-account-info .elf-acc-name{color:#f1f5f9;}
-[data-theme="dark"] .elf-account-info .elf-acc-email{color:#94a3b8;}
-
-/* Form fields */
-.elf-field{margin-bottom:.75rem;text-align:left;}
-.elf-field label{
-    display:block;font-size:.72rem;font-weight:700;
-    color:#475569;margin-bottom:.35rem;
-    text-transform:uppercase;letter-spacing:.3px;
-}
-[data-theme="dark"] .elf-field label{color:#cbd5e1;}
-
-.elf-field input{
-    width:100%;padding:.7rem .9rem;
-    border-radius:10px;
-    border:1.5px solid #e2e8f0;
-    background:#fff;color:#0f172a;
-    font-size:.9rem;font-family:inherit;
-    outline:none;transition:.15s;
-    box-sizing:border-box;
-}
-.elf-field input:focus{
-    border-color:#4f46e5;
-    box-shadow:0 0 0 3px rgba(79,70,229,.15);
-}
-[data-theme="dark"] .elf-field input{
-    background:#0f172a;border-color:#475569;color:#f1f5f9;
-}
-[data-theme="dark"] .elf-field input:focus{
-    border-color:#818cf8;
-    box-shadow:0 0 0 3px rgba(129,140,248,.2);
-}
-
-.elf-pwd-wrap{position:relative;}
-.elf-pwd-wrap input{padding-right:2.6rem;}
-.elf-pwd-toggle{
-    position:absolute;right:.6rem;top:50%;
-    transform:translateY(-50%);
-    width:32px;height:32px;
-    border:none;background:transparent;
-    color:#94a3b8;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    font-size:.85rem;border-radius:8px;transition:.15s;
-}
-.elf-pwd-toggle:hover{background:#f1f5f9;color:#4f46e5;}
-[data-theme="dark"] .elf-pwd-toggle:hover{background:#334155;color:#a78bfa;}
-
-/* Strength bar */
-.elf-strength{margin-top:.35rem;display:flex;gap:.25rem;}
-.elf-strength-bar{
-    flex:1;height:4px;border-radius:2px;
-    background:#e2e8f0;transition:.25s;
-}
-.elf-strength-bar.weak{background:#dc2626;}
-.elf-strength-bar.medium{background:#f59e0b;}
-.elf-strength-bar.strong{background:#16a34a;}
-
-/* Nút */
-.elf-btn{
-    display:flex;align-items:center;justify-content:center;
-    gap:.5rem;width:100%;
-    padding:.85rem 1.25rem;
-    border-radius:12px;border:none;
-    background:linear-gradient(135deg,#4f46e5,#7c3aed);
-    color:#fff;font-size:.92rem;font-weight:800;
-    font-family:inherit;cursor:pointer;
-    transition:.2s;
-    box-shadow:0 4px 14px rgba(124,58,237,.35);
-    letter-spacing:.2px;
-    margin-top:.25rem;
-}
-.elf-btn:hover:not(:disabled){
-    transform:translateY(-2px);
-    box-shadow:0 8px 22px rgba(124,58,237,.5);
-}
-.elf-btn:active:not(:disabled){transform:translateY(0) scale(.98);}
-.elf-btn:disabled{
-    opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;
-}
-.elf-btn.secondary{
-    background:transparent;
-    color:#4f46e5;
-    border:1.5px solid #e2e8f0;
-    box-shadow:none;
-}
-.elf-btn.secondary:hover:not(:disabled){
-    background:#f8fafc;
-    border-color:#4f46e5;
-    box-shadow:none;
-}
-.elf-btn.ghost{
-    background:transparent;
-    color:#64748b;
-    border:none;
-    box-shadow:none;
-    font-weight:600;
-    font-size:.82rem;
-}
-.elf-btn.ghost:hover:not(:disabled){
-    color:#4f46e5;
-    text-decoration:underline;
-}
-[data-theme="dark"] .elf-btn.secondary{
-    color:#93c5fd;border-color:#475569;
-}
-[data-theme="dark"] .elf-btn.secondary:hover:not(:disabled){
-    background:#334155;border-color:#93c5fd;
-}
-[data-theme="dark"] .elf-btn.ghost{color:#94a3b8;}
-[data-theme="dark"] .elf-btn.ghost:hover{color:#a78bfa;}
-
-/* Dòng extra */
-.elf-extra{
-    display:flex;align-items:center;justify-content:space-between;
-    gap:.5rem;margin-top:.75rem;font-size:.78rem;flex-wrap:wrap;
-}
-.elf-link{
-    color:#4f46e5;font-weight:700;cursor:pointer;
-    background:none;border:none;font-family:inherit;
-    padding:.25rem .4rem;border-radius:6px;
-    transition:.15s;font-size:inherit;
-}
-.elf-link:hover{background:#ede9fe;text-decoration:underline;}
-[data-theme="dark"] .elf-link{color:#93c5fd;}
-[data-theme="dark"] .elf-link:hover{background:rgba(147,197,253,.15);}
-
-/* Msg box */
-.elf-msg{
-    padding:.75rem .9rem;border-radius:10px;
-    font-size:.82rem;margin-top:1rem;
-    display:none;text-align:left;line-height:1.45;
-}
-.elf-msg.show{display:block;}
-.elf-msg.error{background:#fee2e2;color:#dc2626;}
-.elf-msg.success{background:#dcfce7;color:#15803d;}
-.elf-msg.info{background:#dbeafe;color:#1e40af;}
-[data-theme="dark"] .elf-msg.error{background:rgba(220,38,38,.2);color:#fca5a5;}
-[data-theme="dark"] .elf-msg.success{background:rgba(22,163,74,.2);color:#4ade80;}
-[data-theme="dark"] .elf-msg.info{background:rgba(59,130,246,.2);color:#93c5fd;}
-
-/* Banner "Bạn nên đặt mật khẩu" */
-.elf-tip-banner{
-    display:flex;align-items:flex-start;gap:.6rem;
-    padding:.7rem .85rem;
-    background:linear-gradient(135deg, rgba(79,70,229,.08), rgba(124,58,237,.06));
-    border:1px solid rgba(124,58,237,.25);
-    border-radius:12px;
-    margin-bottom:1.25rem;
-    font-size:.78rem;
-    color:#5b21b6;
-    line-height:1.5;
-    text-align:left;
-}
-[data-theme="dark"] .elf-tip-banner{
-    background:linear-gradient(135deg, rgba(124,58,237,.15), rgba(79,70,229,.1));
-    border-color:rgba(165,180,252,.3);
-    color:#c4b5fd;
-}
-.elf-tip-banner i{
-    color:#7c3aed;
-    margin-top:.15rem;
-    flex-shrink:0;
-    font-size:1rem;
-}
-.elf-tip-banner b{color:#4f46e5;}
-[data-theme="dark"] .elf-tip-banner b{color:#a78bfa;}
-
-/* Footer note */
-.elf-footer{
-    margin-top:1.25rem;padding-top:1rem;
-    border-top:1px solid #e2e8f0;
-    font-size:.72rem;color:#94a3b8;line-height:1.55;
-    text-align:center;
-}
-.elf-footer b{color:#4f46e5;}
-[data-theme="dark"] .elf-footer{border-color:#475569;color:#94a3b8;}
-[data-theme="dark"] .elf-footer b{color:#a78bfa;}
-
-/* Spinner */
-.elf-spinner{
-    display:inline-block;width:15px;height:15px;
-    border:2px solid rgba(255,255,255,.35);
-    border-top-color:#fff;border-radius:50%;
-    animation:elfSpin .7s linear infinite;
-}
-@keyframes elfSpin{to{transform:rotate(360deg);}}
-
-/* Responsive */
-@media (max-width:500px){
-    .elf-box{padding:1.5rem 1.25rem;border-radius:16px;}
-    .elf-logo{width:56px;height:56px;font-size:1.5rem;}
-    .elf-title{font-size:1.15rem;}
-    .elf-subtitle{font-size:.8rem;}
-    .elf-btn{font-size:.88rem;padding:.8rem 1.1rem;}
+.elf-box{background:#fff;border-radius:20px;padding:2rem 1.75rem;max-width:440px;width:100%;max-height:calc(100vh - 2.5rem);overflow-y:auto;box-shadow:0 24px 70px rgba(0,0,0,.35);text-align:center;position:relative;animation:elfSlideUp .32s cubic-bezier(.34,1.56,.64,1)}
+[data-theme="dark"] .elf-box{background:#1e293b;color:#f1f5f9}
+@keyframes elfSlideUp{from{transform:translateY(30px) scale(.95);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+.elf-close{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;border:none;background:#f1f5f9;color:#475569;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:.15s}
+.elf-close:hover{background:#fee2e2;color:#dc2626}
+[data-theme="dark"] .elf-close{background:#334155;color:#cbd5e1}
+[data-theme="dark"] .elf-close:hover{background:#7f1d1d;color:#fecaca}
+.elf-logo{width:64px;height:64px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:18px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.75rem;margin:0 auto 1.25rem;box-shadow:0 8px 20px rgba(124,58,237,.35)}
+.elf-logo.success{background:linear-gradient(135deg,#16a34a,#22c55e)}
+.elf-title{font-size:1.3rem;color:#0f172a;margin-bottom:.4rem;font-weight:800}
+[data-theme="dark"] .elf-title{color:#f1f5f9}
+.elf-subtitle{color:#64748b;font-size:.85rem;margin-bottom:1.5rem;line-height:1.55}
+[data-theme="dark"] .elf-subtitle{color:#94a3b8}
+.elf-account-info{display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:1.25rem;text-align:left}
+[data-theme="dark"] .elf-account-info{background:#0f172a;border-color:#334155}
+.elf-account-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.15rem;flex-shrink:0;overflow:hidden}
+.elf-account-avatar img{width:100%;height:100%;object-fit:cover}
+.elf-account-info .elf-acc-text{flex:1;min-width:0}
+.elf-account-info .elf-acc-name{font-weight:700;font-size:.9rem;color:#0f172a;margin-bottom:.15rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.elf-account-info .elf-acc-email{font-size:.75rem;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+[data-theme="dark"] .elf-account-info .elf-acc-name{color:#f1f5f9}
+[data-theme="dark"] .elf-account-info .elf-acc-email{color:#94a3b8}
+.elf-field{margin-bottom:.75rem;text-align:left}
+.elf-field label{display:block;font-size:.72rem;font-weight:700;color:#475569;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.3px}
+[data-theme="dark"] .elf-field label{color:#cbd5e1}
+.elf-field input{width:100%;padding:.7rem .9rem;border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;color:#0f172a;font-size:.9rem;font-family:inherit;outline:none;transition:.15s;box-sizing:border-box}
+.elf-field input:focus{border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.15)}
+[data-theme="dark"] .elf-field input{background:#0f172a;border-color:#475569;color:#f1f5f9}
+[data-theme="dark"] .elf-field input:focus{border-color:#818cf8;box-shadow:0 0 0 3px rgba(129,140,248,.2)}
+.elf-pwd-wrap{position:relative}
+.elf-pwd-wrap input{padding-right:2.6rem}
+.elf-pwd-toggle{position:absolute;right:.6rem;top:50%;transform:translateY(-50%);width:32px;height:32px;border:none;background:transparent;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;border-radius:8px;transition:.15s}
+.elf-pwd-toggle:hover{background:#f1f5f9;color:#4f46e5}
+[data-theme="dark"] .elf-pwd-toggle:hover{background:#334155;color:#a78bfa}
+.elf-strength{margin-top:.35rem;display:flex;gap:.25rem}
+.elf-strength-bar{flex:1;height:4px;border-radius:2px;background:#e2e8f0;transition:.25s}
+.elf-strength-bar.weak{background:#dc2626}
+.elf-strength-bar.medium{background:#f59e0b}
+.elf-strength-bar.strong{background:#16a34a}
+.elf-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.85rem 1.25rem;border-radius:12px;border:none;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:.92rem;font-weight:800;font-family:inherit;cursor:pointer;transition:.2s;box-shadow:0 4px 14px rgba(124,58,237,.35);letter-spacing:.2px;margin-top:.25rem}
+.elf-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 22px rgba(124,58,237,.5)}
+.elf-btn:active:not(:disabled){transform:translateY(0) scale(.98)}
+.elf-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
+.elf-btn.secondary{background:transparent;color:#4f46e5;border:1.5px solid #e2e8f0;box-shadow:none}
+.elf-btn.secondary:hover:not(:disabled){background:#f8fafc;border-color:#4f46e5;box-shadow:none}
+.elf-btn.ghost{background:transparent;color:#64748b;border:none;box-shadow:none;font-weight:600;font-size:.82rem}
+.elf-btn.ghost:hover:not(:disabled){color:#4f46e5;text-decoration:underline}
+[data-theme="dark"] .elf-btn.secondary{color:#93c5fd;border-color:#475569}
+[data-theme="dark"] .elf-btn.secondary:hover:not(:disabled){background:#334155;border-color:#93c5fd}
+[data-theme="dark"] .elf-btn.ghost{color:#94a3b8}
+[data-theme="dark"] .elf-btn.ghost:hover{color:#a78bfa}
+.elf-extra{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-top:.75rem;font-size:.78rem;flex-wrap:wrap}
+.elf-link{color:#4f46e5;font-weight:700;cursor:pointer;background:none;border:none;font-family:inherit;padding:.25rem .4rem;border-radius:6px;transition:.15s;font-size:inherit}
+.elf-link:hover{background:#ede9fe;text-decoration:underline}
+[data-theme="dark"] .elf-link{color:#93c5fd}
+[data-theme="dark"] .elf-link:hover{background:rgba(147,197,253,.15)}
+.elf-msg{padding:.75rem .9rem;border-radius:10px;font-size:.82rem;margin-top:1rem;display:none;text-align:left;line-height:1.45}
+.elf-msg.show{display:block}
+.elf-msg.error{background:#fee2e2;color:#dc2626}
+.elf-msg.success{background:#dcfce7;color:#15803d}
+.elf-msg.info{background:#dbeafe;color:#1e40af}
+[data-theme="dark"] .elf-msg.error{background:rgba(220,38,38,.2);color:#fca5a5}
+[data-theme="dark"] .elf-msg.success{background:rgba(22,163,74,.2);color:#4ade80}
+[data-theme="dark"] .elf-msg.info{background:rgba(59,130,246,.2);color:#93c5fd}
+.elf-tip-banner{display:flex;align-items:flex-start;gap:.6rem;padding:.7rem .85rem;background:linear-gradient(135deg,rgba(79,70,229,.08),rgba(124,58,237,.06));border:1px solid rgba(124,58,237,.25);border-radius:12px;margin-bottom:1.25rem;font-size:.78rem;color:#5b21b6;line-height:1.5;text-align:left}
+[data-theme="dark"] .elf-tip-banner{background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(79,70,229,.1));border-color:rgba(165,180,252,.3);color:#c4b5fd}
+.elf-tip-banner i{color:#7c3aed;margin-top:.15rem;flex-shrink:0;font-size:1rem}
+.elf-tip-banner b{color:#4f46e5}
+[data-theme="dark"] .elf-tip-banner b{color:#a78bfa}
+.elf-footer{margin-top:1.25rem;padding-top:1rem;border-top:1px solid #e2e8f0;font-size:.72rem;color:#94a3b8;line-height:1.55;text-align:center}
+.elf-footer b{color:#4f46e5}
+[data-theme="dark"] .elf-footer{border-color:#475569;color:#94a3b8}
+[data-theme="dark"] .elf-footer b{color:#a78bfa}
+.elf-spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:elfSpin .7s linear infinite}
+@keyframes elfSpin{to{transform:rotate(360deg)}}
+@media(max-width:500px){
+.elf-box{padding:1.5rem 1.25rem;border-radius:16px}
+.elf-logo{width:56px;height:56px;font-size:1.5rem}
+.elf-title{font-size:1.15rem}
+.elf-subtitle{font-size:.8rem}
+.elf-btn{font-size:.88rem;padding:.8rem 1.1rem}
 }
 """
 
 
 def build_login_fallback_html():
     return r"""
-<!-- ═══════════════════════════════════════════════════════════
-     🔑 MODAL ĐẶT MẬT KHẨU (hiện mỗi khi vào trang nếu chưa có password)
-     ═══════════════════════════════════════════════════════════ -->
 <div class="elf-modal" id="elfSetPwdModal">
     <div class="elf-box">
         <button class="elf-close" id="elfSetPwdClose" type="button" aria-label="Đóng sau">
             <i class="fas fa-times"></i>
         </button>
-
         <div class="elf-logo"><i class="fas fa-shield-halved"></i></div>
         <div class="elf-title">Đặt mật khẩu đăng nhập</div>
-        <div class="elf-subtitle">
-            Đặt mật khẩu để lần sau có thể đăng nhập bằng email ngay cả khi Google gặp sự cố.
-        </div>
-
+        <div class="elf-subtitle">Đặt mật khẩu để lần sau có thể đăng nhập bằng email ngay cả khi Google gặp sự cố.</div>
         <div class="elf-account-info">
             <div class="elf-account-avatar" id="elfSetAvatar">?</div>
             <div class="elf-acc-text">
@@ -364,25 +109,16 @@ def build_login_fallback_html():
                 <div class="elf-acc-email" id="elfSetEmail">-</div>
             </div>
         </div>
-
         <div class="elf-tip-banner">
             <i class="fas fa-lightbulb"></i>
-            <div>
-                <b>Gợi ý:</b> Đặt mật khẩu dễ nhớ (tối thiểu 6 ký tự) để đăng nhập nhanh hơn.
-                Bạn vẫn có thể dùng Google như bình thường.
-            </div>
+            <div><b>Gợi ý:</b> Đặt mật khẩu dễ nhớ (tối thiểu 6 ký tự) để đăng nhập nhanh hơn. Bạn vẫn có thể dùng Google như bình thường.</div>
         </div>
-
         <form id="elfSetPwdForm" autocomplete="on" novalidate>
             <div class="elf-field">
                 <label>Mật khẩu mới</label>
                 <div class="elf-pwd-wrap">
-                    <input type="password" id="elfSetPwd1" placeholder="Tối thiểu 6 ký tự"
-                           autocomplete="new-password" required minlength="6">
-                    <button type="button" class="elf-pwd-toggle"
-                            data-elf-pwd="elfSetPwd1" aria-label="Hiện/ẩn mật khẩu">
-                        <i class="fas fa-eye"></i>
-                    </button>
+                    <input type="password" id="elfSetPwd1" placeholder="Tối thiểu 6 ký tự" autocomplete="new-password" required minlength="6">
+                    <button type="button" class="elf-pwd-toggle" data-elf-pwd="elfSetPwd1" aria-label="Hiện/ẩn mật khẩu"><i class="fas fa-eye"></i></button>
                 </div>
                 <div class="elf-strength" id="elfSetStrength">
                     <div class="elf-strength-bar"></div>
@@ -393,24 +129,16 @@ def build_login_fallback_html():
             <div class="elf-field">
                 <label>Nhập lại mật khẩu</label>
                 <div class="elf-pwd-wrap">
-                    <input type="password" id="elfSetPwd2" placeholder="Nhập lại mật khẩu"
-                           autocomplete="new-password" required minlength="6">
-                    <button type="button" class="elf-pwd-toggle"
-                            data-elf-pwd="elfSetPwd2" aria-label="Hiện/ẩn mật khẩu">
-                        <i class="fas fa-eye"></i>
-                    </button>
+                    <input type="password" id="elfSetPwd2" placeholder="Nhập lại mật khẩu" autocomplete="new-password" required minlength="6">
+                    <button type="button" class="elf-pwd-toggle" data-elf-pwd="elfSetPwd2" aria-label="Hiện/ẩn mật khẩu"><i class="fas fa-eye"></i></button>
                 </div>
             </div>
             <button type="submit" class="elf-btn" id="elfSetPwdSubmit">
                 <i class="fas fa-check"></i> Lưu mật khẩu
             </button>
-            <button type="button" class="elf-btn ghost" id="elfSetPwdSkip" style="margin-top:.5rem;">
-                Để sau
-            </button>
+            <button type="button" class="elf-btn ghost" id="elfSetPwdSkip" style="margin-top:.5rem;">Để sau</button>
         </form>
-
         <div class="elf-msg" id="elfSetMsg"></div>
-
         <div class="elf-footer">
             <i class="fas fa-lock" style="color:#4f46e5"></i>
             Mật khẩu được gắn vào <b>cùng tài khoản Google</b> của bạn — không tạo tài khoản mới.
@@ -418,15 +146,11 @@ def build_login_fallback_html():
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     🔐 MODAL ĐĂNG NHẬP EMAIL/PASSWORD (fallback)
-     ═══════════════════════════════════════════════════════════ -->
 <div class="elf-modal" id="elfLoginModal">
     <div class="elf-box">
         <button class="elf-close" id="elfLoginClose" type="button" aria-label="Đóng">
             <i class="fas fa-times"></i>
         </button>
-
         <div class="elf-logo"><i class="fas fa-envelope-open-text"></i></div>
         <div class="elf-title" id="elfLoginTitle">Đăng nhập bằng Email</div>
         <div class="elf-subtitle" id="elfLoginSubtitle">
@@ -434,22 +158,16 @@ def build_login_fallback_html():
             Tài khoản mới vẫn được <b>tặng 3 ngày dùng thử</b>.
         </div>
 
-        <!-- FORM LOGIN -->
         <form id="elfLoginForm" autocomplete="on" novalidate>
             <div class="elf-field">
                 <label>Email</label>
-                <input type="email" id="elfLoginEmail" placeholder="user@gmail.com"
-                       autocomplete="email" required>
+                <input type="email" id="elfLoginEmail" placeholder="user@gmail.com" autocomplete="email" required>
             </div>
             <div class="elf-field">
                 <label>Mật khẩu</label>
                 <div class="elf-pwd-wrap">
-                    <input type="password" id="elfLoginPwd" placeholder="Tối thiểu 6 ký tự"
-                           autocomplete="current-password" required minlength="6">
-                    <button type="button" class="elf-pwd-toggle"
-                            data-elf-pwd="elfLoginPwd" aria-label="Hiện/ẩn mật khẩu">
-                        <i class="fas fa-eye"></i>
-                    </button>
+                    <input type="password" id="elfLoginPwd" placeholder="Tối thiểu 6 ký tự" autocomplete="current-password" required minlength="6">
+                    <button type="button" class="elf-pwd-toggle" data-elf-pwd="elfLoginPwd" aria-label="Hiện/ẩn mật khẩu"><i class="fas fa-eye"></i></button>
                 </div>
             </div>
             <button type="submit" class="elf-btn" id="elfLoginSubmit">
@@ -465,38 +183,27 @@ def build_login_fallback_html():
             </div>
         </form>
 
-        <!-- FORM REGISTER -->
         <form id="elfRegisterForm" autocomplete="on" novalidate style="display:none;">
             <div class="elf-field">
                 <label>Email</label>
-                <input type="email" id="elfRegEmail" placeholder="user@gmail.com"
-                       autocomplete="email" required>
+                <input type="email" id="elfRegEmail" placeholder="user@gmail.com" autocomplete="email" required>
             </div>
             <div class="elf-field">
                 <label>Họ tên (tùy chọn)</label>
-                <input type="text" id="elfRegName" placeholder="Nguyễn Văn A"
-                       autocomplete="name" maxlength="50">
+                <input type="text" id="elfRegName" placeholder="Nguyễn Văn A" autocomplete="name" maxlength="50">
             </div>
             <div class="elf-field">
                 <label>Mật khẩu</label>
                 <div class="elf-pwd-wrap">
-                    <input type="password" id="elfRegPwd" placeholder="Tối thiểu 6 ký tự"
-                           autocomplete="new-password" required minlength="6">
-                    <button type="button" class="elf-pwd-toggle"
-                            data-elf-pwd="elfRegPwd" aria-label="Hiện/ẩn mật khẩu">
-                        <i class="fas fa-eye"></i>
-                    </button>
+                    <input type="password" id="elfRegPwd" placeholder="Tối thiểu 6 ký tự" autocomplete="new-password" required minlength="6">
+                    <button type="button" class="elf-pwd-toggle" data-elf-pwd="elfRegPwd" aria-label="Hiện/ẩn mật khẩu"><i class="fas fa-eye"></i></button>
                 </div>
             </div>
             <div class="elf-field">
                 <label>Nhập lại mật khẩu</label>
                 <div class="elf-pwd-wrap">
-                    <input type="password" id="elfRegPwd2" placeholder="Nhập lại mật khẩu"
-                           autocomplete="new-password" required minlength="6">
-                    <button type="button" class="elf-pwd-toggle"
-                            data-elf-pwd="elfRegPwd2" aria-label="Hiện/ẩn mật khẩu">
-                        <i class="fas fa-eye"></i>
-                    </button>
+                    <input type="password" id="elfRegPwd2" placeholder="Nhập lại mật khẩu" autocomplete="new-password" required minlength="6">
+                    <button type="button" class="elf-pwd-toggle" data-elf-pwd="elfRegPwd2" aria-label="Hiện/ẩn mật khẩu"><i class="fas fa-eye"></i></button>
                 </div>
             </div>
             <button type="submit" class="elf-btn" id="elfRegisterSubmit">
@@ -510,7 +217,6 @@ def build_login_fallback_html():
         </form>
 
         <div class="elf-msg" id="elfMsg"></div>
-
         <div class="elf-footer">
             <i class="fas fa-shield-alt" style="color:#4f46e5"></i>
             Mật khẩu bảo mật bởi <b>Firebase Authentication</b>.
@@ -522,20 +228,11 @@ def build_login_fallback_html():
 
 def build_login_fallback_js():
     return r"""
-/* ═══════════════════════════════════════════════════════════════
-   🔑 LOGIN FALLBACK + SET PASSWORD — JS
-   Logic:
-     - Chưa đặt mật khẩu → mỗi lần vào trang / F5 tab mới → HỎI LẠI
-     - Đã đặt mật khẩu → KHÔNG hỏi nữa
-     - "Để sau" chỉ có tác dụng trong session hiện tại (tắt tab → quên)
-   ═══════════════════════════════════════════════════════════════ */
 (function() {
     'use strict';
 
-    /* Chỉ dùng sessionStorage để track "đã hỏi trong phiên này" */
     var PWD_ASKED_KEY = 'elf_pwd_asked_';
 
-    /* ═══ Helpers ═══ */
     function waitAuth(cb) {
         var tries = 0;
         var t = setInterval(function() {
@@ -557,6 +254,7 @@ def build_login_fallback_js():
         el.className = 'elf-msg show' + (type ? ' ' + type : '');
         el.innerHTML = msg;
     }
+
     function clearMsg(elId) {
         var el = document.getElementById(elId);
         if (!el) return;
@@ -564,13 +262,11 @@ def build_login_fallback_js():
         el.innerHTML = '';
     }
 
-    /* ═══ Mở/đóng modal ═══ */
     function openSetPwdModal() {
         var m = document.getElementById('elfSetPwdModal');
         if (!m) return;
         m.classList.add('show');
         clearMsg('elfSetMsg');
-
         try {
             var u = auth.currentUser;
             if (u) {
@@ -578,10 +274,8 @@ def build_login_fallback_js():
                 var nm = document.getElementById('elfSetName');
                 var em = document.getElementById('elfSetEmail');
                 if (em) em.textContent = u.email || '';
-
                 var name = u.displayName || (u.email || '').split('@')[0];
                 if (nm) nm.textContent = name;
-
                 if (av) {
                     if (u.photoURL) {
                         av.innerHTML = '<img src="' + u.photoURL + '" alt="">';
@@ -591,7 +285,6 @@ def build_login_fallback_js():
                 }
             }
         } catch(e) {}
-
         setTimeout(function() {
             var inp = document.getElementById('elfSetPwd1');
             if (inp) inp.focus();
@@ -623,7 +316,6 @@ def build_login_fallback_js():
         clearMsg('elfMsg');
     }
 
-    /* ═══ Kiểm tra provider ═══ */
     function userHasPassword(user) {
         if (!user) return false;
         try {
@@ -646,25 +338,17 @@ def build_login_fallback_js():
         return false;
     }
 
-    /* ═══ Check & ask ═══ */
     function checkAndAskSetPassword(user) {
         if (!user || !user.email) return;
-
-        /* Chỉ hỏi khi user login qua Google */
         if (!userHasGoogle(user)) return;
-
-        /* Đã có password → KHÔNG hỏi nữa */
         if (userHasPassword(user)) return;
 
         var email = user.email.toLowerCase();
 
-        /* Đã hỏi trong PHIÊN này rồi → không hỏi lại
-           (session mất khi tắt tab → lần vào tab mới sẽ hỏi lại) */
         try {
             if (sessionStorage.getItem(PWD_ASKED_KEY + email) === '1') return;
         } catch(e) {}
 
-        /* Đợi modal khác đóng rồi hỏi */
         var busyModals = [
             'adminModal', 'importModal', 'editExpiryModal',
             'changeNameModal', 'renewalModal', 'permissionModal',
@@ -686,14 +370,11 @@ def build_login_fallback_js():
             }
         }
 
-        /* Đánh dấu "đã hỏi trong phiên này" — tránh gọi lặp */
         try { sessionStorage.setItem(PWD_ASKED_KEY + email, '1'); } catch(e) {}
 
-        /* Đợi 1.5s rồi mở modal */
         setTimeout(openSetPwdModal, 1500);
     }
 
-    /* ═══ Submit form đặt mật khẩu ═══ */
     async function handleSetPassword(e) {
         if (e) e.preventDefault();
 
@@ -721,16 +402,12 @@ def build_login_fallback_js():
         btn.innerHTML = '<span class="elf-spinner"></span> Đang lưu...';
 
         try {
-            /* linkWithCredential để GẮN password vào CÙNG UID */
             var credential = firebase.auth.EmailAuthProvider.credential(user.email, p1);
             await user.linkWithCredential(credential);
 
-            /* Xóa cờ hỏi (không cần nữa vì giờ đã có password) */
             try { sessionStorage.removeItem(PWD_ASKED_KEY + user.email.toLowerCase()); } catch(e) {}
 
-            showMsg('elfSetMsg',
-                '✅ Đặt mật khẩu thành công!<br>Lần sau bạn có thể đăng nhập bằng Email.',
-                'success');
+            showMsg('elfSetMsg', '✅ Đặt mật khẩu thành công!<br>Lần sau bạn có thể đăng nhập bằng Email.', 'success');
 
             setTimeout(function() {
                 closeSetPwdModal();
@@ -751,8 +428,7 @@ def build_login_fallback_js():
             } else if (err.code === 'auth/requires-recent-login') {
                 msg = 'Phiên đăng nhập đã cũ.<br>Vui lòng đăng xuất và đăng nhập lại Google.';
             } else if (err.code === 'auth/credential-already-in-use') {
-                msg = 'Email này đã được liên kết với tài khoản khác.<br>' +
-                      'Vui lòng liên hệ hỗ trợ hoặc dùng <b>Quên mật khẩu</b>.';
+                msg = 'Email này đã được liên kết với tài khoản khác.<br>Vui lòng liên hệ hỗ trợ hoặc dùng <b>Quên mật khẩu</b>.';
             } else if (err.code === 'auth/operation-not-allowed') {
                 msg = '⚠️ Chưa bật <b>Email/Password</b> trên Firebase Console.';
             }
@@ -763,16 +439,10 @@ def build_login_fallback_js():
         }
     }
 
-    /* ═══ Bấm "Để sau" — chỉ đóng modal, KHÔNG lưu localStorage ═══ */
     function handleSkipSetPassword() {
-        /* Không lưu gì cả.
-           - sessionStorage đã có cờ PWD_ASKED_KEY (set trước khi mở modal)
-           - Tắt tab → sessionStorage mất → lần sau vào tab mới → hỏi lại
-           - Muốn hỏi lại ngay trong session: gọi __elfDebug.resetAskedFlag() */
         closeSetPwdModal();
     }
 
-    /* ═══ Strength bar ═══ */
     function updateStrength(pwd) {
         var bars = document.querySelectorAll('#elfSetStrength .elf-strength-bar');
         if (!bars.length) return;
@@ -798,17 +468,15 @@ def build_login_fallback_js():
         });
     }
 
-    /* ═══ Toggle password ═══ */
     function bindPwdToggles() {
         document.querySelectorAll('.elf-pwd-toggle').forEach(function(btn) {
             if (btn.__elfBound) return;
             btn.__elfBound = true;
-            btn.addEventListener('click(e', function(e) {
-                e).preventDefault();
-                var id = this.dataset. {
-elfPwd;
-                var inp        = document.getElementById(id);
-                if if (!inp) return;
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                var id = this.dataset.elfPwd;
+                var inp = document.getElementById(id);
+                if (!inp) return;
                 var isPwd = inp.type === 'password';
                 inp.type = isPwd ? 'text' : 'password';
                 var icon = this.querySelector('i');
@@ -817,17 +485,19 @@ elfPwd;
         });
     }
 
-    /* ═══ LOGIN EMAIL/PASSWORD ═══ */
-    async function doEmailLogin (e) e.preventDefault();
+    async function doEmailLogin(e) {
+        if (e) e.preventDefault();
         var email = (document.getElementById('elfLoginEmail').value || '').trim().toLowerCase();
         var pwd = document.getElementById('elfLoginPwd').value || '';
         var btn = document.getElementById('elfLoginSubmit');
 
         if (!email || !email.includes('@')) {
-            showMsg('elfMsg', 'Email không hợp lệ.', 'error'); return;
+            showMsg('elfMsg', 'Email không hợp lệ.', 'error');
+            return;
         }
         if (!pwd) {
-            showMsg('elfMsg', 'Vui lòng nhập mật khẩu.', 'error'); return;
+            showMsg('elfMsg', 'Vui lòng nhập mật khẩu.', 'error');
+            return;
         }
 
         var orig = btn.innerHTML;
@@ -843,8 +513,7 @@ elfPwd;
             var msg = 'Lỗi: ' + (err.code || err.message);
             if (err.code === 'auth/user-not-found') {
                 msg = 'Không tìm thấy tài khoản với email này.<br>Bạn có muốn <b>Đăng ký</b>?';
-            } else if (err.code === 'auth/wrong-password' ||
-                       err.code === 'auth/invalid-credential') {
+            } else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
                 msg = 'Sai mật khẩu. Vui lòng thử lại hoặc bấm <b>Quên mật khẩu</b>.';
             } else if (err.code === 'auth/invalid-email') {
                 msg = 'Email không đúng định dạng.';
@@ -860,7 +529,6 @@ elfPwd;
         }
     }
 
-    /* ═══ REGISTER ═══ */
     async function doEmailRegister(e) {
         if (e) e.preventDefault();
         var email = (document.getElementById('elfRegEmail').value || '').trim().toLowerCase();
@@ -870,13 +538,16 @@ elfPwd;
         var btn = document.getElementById('elfRegisterSubmit');
 
         if (!email || !email.includes('@')) {
-            showMsg('elfMsg', 'Email không hợp lệ.', 'error'); return;
+            showMsg('elfMsg', 'Email không hợp lệ.', 'error');
+            return;
         }
         if (pwd.length < 6) {
-            showMsg('elfMsg', 'Mật khẩu phải từ 6 ký tự trở lên.', 'error'); return;
+            showMsg('elfMsg', 'Mật khẩu phải từ 6 ký tự trở lên.', 'error');
+            return;
         }
         if (pwd !== pwd2) {
-            showMsg('elfMsg', 'Mật khẩu nhập lại không khớp.', 'error'); return;
+            showMsg('elfMsg', 'Mật khẩu nhập lại không khớp.', 'error');
+            return;
         }
 
         var orig = btn.innerHTML;
@@ -907,7 +578,6 @@ elfPwd;
         }
     }
 
-    /* ═══ FORGOT PASSWORD ═══ */
     async function doForgot() {
         var email = (document.getElementById('elfLoginEmail').value || '').trim().toLowerCase();
         if (!email || !email.includes('@')) {
@@ -918,9 +588,7 @@ elfPwd;
 
         try {
             await auth.sendPasswordResetEmail(email);
-            showMsg('elfMsg',
-                '✅ Đã gửi email khôi phục!<br>Kiểm tra hộp thư (kể cả mục Spam).',
-                'success');
+            showMsg('elfMsg', '✅ Đã gửi email khôi phục!<br>Kiểm tra hộp thư (kể cả mục Spam).', 'success');
         } catch (err) {
             console.error('[ELF Forgot]', err);
             var msg = 'Lỗi: ' + (err.code || err.message);
@@ -931,7 +599,6 @@ elfPwd;
         }
     }
 
-    /* ═══ Chuyển form Login ↔ Register ═══ */
     function showLoginForm() {
         var lf = document.getElementById('elfLoginForm');
         var rf = document.getElementById('elfRegisterForm');
@@ -939,6 +606,7 @@ elfPwd;
         if (rf) rf.style.display = 'none';
         clearMsg('elfMsg');
     }
+
     function showRegisterForm() {
         var lf = document.getElementById('elfLoginForm');
         var rf = document.getElementById('elfRegisterForm');
@@ -951,7 +619,6 @@ elfPwd;
         }, 100);
     }
 
-    /* ═══ Chèn nút "Đăng nhập bằng Email" vào modal login cũ ═══ */
     function injectEmailButton() {
         var loginBox = document.querySelector('#loginModal .login-box');
         if (!loginBox) return false;
@@ -996,9 +663,7 @@ elfPwd;
         return true;
     }
 
-    /* ═══ Init ═══ */
     function initElf() {
-        /* ----- Modal SET PASSWORD ----- */
         var closeBtn = document.getElementById('elfSetPwdClose');
         if (closeBtn && !closeBtn.__elfBound) {
             closeBtn.__elfBound = true;
@@ -1029,7 +694,6 @@ elfPwd;
             });
         }
 
-        /* ----- Modal LOGIN EMAIL ----- */
         var closeBtn2 = document.getElementById('elfLoginClose');
         if (closeBtn2 && !closeBtn2.__elfBound) {
             closeBtn2.__elfBound = true;
@@ -1070,7 +734,6 @@ elfPwd;
 
         bindPwdToggles();
 
-        /* ----- Chèn nút vào modal login cũ ----- */
         var tries = 0;
         var injectTimer = setInterval(function() {
             tries++;
@@ -1079,7 +742,6 @@ elfPwd;
             }
         }, 500);
 
-        /* ----- Hook onAuthStateChanged ----- */
         if (auth && !auth.__elfHooked) {
             auth.__elfHooked = true;
             auth.onAuthStateChanged(function(user) {
@@ -1087,7 +749,6 @@ elfPwd;
             });
         }
 
-        /* ----- Escape đóng modal ----- */
         document.addEventListener('keydown', function(e) {
             if (e.key !== 'Escape') return;
             var m1 = document.getElementById('elfSetPwdModal');
@@ -1108,7 +769,6 @@ elfPwd;
         waitAuth(initElf);
     }
 
-    /* ═══ Public API ═══ */
     window.__elfOpenLogin = openLoginModal;
     window.__elfOpenSetPwd = openSetPwdModal;
     window.__elfDebug = {
@@ -1130,7 +790,6 @@ elfPwd;
         hasPassword: function() {
             return auth && auth.currentUser ? userHasPassword(auth.currentUser) : false;
         },
-        /* Reset cờ hỏi để test hỏi lại trong cùng session */
         resetAskedFlag: function() {
             try {
                 var u = auth.currentUser;
