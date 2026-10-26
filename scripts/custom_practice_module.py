@@ -560,12 +560,61 @@ def build_custom_practice_css():
     /* Thanh công cụ nhập text */
     .cp-action-btn { padding: 8px 10px; } /* Tăng nhẹ padding cho dễ bấm */
 }
+/* ⭐ CSS CHO KHUNG NHẬP VÀ NÚT START ICON */
+.cp-textarea-wrapper {
+    position: relative;
+    display: flex;
+    width: 100%;
+}
+
+.cp-textarea-wrapper .cp-textarea {
+    width: 100%;
+    padding-right: 55px; /* Chừa khoảng trống bên phải để chữ không bị đè lên nút */
+}
+
+/* Nút Start dạng Icon tròn */
+.cp-btn-start-icon {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed, #ec4899);
+    color: #fff;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.cp-btn-start-icon:hover:not(:disabled) {
+    transform: scale(1.08);
+    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.6);
+}
+
+.cp-btn-start-icon:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.7;
+}
+
+/* Ẩn nút Start to cũ đi (nếu có) */
+.cp-btn-start {
+    display: none !important;
+}
 """
 
 def build_custom_practice_html():
     return r"""
 <div class="cp-card" id="cpSection">
-    <!-- ⭐ HEADER MỚI: Tiêu đề bên trái, Token bên phải -->
+    <!-- ⭐ HEADER: Tiêu đề bên trái, Token bên phải -->
     <div class="cp-header-container">
         <div class="cp-header-top">
             <div class="cp-section-header">
@@ -588,15 +637,15 @@ def build_custom_practice_html():
         <button class="cp-action-btn cp-btn-primary" id="cpUploadImgBtn" type="button" title="Dịch từ ảnh">
             <i class="fas fa-camera"></i> <span>Dịch Ảnh</span>
         </button>
-        <input type="file" id="cpImageInput" accept="image/*" style="display:none;">
+        <input type="="file" id="cpImageInput" acceptcp="image/*" style="display:none;">
         
-        <button class="cp-action-btn" id="cpHistoryBtn" type="button" title="Xem lịch sử">
+        <button class="cp-action-btn" idSwitch="cpHistoryBtn" type="Btnbutton" title="Xem lịch s"ử">
             <i class="fas fa-clock-rotate-left"></i> <span>Lịch sử</span>
         </button>
     </div>
 
     <!-- Phần chuyển đổi ngôn ngữ -->
-    <div class="cp-switch-container" id="cpSwitchBtn" title="Đảo chiều dịch" style="margin-bottom: 10px;">
+    <div class="cp-switch-container" id title="Đảo chiều dịch" style="margin-bottom: 10px;">
         <span class="cp-switch-label active" id="cpLabelVi">Tiếng Việt</span>
         <div class="cp-switch-icon-box"><i class="fas fa-exchange-alt"></i></div>
         <span class="cp-switch-label" id="cpLabelZh">Tiếng Trung</span>
@@ -604,7 +653,7 @@ def build_custom_practice_html():
 
     <!-- Vùng nhập văn bản -->
     <div class="cp-input-wrapper" id="cpInputWrapper">
-        <!-- ⭐ HÀNG CÔNG CỤ: Chữ bên trái, Nút Phóng to & Nút Xóa bên phải -->
+        <!-- Thanh công cụ -->
         <div class="cp-input-toolbar">
             <span class="cp-input-label">Nội dung văn bản</span>
             <div class="cp-input-tools-right">
@@ -615,15 +664,27 @@ def build_custom_practice_html():
                 <button class="cp-btn-reset" id="cpResetBtn" type="button" title="Làm mới" style="padding: 3px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;">
                     <i class="fas fa-rotate-right"></i> <span>Xóa</span>
                 </button>
-                <!-- Nút Reset dành cho Mobile (sẽ được JS/CSS bật lên) -->
+                <!-- Nút Reset dành cho Mobile -->
                 <button class="cp-btn-reset cp-btn-reset-mobile" id="cpResetBtnMobile" type="button" title="Làm mới" style="padding: 3px 10px; font-size: 0.75rem; display: none; align-items: center; gap: 4px;">
                     <i class="fas fa-rotate-right"></i> <span>Xóa</span>
                 </button>
             </div>
         </div>
         
-        <textarea class="cp-textarea" id="cpInputZh" rows="4" placeholder="Nhập hoặc dán văn bản để Trợ lý dịch giúp bạn..."></textarea>
+        <!-- Khung nhập + Nút Start Icon -->
+        <div class="cp-textarea-wrapper">
+            <textarea class="cp-textarea" id="cpInputZh" rows="4" placeholder="Nhập hoặc dán văn bản để Trợ lý dịch giúp bạn..."></textarea>
+            
+            <button class="cp-btn-start-icon" id="cpStartBtn" type="button" title="Bắt đầu luyện tập">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
         
+        <!-- Nút Mua Token (Hiện khi hết token) -->
+        <button class="cp-btn-buy-token" id="cpBuyTokenBtn" type="button" style="margin-top: 10px;">
+            <i class="fas fa-shopping-cart"></i> Mua thêm Token
+        </button>
+
         <div class="cp-spell-container" id="cpSpellContainer">
             <div class="cp-spell-header">
                 <i class="fas fa-triangle-exclamation"></i> Phát hiện từ nghi ngờ sai chính tả / dính phím:
@@ -632,14 +693,6 @@ def build_custom_practice_html():
         </div>
         <div class="cp-char-count" id="cpCharCount" style="text-align:right;font-size:.75rem;font-weight:600;color:#64748b;margin-top:4px;">0 / 5000</div>
     </div>
-
-    <!-- Nút bắt đầu -->
-    <button class="cp-btn-start" id="cpStartBtn" type="button">
-        <i class="fas fa-rocket"></i> Bắt đầu luyện tập
-    </button>
-    <button class="cp-btn-buy-token" id="cpBuyTokenBtn" type="button">
-        <i class="fas fa-shopping-cart"></i> Mua thêm Token
-    </button>
 
     <!-- Thanh tiến trình -->
     <div class="cp-progress-wrap" id="cpProgressWrap">
@@ -672,19 +725,16 @@ def build_custom_practice_html():
                 <div id="cpHistoryCounter" style="font-size: 0.75rem; color: #64748b; margin-top: 2px; font-weight: 600;">Đang tải bộ đếm...</div>
             </div>
             <div style="display:flex; gap:6px; align-items:center;">
-                <!-- ⭐ NÚT CHỌN TẤT CẢ RA LUYỆN TẬP -->
                 <button id="cpSelectAllHistoryBtn" style="background:linear-gradient(135deg,#4f46e5,#7c3aed); color:#fff; border:none; padding:5px 10px; border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer;" title="Chọn tất cả ra luyện tập">
                     <i class="fas fa-check-double"></i> Chọn tất cả
                 </button>
-                <!-- ⭐ NÚT XÓA TẤT CẢ LỊCH SỬ -->
                 <button id="cpDeleteAllHistoryBtn" style="background:#fee2e2; color:#ef4444; border:1px solid #fca5a5; padding:5px 10px; border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer;" title="Xóa tất cả lịch sử">
                     <i class="fas fa-trash-alt"></i> Xóa tất cả
                 </button>
                 <button id="cpHistoryCloseBtn" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:#64748b;"><i class="fas fa-times"></i></button>
             </div>
         </div>
-        <div id="cpHistoryList" style="max-height: 400px; overflow-y: auto; margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
-        </div>
+        <div id="cpHistoryList" style="max-height: 400px; overflow-y: auto; margin-top: 10px; display: flex; flex-direction: column; gap: 10px;"></div>
     </div>
 </div>
 
@@ -706,7 +756,6 @@ def build_custom_practice_html():
     </div>
 </div>
 """
-
 
 def build_custom_practice_js():
     return r"""
@@ -1455,7 +1504,7 @@ def build_custom_practice_js():
             if (!proceed) return;
         }
 
-        startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang dịch...';
+        startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         startBtn.disabled = true;
         switchBtn.style.pointerEvents = 'none';
         progressWrap.classList.add('show');
@@ -1590,7 +1639,8 @@ def build_custom_practice_js():
     }
 
     function finishProcess() {
-        startBtn.innerHTML = '<i class="fas fa-rocket"></i> Bắt đầu luyện tập';
+        // ⭐ Đổi text thành icon mũi tên cho vừa với nút tròn nhỏ
+        startBtn.innerHTML = '<i class="fas fa-arrow-right"></i>';
         startBtn.disabled = false;
         switchBtn.style.pointerEvents = 'auto';
         setTimeout(function() { progressWrap.classList.remove('show'); }, 1200);
@@ -1599,7 +1649,6 @@ def build_custom_practice_js():
             renderTokenUI(checkIsExpired());
         }
     }
-
     function loadPinyinPro() {
         if (window.pinyinPro) return Promise.resolve();
         return new Promise(function(resolve) {
