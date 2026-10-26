@@ -274,32 +274,7 @@ def build_custom_practice_css():
 }
 .cp-modal-btn-proceed:hover { opacity: 0.9; }
 
-.cp-btn-start {
-    width: 100%;
-    height: 52px;
-    border-radius: 16px;
-    border: none;
-    background: linear-gradient(135deg, #4f46e5, #7c3aed, #ec4899);
-    color: #fff;
-    font-weight: 800;
-    font-size: 1.05rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
-}
-.cp-btn-start:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(124, 58, 237, 0.5);
-}
-.cp-btn-start:disabled {
-    background: #cbd5e1;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
+
 
 .cp-btn-buy-token {
     width: 100%;
@@ -1280,7 +1255,7 @@ def build_custom_practice_js():
             updateCharCount();
             progressWrap.classList.remove('show');
             startBtn.disabled = false;
-            startBtn.innerHTML = '<i class="fas fa-rocket"></i> Bắt đầu luyện tập';
+            startBtn.innerHTML = '<i class="fas fa-arrow-right"></i>';
             setTimeout(autoResizeTextarea, 50);
         } 
         else if (lastDeletedText !== '') {
