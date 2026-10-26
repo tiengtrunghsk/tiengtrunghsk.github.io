@@ -6,6 +6,9 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Học Tiếng Trung">
@@ -11901,16 +11904,16 @@ html body .tiktok-float-btn > i {
     display: block;
 }
 /* ═══════════════════════════════════════════════════════════ */
-/* TỐI ƯU HEADER: PC 1 HÀNG - MOBILE CHIA DÒNG                 */
+/* TỐI ƯU GIAO DIỆN HEADER & TOOLBAR                         */
 /* ═══════════════════════════════════════════════════════════ */
 .cp-header-container {
     display: flex;
-    flex-direction: row; /* ⭐ Mặc định trên PC là 1 hàng ngang */
+    flex-direction: row;
     justify-content: space-between;
     align-items: center;
     gap: 15px;
     width: 100%;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 .cp-header-top {
@@ -11919,66 +11922,95 @@ html body .tiktok-float-btn > i {
     gap: 12px;
 }
 
-/* Ẩn nút Reset ở hàng đầu tiên trên PC (vì nó đã nằm bên phải) */
-.cp-header-top .cp-btn-reset-mobile {
-    display: none;
-}
-
+/* Khối chứa Token + Nút Ảnh + Nút Lịch sử */
 .cp-header-actions {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.cp-token-badge {
-    /* Giữ nguyên style cũ của bạn nhưng đảm bảo nó nằm ngang */
-    display: flex; align-items: center; gap: 6px;
-    background: rgba(16, 185, 129, 0.1); color: #059669;
-    padding: 6px 12px; border-radius: 50px;
-    font-size: 0.8rem; font-weight: 800;
-    border: 1px solid rgba(16, 185, 129, 0.2);
-    cursor: pointer;
+/* Thanh công cụ trên ô nhập văn bản */
+.cp-input-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+.cp-input-label {
+    font-size: 0.75rem; 
+    font-weight: 700; 
+    color: var(--text-3, #64748b);
+}
+.cp-input-tools-right {
+    display: flex;
+    gap: 6px;
 }
 
-/* ⭐ GIAO DIỆN MOBILE (Màn hình < 768px) */
-@media (max-width: 768px) {
+/* CSS cho các nút hành động chính (Ảnh, Lịch sử) */
+.cp-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border, #e2e8f0);
+    background: var(--surface, #ffffff);
+    color: var(--text-2, #475569);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.cp-action-btn i { font-size: 0.9rem; }
+.cp-action-btn.cp-btn-primary {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #fff;
+    border: none;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+}
+.cp-action-btn.cp-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+}
+
+/* Điều chỉnh Token cho nhỏ gọn */
+.cp-token-badge {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    border-radius: 8px;
+    background: rgba(16, 185, 129, 0.1); 
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    white-space: nowrap;
+}
+
+/* ⭐ GIAO DIỆN MOBILE */
+@media (max-width: 600px) {
     .cp-header-container {
-        flex-direction: column; /* Chuyển thành cột dọc */
+        flex-direction: column;
         align-items: stretch;
         gap: 10px;
     }
-
     .cp-header-top {
-        justify-content: space-between; /* Đẩy nút reset sang phải */
+        justify-content: space-between;
         width: 100%;
     }
-
-    .cp-header-top .cp-btn-reset-mobile {
-        display: flex; /* Hiện nút Reset trên mobile */
-    }
-
     .cp-header-actions {
+        justify-content: space-between;
         width: 100%;
-        display: grid;
-        grid-template-columns: 1fr auto auto; /* Token chiếm phần lớn, 2 nút icon nhỏ bên cạnh */
-        gap: 8px;
     }
+    /* Trên mobile, nút Ảnh và Lịch sử sẽ giãn đều ra */
+    .cp-action-btn { flex: 1; }
+    .cp-token-badge { flex: 1; justify-content: center; }
     
-    .cp-token-badge {
-        justify-content: center;
-        width: 100%;
-        padding: 8px;
-    }
-    
-    /* Thu nhỏ nút Ảnh và Lịch sử trên mobile */
-    .cp-header-actions .cp-btn-reset {
-        padding: 8px 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+    /* Thanh công cụ nhập text */
+    .cp-action-btn span { display: none; } /* Ẩn chữ trên mobile cực nhỏ */
+    .cp-action-btn { padding: 6px 10px; }
 }
-
+@media (min-width: 601px) {
+    .cp-action-btn span { display: inline-block; } /* Hiện chữ trên PC */
+}
 
 
 /* FIX.PY: AUTO-FIT LAYOUT */
@@ -13344,7 +13376,6 @@ body[data-vocab-mode="1"] .card-mnemonic-body .mnemonic-story-wrap.open .mnemoni
 
 
 
-
 /* ═══════════════════════════════════════════════════════════ */
 /* PATCH_BUTTONS: DATASET BUTTONS — TỐI ƯU GIAO DIỆN PC & MOBILE */
 /* ═══════════════════════════════════════════════════════════ */
@@ -13657,7 +13688,6 @@ body[data-vocab-mode="1"] .card-mnemonic-body .mnemonic-story-wrap.open .mnemoni
 
 
 
-
 /* ===== QUICK_SEARCH_MODULE_CSS ===== */
 #quickSearchRoot{
     position:fixed;
@@ -13819,19 +13849,7 @@ body.has-floating-group #quickSearchRoot{
 }
 
 </style>
-
-    <meta name="keywords" content="tiếng trung văn phòng, tiếng trung công xưởng, học tiếng trung miễn phí, từ vựng tiếng trung">
-    <meta name="author" content="Tuhoctiengtrung.org">
-    <link rel="canonical" href="https://tuhoctiengtrung.org/">
-    <meta property="og:title" content="Học tiếng Trung · Văn phòng & Công xưởng">
-    <meta property="og:description" content="Học tiếng Trung giao tiếp Văn phòng & Công xưởng miễn phí. Tổng hợp từ vựng, mẫu câu thông dụng, luyện viết chữ Hán và phát âm chuẩn.">
-    <meta property="og:url" content="https://tuhoctiengtrung.org/">
-    <meta property="og:type" content="website">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Học Tiếng Trung">
-    <meta name="theme-color" content="#7c3aed">
-  </head>
+</head>
 <body>
 
 <div class="page-wrap">
@@ -13990,7 +14008,7 @@ body.has-floating-group #quickSearchRoot{
 
 
 <!-- QUICK INTRO BANNER — Giới thiệu Tạo bài học từ ảnh & Trợ lý Dịch thuật AI -->
-<div class="quick-intro-banner" id="quickIntroBanner" data-nosnippet>
+<div class="quick-intro-banner" id="quickIntroBanner">
     <div class="qib-icon">
         <i class="fas fa-camera-retro"></i>
     </div>
@@ -14033,10 +14051,8 @@ body.has-floating-group #quickSearchRoot{
 
 
 <div class="cp-card" id="cpSection">
-    <!-- ⭐ HEADER TỐI ƯU: PC 1 HÀNG - MOBILE 2 HÀNG -->
+    <!-- ⭐ HEADER MỚI: Tiêu đề bên trái, Token bên phải -->
     <div class="cp-header-container">
-        
-        <!-- Khối 1: Logo & Tiêu đề -->
         <div class="cp-header-top">
             <div class="cp-section-header">
                 <div class="cp-icon-badge" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);">
@@ -14047,40 +14063,26 @@ body.has-floating-group #quickSearchRoot{
                     <p>Dịch và tạo bài tập cá nhân hóa</p>
                 </div>
             </div>
-            
-            <!-- Nút Reset (Chỉ hiện trên mobile, nằm góc phải hàng 1) -->
-            <button class="cp-btn-reset cp-btn-reset-mobile" id="cpResetBtnMobile" type="button" title="Làm mới" style="border-radius: 50%; width: 36px; height: 36px; padding: 0; display: none; align-items: center; justify-content: center;">
-                <i class="fas fa-rotate-right"></i>
-            </button>
-        </div>
-
-        <!-- Khối 2: Các nút thao tác (PC nằm cùng hàng, Mobile rớt xuống dưới) -->
-        <div class="cp-header-actions">
             <div class="cp-token-badge" id="cpTokenBadge" title="Bấm để cập nhật số Token mới nhất">
-              <i class="fas fa-bolt"></i> <span id="cpTokenText">Đang tải...</span>
-              <span class="refresh-hint">🔄</span>
+                <i class="fas fa-bolt"></i> <span id="cpTokenText">Đang tải...</span>
             </div>
-            
-            <!-- Nút Tải Ảnh -->
-            <button class="cp-btn-reset" id="cpUploadImgBtn" type="button" title="Dịch từ ảnh">
-                <i class="fas fa-camera"></i>
-            </button>
-            <input type="file" id="cpImageInput" accept="image/*" style="display:none;">
-            
-            <!-- Nút Lịch sử -->
-            <button class="cp-btn-reset" id="cpHistoryBtn" type="button" title="Xem lịch sử">
-                <i class="fas fa-clock-rotate-left"></i>
-            </button>
-            
-            <!-- Nút Reset gốc (Chỉ hiện trên PC, nằm cuối hàng) -->
-            <button class="cp-btn-reset" id="cpResetBtn" type="button" title="Làm mới">
-                <i class="fas fa-rotate-right"></i>
-            </button>
         </div>
     </div>
 
+    <!-- Các nút thao tác chính (Ảnh & Lịch sử) -->
+    <div class="cp-header-actions" style="margin-bottom: 10px;">
+        <button class="cp-action-btn cp-btn-primary" id="cpUploadImgBtn" type="button" title="Dịch từ ảnh">
+            <i class="fas fa-camera"></i> <span>Dịch Ảnh</span>
+        </button>
+        <input type="file" id="cpImageInput" accept="image/*" style="display:none;">
+        
+        <button class="cp-action-btn" id="cpHistoryBtn" type="button" title="Xem lịch sử">
+            <i class="fas fa-clock-rotate-left"></i> <span>Lịch sử</span>
+        </button>
+    </div>
+
     <!-- Phần chuyển đổi ngôn ngữ -->
-    <div class="cp-switch-container" id="cpSwitchBtn" title="Đảo chiều dịch">
+    <div class="cp-switch-container" id="cpSwitchBtn" title="Đảo chiều dịch" style="margin-bottom: 10px;">
         <span class="cp-switch-label active" id="cpLabelVi">Tiếng Việt</span>
         <div class="cp-switch-icon-box"><i class="fas fa-exchange-alt"></i></div>
         <span class="cp-switch-label" id="cpLabelZh">Tiếng Trung</span>
@@ -14088,12 +14090,24 @@ body.has-floating-group #quickSearchRoot{
 
     <!-- Vùng nhập văn bản -->
     <div class="cp-input-wrapper" id="cpInputWrapper">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-3, #64748b);">Nội dung văn bản</span>
-            <button type="button" id="cpExpandBtn" class="cp-btn-reset" style="padding: 3px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;" title="Phóng to toàn màn hình">
-                <i class="fas fa-expand" id="cpExpandIcon"></i> <span id="cpExpandText">Phóng to</span>
-            </button>
+        <!-- ⭐ HÀNG CÔNG CỤ: Chữ bên trái, Nút Phóng to & Nút Xóa bên phải -->
+        <div class="cp-input-toolbar">
+            <span class="cp-input-label">Nội dung văn bản</span>
+            <div class="cp-input-tools-right">
+                <button type="button" id="cpExpandBtn" class="cp-btn-reset" style="padding: 3px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;" title="Phóng to toàn màn hình">
+                    <i class="fas fa-expand" id="cpExpandIcon"></i> <span id="cpExpandText">Phóng to</span>
+                </button>
+                <!-- Nút Reset dành cho PC -->
+                <button class="cp-btn-reset" id="cpResetBtn" type="button" title="Làm mới" style="padding: 3px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;">
+                    <i class="fas fa-rotate-right"></i> <span>Xóa</span>
+                </button>
+                <!-- Nút Reset dành cho Mobile (sẽ được JS/CSS bật lên) -->
+                <button class="cp-btn-reset cp-btn-reset-mobile" id="cpResetBtnMobile" type="button" title="Làm mới" style="padding: 3px 10px; font-size: 0.75rem; display: none; align-items: center; gap: 4px;">
+                    <i class="fas fa-rotate-right"></i> <span>Xóa</span>
+                </button>
+            </div>
         </div>
+        
         <textarea class="cp-textarea" id="cpInputZh" rows="4" placeholder="Nhập hoặc dán văn bản để Trợ lý dịch giúp bạn..."></textarea>
         
         <div class="cp-spell-container" id="cpSpellContainer">
@@ -14106,7 +14120,7 @@ body.has-floating-group #quickSearchRoot{
     </div>
 
     <!-- Nút bắt đầu -->
-    <button class="cp-btn-start" id="cpStartBtn" type="button">
+   ết <button class="cp-btn-start" id="cpStartBtn" type="button">
         <i class="fas fa-rocket"></i> Bắt đầu luyện tập
     </button>
     <button class="cp-btn-buy-token" id="cpBuyTokenBtn" type="button">
@@ -14115,20 +14129,19 @@ body.has-floating-group #quickSearchRoot{
 
     <!-- Thanh tiến trình -->
     <div class="cp-progress-wrap" id="cpProgressWrap">
-        <div class="cp-progress-text" id="cpProgressText" style="text-align:center;font-size:.8rem;font-weight:700;">Đang xử lý...</div>
-        <div class="cp-progress-bar-bg"><div class="cp-progress-bar" id="cpProgressBar"></div></div>
+        <div class="cp-progress-text" id=" qucpProgressText" style="text-align:center;font-size:.8rem;font-weight:700;">Đang xảử lý...</div>
+        <div class="cp-progress-bar-bg không"><div class="cp-progress-bar" id="cpProgressBar"></div chu></div>
     </div>
 </div>
 
-<!-- ═══════════ CÁC MODAL BÊN DƯỚI GIỮ NGUYÊN ═══════════ -->
-
+<!-- ═══════════ MODAL CẢNH BÁO CHÍNH TẢ ═══════════ -->
 <div class="cp-modal-overlay" id="cpModalOverlay">
     <div class="cp-modal-box">
         <div class="cp-modal-icon"><i class="fas fa-triangle-exclamation"></i></div>
         <h4 class="cp-modal-title">Phát hiện từ nghi ngờ sai chính tả!</h4>
         <p class="cp-modal-desc">Hệ thống phát hiện các từ sau có dấu hiệu gõ nhầm hoặc dính phím:</p>
         <div class="cp-modal-words" id="cpModalWordsList"></div>
-        <p class="cp-modal-desc" style="font-size:0.75rem;">Tiếp tục dịch có thể làm tốn Quota và kết quả không chuẩn xác.</p>
+        <p class="cp-modal-desc" style="font-size:0.75rem;">Tiếp tục dịch có thể làm tốn Quota và kẩn xác.</p>
         <div class="cp-modal-actions">
             <button class="cp-modal-btn cp-modal-btn-cancel" id="cpModalFixBtn" type="button">Sửa lại văn bản</button>
             <button class="cp-modal-btn cp-modal-btn-proceed" id="cpModalProceedBtn" type="button">Vẫn tiếp tục dịch</button>
@@ -14136,6 +14149,7 @@ body.has-floating-group #quickSearchRoot{
     </div>
 </div>
 
+<!-- ═══════════ MODAL LỊCH SỬ DỊCH ═══════════ -->
 <div class="cp-modal-overlay" id="cpHistoryOverlay">
     <div class="cp-modal-box" style="max-width: 600px; text-align: left;">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #eee; padding-bottom: 10px;">
@@ -14148,7 +14162,7 @@ body.has-floating-group #quickSearchRoot{
                 <button id="cpSelectAllHistoryBtn" style="background:linear-gradient(135deg,#4f46e5,#7c3aed); color:#fff; border:none; padding:5px 10px; border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer;" title="Chọn tất cả ra luyện tập">
                     <i class="fas fa-check-double"></i> Chọn tất cả
                 </button>
-                <!-- ⭐ NÚT XÓA TẤT CẢ LỊCH SỬ MỚI THÊM -->
+                <!-- ⭐ NÚT XÓA TẤT CẢ LỊCH SỬ -->
                 <button id="cpDeleteAllHistoryBtn" style="background:#fee2e2; color:#ef4444; border:1px solid #fca5a5; padding:5px 10px; border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer;" title="Xóa tất cả lịch sử">
                     <i class="fas fa-trash-alt"></i> Xóa tất cả
                 </button>
@@ -14160,8 +14174,7 @@ body.has-floating-group #quickSearchRoot{
     </div>
 </div>
 
-
-<!-- ⭐ MODAL CẮT ẢNH (CROPPER) -->
+<!-- ═══════════ MODAL CẮT ẢNH (CROPPER) ═══════════ -->
 <div class="cp-modal-overlay" id="cpCropModalOverlay">
     <div class="cp-modal-box cp-crop-container">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--border, #e2e8f0); padding-bottom: 10px;">
