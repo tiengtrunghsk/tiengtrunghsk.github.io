@@ -426,6 +426,9 @@ def build_custom_practice_css():
 /* ═══════════════════════════════════════════════════════════ */
 /* TỐI ƯU GIAO DIỆN HEADER & TOOLBAR                         */
 /* ═══════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════ */
+/* TỐI ƯU GIAO DIỆN HEADER & TOOLBAR                         */
+/* ═══════════════════════════════════════════════════════════ */
 .cp-header-container {
     display: flex;
     flex-direction: row;
@@ -440,6 +443,31 @@ def build_custom_practice_css():
     display: flex;
     align-items: center;
     gap: 12px;
+    width: 100%; /* Đảm bảo giới hạn chiều rộng cho khối header */
+    min-width: 0; /* Cho phép co lại nhỏ hơn nội dung */
+}
+
+/* ⭐ CỰC KỲ QUAN TRỌNG: Khối chứa tiêu đề */
+.cp-title-group {
+    min-width: 0; 
+    flex: 1; 
+}
+
+.cp-title-group h3 {
+    font-size: 1.15rem;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cp-title-group p {
+    font-size: 0.8rem;
+    margin: 2px 0 0 0;
+    color: #64748b;
+    white-space: nowrap;    /* Không cho xuống dòng */
+    overflow: hidden;       /* Ẩn phần bị tràn */
+    text-overflow: ellipsis;/* Hiện dấu ... */
 }
 
 /* Khối chứa Token + Nút Ảnh + Nút Lịch sử */
@@ -494,6 +522,11 @@ def build_custom_practice_css():
     box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
 }
 
+/* Hiển thị chữ trên mọi kích thước màn hình */
+.cp-action-btn span {
+    display: inline-block;
+}
+
 /* Điều chỉnh Token cho nhỏ gọn */
 .cp-token-badge {
     padding: 4px 10px;
@@ -525,11 +558,7 @@ def build_custom_practice_css():
     .cp-token-badge { flex: 1; justify-content: center; }
     
     /* Thanh công cụ nhập text */
-    .cp-action-btn span { display: none; } /* Ẩn chữ trên mobile cực nhỏ */
-    .cp-action-btn { padding: 6px 10px; }
-}
-@media (min-width: 601px) {
-    .cp-action-btn span { display: inline-block; } /* Hiện chữ trên PC */
+    .cp-action-btn { padding: 8px 10px; } /* Tăng nhẹ padding cho dễ bấm */
 }
 """
 
@@ -605,7 +634,7 @@ def build_custom_practice_html():
     </div>
 
     <!-- Nút bắt đầu -->
-   ết <button class="cp-btn-start" id="cpStartBtn" type="button">
+    <button class="cp-btn-start" id="cpStartBtn" type="button">
         <i class="fas fa-rocket"></i> Bắt đầu luyện tập
     </button>
     <button class="cp-btn-buy-token" id="cpBuyTokenBtn" type="button">
@@ -614,8 +643,8 @@ def build_custom_practice_html():
 
     <!-- Thanh tiến trình -->
     <div class="cp-progress-wrap" id="cpProgressWrap">
-        <div class="cp-progress-text" id=" qucpProgressText" style="text-align:center;font-size:.8rem;font-weight:700;">Đang xảử lý...</div>
-        <div class="cp-progress-bar-bg không"><div class="cp-progress-bar" id="cpProgressBar"></div chu></div>
+        <div class="cp-progress-text" id="cpProgressText" style="text-align:center;font-size:.8rem;font-weight:700;">Đang xử lý...</div>
+        <div class="cp-progress-bar-bg"><div class="cp-progress-bar" id="cpProgressBar"></div></div>
     </div>
 </div>
 
@@ -626,7 +655,7 @@ def build_custom_practice_html():
         <h4 class="cp-modal-title">Phát hiện từ nghi ngờ sai chính tả!</h4>
         <p class="cp-modal-desc">Hệ thống phát hiện các từ sau có dấu hiệu gõ nhầm hoặc dính phím:</p>
         <div class="cp-modal-words" id="cpModalWordsList"></div>
-        <p class="cp-modal-desc" style="font-size:0.75rem;">Tiếp tục dịch có thể làm tốn Quota và kẩn xác.</p>
+        <p class="cp-modal-desc" style="font-size:0.75rem;">Tiếp tục dịch có thể làm tốn Quota và kết quả không chuẩn xác.</p>
         <div class="cp-modal-actions">
             <button class="cp-modal-btn cp-modal-btn-cancel" id="cpModalFixBtn" type="button">Sửa lại văn bản</button>
             <button class="cp-modal-btn cp-modal-btn-proceed" id="cpModalProceedBtn" type="button">Vẫn tiếp tục dịch</button>
