@@ -403,7 +403,6 @@ def build_custom_practice_css():
     background: var(--surface-2, #1e1b4b) !important;
 }
 
-
 /* ⭐ CSS Modal Cắt Ảnh (Crop) */
 .cp-crop-container {
     max-width: 90% !important;
@@ -423,9 +422,7 @@ def build_custom_practice_css():
     max-width: 100%;
     display: block;
 }
-/* ═══════════════════════════════════════════════════════════ */
-/* TỐI ƯU GIAO DIỆN HEADER & TOOLBAR                         */
-/* ═══════════════════════════════════════════════════════════ */
+
 /* ═══════════════════════════════════════════════════════════ */
 /* TỐI ƯU GIAO DIỆN HEADER & TOOLBAR                         */
 /* ═══════════════════════════════════════════════════════════ */
@@ -443,11 +440,10 @@ def build_custom_practice_css():
     display: flex;
     align-items: center;
     gap: 12px;
-    width: 100%; /* Đảm bảo giới hạn chiều rộng cho khối header */
-    min-width: 0; /* Cho phép co lại nhỏ hơn nội dung */
+    width: 100%;
+    min-width: 0;
 }
 
-/* ⭐ CỰC KỲ QUAN TRỌNG: Khối chứa tiêu đề */
 .cp-title-group {
     min-width: 0; 
     flex: 1; 
@@ -465,19 +461,17 @@ def build_custom_practice_css():
     font-size: 0.8rem;
     margin: 2px 0 0 0;
     color: #64748b;
-    white-space: nowrap;    /* Không cho xuống dòng */
-    overflow: hidden;       /* Ẩn phần bị tràn */
-    text-overflow: ellipsis;/* Hiện dấu ... */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* Khối chứa Token + Nút Ảnh + Nút Lịch sử */
 .cp-header-actions {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-/* Thanh công cụ trên ô nhập văn bản */
 .cp-input-toolbar {
     display: flex;
     justify-content: space-between;
@@ -494,7 +488,6 @@ def build_custom_practice_css():
     gap: 6px;
 }
 
-/* CSS cho các nút hành động chính (Ảnh, Lịch sử) */
 .cp-action-btn {
     display: flex;
     align-items: center;
@@ -522,12 +515,10 @@ def build_custom_practice_css():
     box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
 }
 
-/* Hiển thị chữ trên mọi kích thước màn hình */
 .cp-action-btn span {
     display: inline-block;
 }
 
-/* Điều chỉnh Token cho nhỏ gọn */
 .cp-token-badge {
     padding: 4px 10px;
     font-size: 0.75rem;
@@ -538,7 +529,6 @@ def build_custom_practice_css():
     white-space: nowrap;
 }
 
-/* ⭐ GIAO DIỆN MOBILE */
 @media (max-width: 600px) {
     .cp-header-container {
         flex-direction: column;
@@ -553,14 +543,11 @@ def build_custom_practice_css():
         justify-content: space-between;
         width: 100%;
     }
-    /* Trên mobile, nút Ảnh và Lịch sử sẽ giãn đều ra */
     .cp-action-btn { flex: 1; }
     .cp-token-badge { flex: 1; justify-content: center; }
-    
-    /* Thanh công cụ nhập text */
-    .cp-action-btn { padding: 8px 10px; } /* Tăng nhẹ padding cho dễ bấm */
+    .cp-action-btn { padding: 8px 10px; }
 }
-/* ⭐ CSS CHO KHUNG NHẬP VÀ NÚT START ICON */
+
 .cp-textarea-wrapper {
     position: relative;
     display: flex;
@@ -569,10 +556,9 @@ def build_custom_practice_css():
 
 .cp-textarea-wrapper .cp-textarea {
     width: 100%;
-    padding-right: 55px; /* Chừa khoảng trống bên phải để chữ không bị đè lên nút */
+    padding-right: 55px;
 }
 
-/* Nút Start dạng Icon tròn */
 .cp-btn-start-icon {
     position: absolute;
     bottom: 12px;
@@ -605,7 +591,6 @@ def build_custom_practice_css():
     opacity: 0.7;
 }
 
-/* Ẩn nút Start to cũ đi (nếu có) */
 .cp-btn-start {
     display: none !important;
 }
@@ -614,7 +599,7 @@ def build_custom_practice_css():
 def build_custom_practice_html():
     return r"""
 <div class="cp-card" id="cpSection">
-    <!-- ⭐ HEADER: Tiêu đề bên trái, Token bên phải -->
+    <!-- HEADER -->
     <div class="cp-header-container">
         <div class="cp-header-top">
             <div class="cp-section-header">
@@ -637,15 +622,15 @@ def build_custom_practice_html():
         <button class="cp-action-btn cp-btn-primary" id="cpUploadImgBtn" type="button" title="Dịch từ ảnh">
             <i class="fas fa-camera"></i> <span>Dịch Ảnh</span>
         </button>
-        <input type="="file" id="cpImageInput" acceptcp="image/*" style="display:none;">
+        <input type="file" id="cpImageInput" accept="image/*" style="display:none;">
         
-        <button class="cp-action-btn" idSwitch="cpHistoryBtn" type="Btnbutton" title="Xem lịch s"ử">
+        <button class="cp-action-btn" id="cpHistoryBtn" type="button" title="Xem lịch sử">
             <i class="fas fa-clock-rotate-left"></i> <span>Lịch sử</span>
         </button>
     </div>
 
     <!-- Phần chuyển đổi ngôn ngữ -->
-    <div class="cp-switch-container" id title="Đảo chiều dịch" style="margin-bottom: 10px;">
+    <div class="cp-switch-container" id="cpSwitchBtn" title="Đảo chiều dịch" style="margin-bottom: 10px;">
         <span class="cp-switch-label active" id="cpLabelVi">Tiếng Việt</span>
         <div class="cp-switch-icon-box"><i class="fas fa-exchange-alt"></i></div>
         <span class="cp-switch-label" id="cpLabelZh">Tiếng Trung</span>
@@ -653,25 +638,21 @@ def build_custom_practice_html():
 
     <!-- Vùng nhập văn bản -->
     <div class="cp-input-wrapper" id="cpInputWrapper">
-        <!-- Thanh công cụ -->
         <div class="cp-input-toolbar">
             <span class="cp-input-label">Nội dung văn bản</span>
             <div class="cp-input-tools-right">
                 <button type="button" id="cpExpandBtn" class="cp-btn-reset" style="padding: 3px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;" title="Phóng to toàn màn hình">
                     <i class="fas fa-expand" id="cpExpandIcon"></i> <span id="cpExpandText">Phóng to</span>
                 </button>
-                <!-- Nút Reset dành cho PC -->
                 <button class="cp-btn-reset" id="cpResetBtn" type="button" title="Làm mới" style="padding: 3px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;">
                     <i class="fas fa-rotate-right"></i> <span>Xóa</span>
                 </button>
-                <!-- Nút Reset dành cho Mobile -->
                 <button class="cp-btn-reset cp-btn-reset-mobile" id="cpResetBtnMobile" type="button" title="Làm mới" style="padding: 3px 10px; font-size: 0.75rem; display: none; align-items: center; gap: 4px;">
                     <i class="fas fa-rotate-right"></i> <span>Xóa</span>
                 </button>
             </div>
         </div>
         
-        <!-- Khung nhập + Nút Start Icon -->
         <div class="cp-textarea-wrapper">
             <textarea class="cp-textarea" id="cpInputZh" rows="4" placeholder="Nhập hoặc dán văn bản để Trợ lý dịch giúp bạn..."></textarea>
             
@@ -680,7 +661,6 @@ def build_custom_practice_html():
             </button>
         </div>
         
-        <!-- Nút Mua Token (Hiện khi hết token) -->
         <button class="cp-btn-buy-token" id="cpBuyTokenBtn" type="button" style="margin-top: 10px;">
             <i class="fas fa-shopping-cart"></i> Mua thêm Token
         </button>
@@ -701,7 +681,7 @@ def build_custom_practice_html():
     </div>
 </div>
 
-<!-- ═══════════ MODAL CẢNH BÁO CHÍNH TẢ ═══════════ -->
+<!-- MODAL CẢNH BÁO CHÍNH TẢ -->
 <div class="cp-modal-overlay" id="cpModalOverlay">
     <div class="cp-modal-box">
         <div class="cp-modal-icon"><i class="fas fa-triangle-exclamation"></i></div>
@@ -716,7 +696,7 @@ def build_custom_practice_html():
     </div>
 </div>
 
-<!-- ═══════════ MODAL LỊCH SỬ DỊCH ═══════════ -->
+<!-- MODAL LỊCH SỬ DỊCH -->
 <div class="cp-modal-overlay" id="cpHistoryOverlay">
     <div class="cp-modal-box" style="max-width: 600px; text-align: left;">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #eee; padding-bottom: 10px;">
@@ -738,7 +718,7 @@ def build_custom_practice_html():
     </div>
 </div>
 
-<!-- ═══════════ MODAL CẮT ẢNH (CROPPER) ═══════════ -->
+<!-- MODAL CẮT ẢNH (CROPPER) -->
 <div class="cp-modal-overlay" id="cpCropModalOverlay">
     <div class="cp-modal-box cp-crop-container">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--border, #e2e8f0); padding-bottom: 10px;">
@@ -769,13 +749,12 @@ def build_custom_practice_js():
     var deleteAllHistoryBtn = document.getElementById('cpDeleteAllHistoryBtn');
     var historyCounter = document.getElementById('cpHistoryCounter');
 
-
     var inputArea = document.getElementById('cpInputZh');
     var charCount = document.getElementById('cpCharCount');
     var startBtn = document.getElementById('cpStartBtn');
     var buyTokenBtn = document.getElementById('cpBuyTokenBtn');
     var resetBtn = document.getElementById('cpResetBtn');
-    var resetBtnMobile = document.getElementById('cpResetBtnMobile'); // ⭐ Thêm dòng này
+    var resetBtnMobile = document.getElementById('cpResetBtnMobile');
     var tokenBadge = document.getElementById('cpTokenBadge');
     var tokenText = document.getElementById('cpTokenText');
     
@@ -1224,7 +1203,6 @@ def build_custom_practice_js():
         checkSpellingSuggestions();
     }
 
-        // ⭐ Hàm tự động nhận diện ngôn ngữ và gạt nút phù hợp
     function autoDetectAndSwitchLanguage() {
         var text = inputArea.value;
         if (!text || text.trim() === '') return;
@@ -1251,38 +1229,9 @@ def build_custom_practice_js():
             }
         }
     }
-        // ⭐ Hàm tự động nhận diện ngôn ngữ và gạt nút phù hợp
-    function autoDetectAndSwitchLanguage() {
-        var text = inputArea.value;
-        if (!text || text.trim() === '') return;
-
-        var hasChinese = /[\u4e00-\u9fa5]/.test(text);
-
-        if (hasChinese && currentMode !== 'zh2vi') {
-            currentMode = 'zh2vi';
-            labelVi.classList.remove('active');
-            labelZh.classList.add('active');
-            spellContainer.classList.remove('show');
-            if (!inputArea.disabled) {
-                inputArea.placeholder = '输入或粘贴中文文本，让翻译助手帮您搞定...';
-            }
-        } else if (!hasChinese && currentMode !== 'vi2zh') {
-            // Kiểm tra xem có phải ký tự tiếng Việt / Latin không trước khi đổi về vi2zh
-            var hasLatin = /[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềếểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴÝỶỸ]/.test(text);
-            if (hasLatin) {
-                currentMode = 'vi2zh';
-                labelZh.classList.remove('active');
-                labelVi.classList.add('active');
-                if (!inputArea.disabled) {
-                    inputArea.placeholder = 'Nhập hoặc dán văn bản để Trợ lý dịch giúp bạn...';
-                }
-            }
-        }
-    }
-
 
     inputArea.addEventListener('input', function() {
-        autoDetectAndSwitchLanguage(); // ⭐ Gọi tự động nhận diện ngôn ngữ khi gõ hoặc dán văn bản
+        autoDetectAndSwitchLanguage();
         updateCharCount();
         if (lastDeletedText !== '') {
             lastDeletedText = '';
@@ -1312,16 +1261,13 @@ def build_custom_practice_js():
         updateCharCount();
     });
 
-    // ⭐ KHAI BÁO HÀM XỬ LÝ RESET
     var handleResetClick = async function() {
         var currentText = inputArea.value;
 
-        // TRƯỜNG HỢP 1: Đang có chữ -> Xóa chữ (Lưu lại để Undo)
         if (currentText.trim() !== '') {
             lastDeletedText = currentText; 
             inputArea.value = ''; 
             
-            // Cập nhật UI cho cả 2 nút (PC và Mobile)
             [resetBtn, resetBtnMobile].forEach(function(btn) {
                 if (!btn) return;
                 btn.innerHTML = '<i class="fas fa-undo"></i>';
@@ -1337,12 +1283,10 @@ def build_custom_practice_js():
             startBtn.innerHTML = '<i class="fas fa-rocket"></i> Bắt đầu luyện tập';
             setTimeout(autoResizeTextarea, 50);
         } 
-        // TRƯỜNG HỢP 2: Đang trống, có chữ chờ khôi phục -> Khôi phục lại (Undo)
         else if (lastDeletedText !== '') {
             inputArea.value = lastDeletedText; 
             lastDeletedText = ''; 
             
-            // Cập nhật UI cho cả 2 nút
             [resetBtn, resetBtnMobile].forEach(function(btn) {
                 if (!btn) return;
                 btn.innerHTML = '<i class="fas fa-rotate-right"></i>';
@@ -1354,7 +1298,6 @@ def build_custom_practice_js():
             updateCharCount();
             setTimeout(autoResizeTextarea, 50);
         } 
-        // TRƯỜNG HỢP 3: Không có gì -> Làm mới Token
         else {
             if (!currentUser || !currentUser.email) {
                 alert('Vui lòng đăng nhập để kiểm tra Token!');
@@ -1379,7 +1322,6 @@ def build_custom_practice_js():
 
             var originalHTML = resetBtn ? resetBtn.innerHTML : '<i class="fas fa-rotate-right"></i>';
             
-            // Hiệu ứng loading cho cả 2 nút
             [resetBtn, resetBtnMobile].forEach(function(btn) {
                 if (!btn) return;
                 btn.disabled = true;
@@ -1390,7 +1332,6 @@ def build_custom_practice_js():
 
             var ok = await refreshTokenFromFirestore();
             
-            // Trả lại trạng thái bình thường cho cả 2 nút
             [resetBtn, resetBtnMobile].forEach(function(btn) {
                 if (!btn) return;
                 btn.innerHTML = originalHTML;
@@ -1414,9 +1355,9 @@ def build_custom_practice_js():
         }
     };
 
-    // ⭐ GẮN SỰ KIỆN CLICK CHO CẢ 2 NÚT
     if (resetBtn) resetBtn.addEventListener('click', handleResetClick);
     if (resetBtnMobile) resetBtnMobile.addEventListener('click', handleResetClick);
+
     function showSpellModal(words) {
         return new Promise(function(resolve) {
             modalWordsList.textContent = words.join(', ');
@@ -1452,7 +1393,6 @@ def build_custom_practice_js():
         return result;
     }
 
-    // ⭐ Hàm phụ trợ tự động cắt từ tiếng Trung bằng Intl.Segmenter và gán Pinyin chuẩn để tránh lỗi dính chữ
     function getAccuratePracticeItems(zhText, serverItems) {
         if (serverItems && serverItems.length > 0) {
             return serverItems;
@@ -1560,8 +1500,6 @@ def build_custom_practice_js():
                     var viText = currentMode === 'vi2zh' ? originalSentence : transSentence;
 
                     var sItems = sentenceItemsList[j] || null;
-                    
-                    // ⭐ Đảm bảo sử dụng hàm phân đoạn chuẩn xác chống dính chữ
                     var accurateItems = getAccuratePracticeItems(zhText, sItems);
 
                     var pinyinStr = '';
@@ -1578,7 +1516,7 @@ def build_custom_practice_js():
                         zh: zhText,
                         vi: viText,
                         pinyin: pinyinStr,
-                        items: accurateItems, // ⭐ Lưu danh sách items đã chuẩn hóa
+                        items: accurateItems,
                         hsk: 'HSK1',
                         topic: 'Văn bản tự do',
                         subject: 'Custom'
@@ -1639,7 +1577,6 @@ def build_custom_practice_js():
     }
 
     function finishProcess() {
-        // ⭐ Đổi text thành icon mũi tên cho vừa với nút tròn nhỏ
         startBtn.innerHTML = '<i class="fas fa-arrow-right"></i>';
         startBtn.disabled = false;
         switchBtn.style.pointerEvents = 'auto';
@@ -1649,6 +1586,7 @@ def build_custom_practice_js():
             renderTokenUI(checkIsExpired());
         }
     }
+
     function loadPinyinPro() {
         if (window.pinyinPro) return Promise.resolve();
         return new Promise(function(resolve) {
@@ -1694,16 +1632,16 @@ def build_custom_practice_js():
             }
 
             return rawPinyin
-                .replace(/\s+([,，.。!！?？;；:：])/g, '$1')
-                .replace(/([,，.。!！?？;；:：])([^\s])/g, '$1 $2')
+                .replace(/\s+([,,.,!！?？;；:：])/g, '$1')
+                .replace(/([,,.,!！?？;；:：])([^\s])/g, '$1 $2')
                 .replace(/\s+/g, ' ')
                 .trim();
 
         } catch (e) {
             var fallbackPinyin = window.pinyinPro.pinyin(text, { toneType: 'symbol', separator: ' ' });
             return fallbackPinyin
-                .replace(/\s+([,，.。!！?？;；:：])/g, '$1')
-                .replace(/([,，.。!！?？;；:：])([^\s])/g, '$1 $2')
+                .replace(/\s+([,,.,!！?？;；:：])/g, '$1')
+                .replace(/([,,.,!！?？;；:：])([^\s])/g, '$1 $2')
                 .replace(/\s+/g, ' ')
                 .trim();
         }
@@ -2124,41 +2062,6 @@ def build_custom_practice_js():
     var cropConfirmBtn = document.getElementById('cpCropConfirmBtn');
     var cropCancelBtn = document.getElementById('cpCropCancelBtn');
     var cropCloseBtn = document.getElementById('cpCropCloseBtn');
-
-    function resizeImage(file, maxSize = 1200) {
-        return new Promise((resolve) => {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                var img = new Image();
-                img.onload = function() {
-                    var canvas = document.createElement('canvas');
-                    var width = img.width;
-                    var height = img.height;
-
-                    if (width > maxSize || height > maxSize) {
-                        if (width > height) {
-                            height = Math.round((height * maxSize) / width);
-                            width = maxSize;
-                        } else {
-                            width = Math.round((width * maxSize) / height);
-                            height = maxSize;
-                        }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    var ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    canvas.toBlob(function(blob) {
-                        resolve(blob);
-                    }, 'image/jpeg', 0.8);
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        });
-    }
 
     if (uploadImgBtn && imageInput) {
         uploadImgBtn.addEventListener('click', function() {
