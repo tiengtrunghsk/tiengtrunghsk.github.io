@@ -11899,6 +11899,84 @@ html body .tiktok-float-btn > i {
     max-width: 100%;
     display: block;
 }
+/* ═══════════════════════════════════════════════════════════ */
+/* TỐI ƯU HEADER: PC 1 HÀNG - MOBILE CHIA DÒNG                 */
+/* ═══════════════════════════════════════════════════════════ */
+.cp-header-container {
+    display: flex;
+    flex-direction: row; /* ⭐ Mặc định trên PC là 1 hàng ngang */
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.cp-header-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Ẩn nút Reset ở hàng đầu tiên trên PC (vì nó đã nằm bên phải) */
+.cp-header-top .cp-btn-reset-mobile {
+    display: none;
+}
+
+.cp-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cp-token-badge {
+    /* Giữ nguyên style cũ của bạn nhưng đảm bảo nó nằm ngang */
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(16, 185, 129, 0.1); color: #059669;
+    padding: 6px 12px; border-radius: 50px;
+    font-size: 0.8rem; font-weight: 800;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    cursor: pointer;
+}
+
+/* ⭐ GIAO DIỆN MOBILE (Màn hình < 768px) */
+@media (max-width: 768px) {
+    .cp-header-container {
+        flex-direction: column; /* Chuyển thành cột dọc */
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .cp-header-top {
+        justify-content: space-between; /* Đẩy nút reset sang phải */
+        width: 100%;
+    }
+
+    .cp-header-top .cp-btn-reset-mobile {
+        display: flex; /* Hiện nút Reset trên mobile */
+    }
+
+    .cp-header-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr auto auto; /* Token chiếm phần lớn, 2 nút icon nhỏ bên cạnh */
+        gap: 8px;
+    }
+    
+    .cp-token-badge {
+        justify-content: center;
+        width: 100%;
+        padding: 8px;
+    }
+    
+    /* Thu nhỏ nút Ảnh và Lịch sử trên mobile */
+    .cp-header-actions .cp-btn-reset {
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
 
 
 
@@ -13954,42 +14032,60 @@ body.has-floating-group #quickSearchRoot{
 
 
 <div class="cp-card" id="cpSection">
-    <div class="cp-header-row">
-        <div class="cp-section-header">
-            <div class="cp-icon-badge" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);">
-                <i class="fas fa-robot"></i>
+    <!-- ⭐ HEADER TỐI ƯU: PC 1 HÀNG - MOBILE 2 HÀNG -->
+    <div class="cp-header-container">
+        
+        <!-- Khối 1: Logo & Tiêu đề -->
+        <div class="cp-header-top">
+            <div class="cp-section-header">
+                <div class="cp-icon-badge" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="cp-title-group">
+                    <h3>Trợ Lý Dịch Thuật</h3>
+                    <p>Dịch và tạo bài tập cá nhân hóa</p>
+                </div>
             </div>
-            <div class="cp-title-group">
-                <h3>Trợ Lý Dịch Thuật</h3>
-                <p>Dịch và tạo bài tập cá nhân hóa</p>
-            </div>
+            
+            <!-- Nút Reset (Chỉ hiện trên mobile, nằm góc phải hàng 1) -->
+            <button class="cp-btn-reset cp-btn-reset-mobile" id="cpResetBtnMobile" type="button" title="Làm mới" style="border-radius: 50%; width: 36px; height: 36px; padding: 0; display: none; align-items: center; justify-content: center;">
+                <i class="fas fa-rotate-right"></i>
+            </button>
         </div>
-        <div style="display:flex; gap:8px; align-items:center;">
+
+        <!-- Khối 2: Các nút thao tác (PC nằm cùng hàng, Mobile rớt xuống dưới) -->
+        <div class="cp-header-actions">
             <div class="cp-token-badge" id="cpTokenBadge" title="Bấm để cập nhật số Token mới nhất">
               <i class="fas fa-bolt"></i> <span id="cpTokenText">Đang tải...</span>
               <span class="refresh-hint">🔄</span>
             </div>
-            <!-- ⭐ NÚT TẢI ẢNH -->
+            
+            <!-- Nút Tải Ảnh -->
             <button class="cp-btn-reset" id="cpUploadImgBtn" type="button" title="Dịch từ ảnh">
                 <i class="fas fa-camera"></i>
             </button>
             <input type="file" id="cpImageInput" accept="image/*" style="display:none;">
             
+            <!-- Nút Lịch sử -->
             <button class="cp-btn-reset" id="cpHistoryBtn" type="button" title="Xem lịch sử">
                 <i class="fas fa-clock-rotate-left"></i>
             </button>
+            
+            <!-- Nút Reset gốc (Chỉ hiện trên PC, nằm cuối hàng) -->
             <button class="cp-btn-reset" id="cpResetBtn" type="button" title="Làm mới">
                 <i class="fas fa-rotate-right"></i>
             </button>
         </div>
     </div>
 
+    <!-- Phần chuyển đổi ngôn ngữ -->
     <div class="cp-switch-container" id="cpSwitchBtn" title="Đảo chiều dịch">
         <span class="cp-switch-label active" id="cpLabelVi">Tiếng Việt</span>
         <div class="cp-switch-icon-box"><i class="fas fa-exchange-alt"></i></div>
         <span class="cp-switch-label" id="cpLabelZh">Tiếng Trung</span>
     </div>
 
+    <!-- Vùng nhập văn bản -->
     <div class="cp-input-wrapper" id="cpInputWrapper">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
             <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-3, #64748b);">Nội dung văn bản</span>
@@ -13998,6 +14094,7 @@ body.has-floating-group #quickSearchRoot{
             </button>
         </div>
         <textarea class="cp-textarea" id="cpInputZh" rows="4" placeholder="Nhập hoặc dán văn bản để Trợ lý dịch giúp bạn..."></textarea>
+        
         <div class="cp-spell-container" id="cpSpellContainer">
             <div class="cp-spell-header">
                 <i class="fas fa-triangle-exclamation"></i> Phát hiện từ nghi ngờ sai chính tả / dính phím:
@@ -14007,6 +14104,7 @@ body.has-floating-group #quickSearchRoot{
         <div class="cp-char-count" id="cpCharCount" style="text-align:right;font-size:.75rem;font-weight:600;color:#64748b;margin-top:4px;">0 / 5000</div>
     </div>
 
+    <!-- Nút bắt đầu -->
     <button class="cp-btn-start" id="cpStartBtn" type="button">
         <i class="fas fa-rocket"></i> Bắt đầu luyện tập
     </button>
@@ -14014,11 +14112,14 @@ body.has-floating-group #quickSearchRoot{
         <i class="fas fa-shopping-cart"></i> Mua thêm Token
     </button>
 
+    <!-- Thanh tiến trình -->
     <div class="cp-progress-wrap" id="cpProgressWrap">
         <div class="cp-progress-text" id="cpProgressText" style="text-align:center;font-size:.8rem;font-weight:700;">Đang xử lý...</div>
         <div class="cp-progress-bar-bg"><div class="cp-progress-bar" id="cpProgressBar"></div></div>
     </div>
 </div>
+
+<!-- ═══════════ CÁC MODAL BÊN DƯỚI GIỮ NGUYÊN ═══════════ -->
 
 <div class="cp-modal-overlay" id="cpModalOverlay">
     <div class="cp-modal-box">
@@ -38792,6 +38893,7 @@ console.log('[Mnemonic] Module loaded OK — API: ' + VOCAB_API_URL);
     var startBtn = document.getElementById('cpStartBtn');
     var buyTokenBtn = document.getElementById('cpBuyTokenBtn');
     var resetBtn = document.getElementById('cpResetBtn');
+    var resetBtnMobile = document.getElementById('cpResetBtnMobile'); // ⭐ Thêm dòng này
     var tokenBadge = document.getElementById('cpTokenBadge');
     var tokenText = document.getElementById('cpTokenText');
     
@@ -39328,17 +39430,23 @@ console.log('[Mnemonic] Module loaded OK — API: ' + VOCAB_API_URL);
         updateCharCount();
     });
 
-    resetBtn.addEventListener('click', async function() {
+    // ⭐ KHAI BÁO HÀM XỬ LÝ RESET
+    var handleResetClick = async function() {
         var currentText = inputArea.value;
 
+        // TRƯỜNG HỢP 1: Đang có chữ -> Xóa chữ (Lưu lại để Undo)
         if (currentText.trim() !== '') {
             lastDeletedText = currentText; 
             inputArea.value = ''; 
             
-            resetBtn.innerHTML = '<i class="fas fa-undo"></i>';
-            resetBtn.title = 'Bấm lần nữa để khôi phục văn bản';
-            resetBtn.style.color = '#16a34a'; 
-            resetBtn.style.borderColor = '#16a34a';
+            // Cập nhật UI cho cả 2 nút (PC và Mobile)
+            [resetBtn, resetBtnMobile].forEach(function(btn) {
+                if (!btn) return;
+                btn.innerHTML = '<i class="fas fa-undo"></i>';
+                btn.title = 'Bấm lần nữa để khôi phục văn bản';
+                btn.style.color = '#16a34a'; 
+                btn.style.borderColor = '#16a34a';
+            });
             
             spellContainer.classList.remove('show');
             updateCharCount();
@@ -39347,18 +39455,24 @@ console.log('[Mnemonic] Module loaded OK — API: ' + VOCAB_API_URL);
             startBtn.innerHTML = '<i class="fas fa-rocket"></i> Bắt đầu luyện tập';
             setTimeout(autoResizeTextarea, 50);
         } 
+        // TRƯỜNG HỢP 2: Đang trống, có chữ chờ khôi phục -> Khôi phục lại (Undo)
         else if (lastDeletedText !== '') {
             inputArea.value = lastDeletedText; 
             lastDeletedText = ''; 
             
-            resetBtn.innerHTML = '<i class="fas fa-rotate-right"></i>';
-            resetBtn.title = 'Làm mới';
-            resetBtn.style.color = '';
-            resetBtn.style.borderColor = '';
+            // Cập nhật UI cho cả 2 nút
+            [resetBtn, resetBtnMobile].forEach(function(btn) {
+                if (!btn) return;
+                btn.innerHTML = '<i class="fas fa-rotate-right"></i>';
+                btn.title = 'Làm mới';
+                btn.style.color = '';
+                btn.style.borderColor = '';
+            });
             
             updateCharCount();
             setTimeout(autoResizeTextarea, 50);
         } 
+        // TRƯỜNG HỢP 3: Không có gì -> Làm mới Token
         else {
             if (!currentUser || !currentUser.email) {
                 alert('Vui lòng đăng nhập để kiểm tra Token!');
@@ -39381,15 +39495,25 @@ console.log('[Mnemonic] Module loaded OK — API: ' + VOCAB_API_URL);
                 return;
             }
 
-            var originalHTML = resetBtn.innerHTML;
-            resetBtn.disabled = true;
-            resetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            var originalHTML = resetBtn ? resetBtn.innerHTML : '<i class="fas fa-rotate-right"></i>';
+            
+            // Hiệu ứng loading cho cả 2 nút
+            [resetBtn, resetBtnMobile].forEach(function(btn) {
+                if (!btn) return;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            });
+            
             tokenText.textContent = 'Đang kiểm tra...';
 
             var ok = await refreshTokenFromFirestore();
             
-            resetBtn.innerHTML = originalHTML;
-            resetBtn.disabled = false;
+            // Trả lại trạng thái bình thường cho cả 2 nút
+            [resetBtn, resetBtnMobile].forEach(function(btn) {
+                if (!btn) return;
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            });
 
             if (ok) {
                 lastTokenRefreshTime = Date.now();
@@ -39406,8 +39530,11 @@ console.log('[Mnemonic] Module loaded OK — API: ' + VOCAB_API_URL);
                 tokenText.textContent = 'Lỗi mạng';
             }
         }
-    });
+    };
 
+    // ⭐ GẮN SỰ KIỆN CLICK CHO CẢ 2 NÚT
+    if (resetBtn) resetBtn.addEventListener('click', handleResetClick);
+    if (resetBtnMobile) resetBtnMobile.addEventListener('click', handleResetClick);
     function showSpellModal(words) {
         return new Promise(function(resolve) {
             modalWordsList.textContent = words.join(', ');
