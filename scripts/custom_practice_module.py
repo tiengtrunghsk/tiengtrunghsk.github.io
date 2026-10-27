@@ -797,10 +797,9 @@ def build_custom_practice_js():
             buyTokenBtn.classList.add('cp-hidden');
             
             inputArea.disabled = false;
-            <textarea class="cp-textarea" id="cpInputZh" rows="4" placeholder="Dán văn bản hoặc tải ảnh vào đây để Trợ lý tạo bài tập cho bạn..."></textarea>
+            inputArea.placeholder = 'Dán văn bản hoặc tải ảnh vào đây để Trợ lý tạo bài tập cho bạn...';
         }
     }
-
     buyTokenBtn.addEventListener('click', async function() {
         if (!currentUser) {
             if (typeof openLoginModal === 'function') openLoginModal();
