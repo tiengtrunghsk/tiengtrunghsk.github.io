@@ -174,7 +174,7 @@ def build_custom_practice_css():
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
     display: none; align-items: center; justify-content: center;
-    z-index: 100001; /* ⭐ Tăng z-index để đè lên cả, fullscreen */
+    z-index: 100001; /* Đè lên cả fullscreen */
     animation: fadeIn 0.2s ease;
 }
 .cp-modal-overlay.show { display: flex; }
@@ -199,7 +199,8 @@ def build_custom_practice_css():
 
 .cp-btn-buy-token {
     width: 100%; height: 52px; border-radius: 16px; border: 2px dashed #f59e0b;
-    background: rgba(245, 158 11, 0.1); color: #d97706;
+    background: rgba(245, 158, 11, 0.1); /* Đã sửa lỗi thiếu dấu phẩy ở đây */
+    color: #d97706;
     font-weight: 800; font-size: 1rem; cursor: pointer;
     display: none; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s;
 }
@@ -226,7 +227,9 @@ def build_custom_practice_css():
 
 .cp-hidden { display: none !important; }
 
-/* PHÓNG TO TOÀN MÀN HÌNH */
+/* ═══════════════════════════════════════════════════════════ */
+/* PHÓNG TO TOÀN MÀN HÌNH (FULLSCREEN)                       */
+/* ═══════════════════════════════════════════════════════════ */
 .cp-input-wrapper { position: relative; display: flex; flex-direction: column; }
 .cp-input-wrapper.fullscreen {
     position: fixed !important; inset: 0 !important; z-index: 99999 !important;
@@ -235,38 +238,32 @@ def build_custom_practice_css():
     box-sizing: border-box !important; box-shadow: 0 0 50px rgba(0,0,0,0.5) !important; overflow-y: auto !important;
 }
 
-/* Khi ở fullscreen, ghim nút Thu nhỏ lên góc trên bên phải */
-.cp-input-wrapper.fullscreen #cpExpandBtn {
-    position: fixed !important;
+/* Ghim thanh công cụ lên đầu khi fullscreen */
+.cp-input-wrapper.fullscreen #cpActionRow {
+    position: absolute !important;
     top: 15px !important;
+    left: 15px !important;
     right: 15px !important;
+    width: calc(100% - 30px) !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-end !important; /* Dồn nút sang phải */
     z-index: 100000 !important;
-    background: var(--surface, #ffffff) !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
-    border: 2px solid #a855f7 !important;
-    color: #a855f7 !important;
-    width: 44px !important;
-    height: 44px !important;
-    border-radius: 50% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 0 !important;
-}
-/* Ẩn chữ "Thu nhỏ" trên nút để gọn gàng, chỉ hiện Icon */
-.cp-input-wrapper.fullscreen #cpExpandBtn span {
-    display: none !important;
-}
-.cp-input-wrapper.fullscreen #cpExpandBtn i {
-    font-size: 1.2rem !important;
+    margin-top: 0 !important;
+    overflow-x: auto !important; /* Vuốt ngang nếu thiếu chỗ */
 }
 
+/* Ẩn thanh cuộn của thanh công cụ */
+.cp-input-wrapper.fullscreen #cpActionRow::-webkit-scrollbar { display: none; }
+.cp-input-wrapper.fullscreen #cpActionRow { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Đẩy textarea xuống để không bị thanh công cụ đè */
 .cp-input-wrapper.fullscreen .cp-textarea {
     flex: 1 !important; 
-    min-height: calc(100vh - 200px) !important; 
+    margin-top: 50px !important;
+    min-height: calc(100vh - 250px) !important; 
     max-height: none !important; 
     font-size: 1.15rem !important;
-    padding-bottom: 90px !important; /* Nhường chỗ cho nút dịch ở dưới */
+    padding-bottom: 90px !important;
 }
 
 /* ⭐ NÚT DỊCH: Căn giữa và to ra khi ở fullscreen */
@@ -277,18 +274,15 @@ def build_custom_practice_css():
     right: auto !important;
     transform: translateX(-50%) !important;
     width: auto !important;
-    min-width: 170px !important;      /* Thu hẹp chiều ngang một chút */
-    height: 46px !important;          /* ⬇️ Giảm chiều cao (từ 56px xuống 46px) */
+    min-width: 170px !important;
+    height: 46px !important;
     border-radius: 50px !important;
     padding: 0 20px !important;
-    font-size: 1rem !important;       /* Chữ nhỏ lại một chút cho cân đối */
-    font-weight: 600 !important;      /* Bớt in đậm để thanh thoát hơn */
+    font-size: 1rem !important;
+    font-weight: 600 !important;
     z-index: 100000 !important;
-    
-    /* Bóng mờ mềm mại, không bị viền tím quá gắt */
     box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3) !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important; 
-    
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -301,7 +295,7 @@ def build_custom_practice_css():
     font-family: inherit;
 }
 
-/* Mặc định ẩn chữ "Bắt đầu dịch" ở chế độ bình thường (chỉ hiện icon) */
+/* Mặc định ẩn chữ "Bắt đầu dịch" ở chế độ bình thường */
 .cp-btn-start-icon .cp-start-text {
     display: none;
 }
@@ -376,7 +370,6 @@ def build_custom_practice_css():
     .cp-action-btn { flex: 1; } /* Chia đều 2 nút */
     
     /* Hàng 2: Switch, Phóng to, Xóa (Tự động rớt xuống do flex-wrap) */
-    /*Ẩn chữ trên nút Phóng to/Xóa để gọn gàng */
     .cp-btn-reset span { display: none; }
     .cp-btn-reset { width: 32px; padding: 0; flex: 1; }
     
@@ -410,7 +403,6 @@ def build_custom_practice_css():
 .cp-btn-start-icon:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; opacity: 0.7; }
 .cp-btn-start { display: none !important; }
 """
-
 def build_custom_practice_html():
     return r"""
 <div class="cp-card" id="cpSection">
@@ -432,8 +424,8 @@ def build_custom_practice_html():
         </div>
     </div>
 
-    <!-- ⭐ GỘP CÁC NÚT VÀO 1 KHỐI DUY NHẤT -->
-    <div class="cp-action-row">
+    <!-- ⭐ GỘP CÁC NÚT VÀO 1 KHỐI DUY NHẤT (Đã thêm id="cpActionRow") -->
+    <div class="cp-action-row" id="cpActionRow">
         <!-- Nút Dịch Ảnh -->
         <button class="cp-action-btn cp-btn-primary" id="cpUploadImgBtn" type="button" title="Dịch từ ảnh">
             <i class="fas fa-camera"></i> <span>Dịch Ảnh</span>
@@ -633,19 +625,20 @@ def build_custom_practice_js():
     var expandText = document.getElementById('cpExpandText');
 
     if (expandBtn && inputWrapper) {
-        var originalParent = expandBtn.parentNode; // Lưu lại vị trí ban đầu
+        var actionRow = document.getElementById('cpActionRow');
+        var originalActionRowParent = actionRow.parentNode; // Lưu vị trí gốc của thanh công cụ
 
         expandBtn.addEventListener('click', function() {
             var isFullscreen = inputWrapper.classList.toggle('fullscreen');
             if (isFullscreen) {
-                // Đưa nút vào trong khung fullscreen để ghim lên góc
-                inputWrapper.appendChild(expandBtn);
+                // Bê nguyên thanh công cụ vào trong khung fullscreen
+                inputWrapper.insertBefore(actionRow, inputWrapper.firstChild);
                 expandIcon.className = 'fas fa-compress';
                 expandText.textContent = 'Thu nhỏ';
                 expandBtn.title = 'Thu nhỏ lại';
             } else {
-                // Trả nút về lại thanh công cụ ban đầu
-                originalParent.appendChild(expandBtn);
+                // Trả thanh công cụ về vị trí cũ
+                originalActionRowParent.insertBefore(actionRow, originalActionRowParent.firstChild);
                 expandIcon.className = 'fas fa-expand';
                 expandText.textContent = 'Phóng to';
                 expandBtn.title = 'Phóng to toàn màn hình';
