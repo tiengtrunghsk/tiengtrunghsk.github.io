@@ -3927,7 +3927,19 @@ html body .pf-chip {
     height: 32px !important;
     padding: 0 0.6rem !important;
 }
-
+/* Ghim phần Header + Trợ lý dịch */
+.sticky-top {
+    position: sticky !important;
+    top: 0;
+    z-index: 999;
+    background: var(--bg);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+#cpSection {
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
 """
 def build_ui_html():
     return r"""
@@ -9234,4 +9246,59 @@ window.__toggleUserMenu = function(e) {
     dd.classList.toggle('show');
     try { sessionStorage.setItem('userDropdownClosed', willOpen ? '0' : '1'); } catch(_e) {}
 };
+/* ⭐ DI CHUYỂN KHỐI TRỢ LÝ DỊCH VÀ INTRO LÊN DƯỚI HEADER */
+(function() {
+    function moveSectionsToTop() {
+        var stickyTop = document.getElementById('stickyTop');
+        var mainContainer = document.querySelector('#mainContent .container');
+        var searchFilterRow = document.querySelector('.search-filter-row');
+        
+        // 1. Khối Trợ lý dịch thuật
+        var cpSection = document.getElementById('cpSection');
+        
+        // 2. Khối Intro Banner (thường có id hoặc class này)
+        var introBanner = document.querySelector('.intro-banner') 
+                       || document.getElementById('quickIntroBanner')
+                       || document.querySelector('.quick-intro-banner');
+
+        if (!stickyTop) return;
+
+        // Đảm bảo khung chứa có sẵn
+        var targetContainer = stickyTop.querySelector('.container');
+        if (!targetContainer) return;
+
+        // Nếu tìm thấy Banner Intro -> Đưa lên đầu
+        if (introBanner && searchFilterRow) {
+            targetContainer.insertBefore(introBanner, searchFilterRow);
+        }
+
+        // Nếu tìm thấy Trợ lý dịch -> Đưa xuống dưới Intro (hoặc dưới Header nếu không có Intro)
+        if (cpSection) {
+            // Thêm class để CSS nhận diện (nếu cần)
+            cpSection.style.marginTop = '10px';
+            cpSection.style.marginBottom = '15px';
+            
+            if (introBanner) {
+                // Nằm ngay sau Intro
+                introBanner.insertAdjacentElement('afterend', cpSection);
+            } else {
+                // Nằm ngay sau header
+                var header = targetContainer.querySelector('.header');
+                if (header) {
+                    header.insertAdjacentElement('afterend', cpSection);
+                }
+            }
+        }
+    }
+
+    // Chạy khi DOM sẵn sàng
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', moveSectionsToTop);
+    } else {
+        moveSectionsToTop();
+    }
+    
+    // Đề phòng các script khác (như custom_practice) load chậm làm mất thẻ, chạy lại sau 1s
+    setTimeout(moveSectionsToTop, 1000);
+})();
 """
