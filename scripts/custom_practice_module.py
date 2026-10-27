@@ -552,6 +552,10 @@ def build_custom_practice_js():
     var isUserAdmin = false;
     var currentReadRemain = 250;
     
+    // ⭐ THÊM 2 BIẾN NÀY ĐỂ CHỐNG DỊCH LẶP
+    var lastTranslatedText = '';
+    var lastTranslatedMode = '';
+
     var TOKEN_REFRESH_COOLDOWN = 60000;
     var lastTokenRefreshTime = 0;
     var isTokenRefreshing = false;
@@ -1000,6 +1004,11 @@ def build_custom_practice_js():
     inputArea.addEventListener('input', function() {
         autoDetectAndSwitchLanguage();
         updateCharCount();
+        
+        // ⭐ Nội dung thay đổi → reset trạng thái đã dịch để cho phép dịch lại
+        lastTranslatedText = '';
+        lastTranslatedMode = '';
+
         if (lastDeletedText !== '') {
             lastDeletedText = '';
             resetBtn.innerHTML = '<i class="fas fa-rotate-right"></i>';
@@ -1026,12 +1035,20 @@ def build_custom_practice_js():
                 if (!inputArea.disabled) inputArea.placeholder = 'Nhập hoặc dán văn bản để Trợ lý dịch giúp bạn...';
             }
             
+            // ⭐ Đổi chiều dịch → reset trạng thái để cho phép dịch lại
+            lastTranslatedText = '';
+            lastTranslatedMode = '';
+            
             updateCharCount();
         });
     }
 
     var handleResetClick = async function() {
         var currentText = inputArea.value;
+
+        // ⭐ Reset trạng thái đã dịch mỗi khi nhấn nút Xóa/Undo
+        lastTranslatedText = '';
+        lastTranslatedMode = '';
 
         if (currentText.trim() !== '') {
             lastDeletedText = currentText; 
@@ -1123,7 +1140,6 @@ def build_custom_practice_js():
             }
         }
     };
-
     if (resetBtn) resetBtn.addEventListener('click', handleResetClick);
     if (resetBtnMobile) resetBtnMobile.addEventListener('click', handleResetClick);
 
@@ -1192,6 +1208,22 @@ def build_custom_practice_js():
     startBtn.addEventListener('click', async function() {
         if (!currentUser) { alert('Vui lòng đăng nhập!'); return; }
 
+        // ⭐ CHỐNG BẤM ĐÚP: Nếu nút đang disable (đang xử lý) thì bỏ qua
+        if (startBtn.disabled) return;
+
+        var rawText = inputArea.value.trim();
+        if (!rawText) { alert('Vui lòng nhập văn bản!'); return; }
+
+        // ⭐ CHỐNG DỊCH LẶP: Nếu nội dung và chế độ y hệt lần trước thì chặn
+        if (rawText === lastTranslatedText && currentMode === lastTranslatedMode) {
+            if (typeof showUserChangedToast === 'function') {
+                showUserChangedToast('⚠️ Văn bản này đã được dịch rồi. Vui lòng sửa nội dung nếu muốn dịch lại!', 'warn');
+            } else {
+                alert('Văn bản này đã được dịch rồi. Vui lòng sửa nội dung nếu muốn dịch lại!');
+            }
+            return;
+        }
+
         var isExpired = checkIsExpired();
         if (isExpired) {
             alert('Tài khoản của bạn đã hết hạn. Vui lòng gia hạn để tiếp tục sử dụng tính năng Luyện tập tự do.\n(Số dư Token của bạn vẫn được bảo lưu an toàn).');
@@ -1203,9 +1235,6 @@ def build_custom_practice_js():
             alert('Bạn đã hết token! Vui lòng mua thêm hoặc quay lại vào ngày mai (đối với Admin).'); 
             return; 
         }
-
-        var rawText = inputArea.value.trim();
-        if (!rawText) { alert('Vui lòng nhập văn bản!'); return; }
 
         var suspiciousWords = findSuspiciousWords();
         if (suspiciousWords.length > 0) {
@@ -1324,6 +1353,10 @@ def build_custom_practice_js():
                 } catch(e) {}
             }
 
+            // ⭐ LƯU LẠI NỘI DUNG ĐÃ DỊCH THÀNH CÔNG ĐỂ CHỐNG DỊCH LẶP
+            lastTranslatedText = rawText;
+            lastTranslatedMode = currentMode;
+
             loadDataToPracticeScreen(customData);
         } catch(e) {
             alert('Có lỗi xảy ra: ' + e.message);
@@ -1331,7 +1364,6 @@ def build_custom_practice_js():
             finishProcess();
         }
     });
-
     function loadDataToPracticeScreen(customData) {
         if (typeof window.activateCustomPracticeMode === 'function') {
             window.activateCustomPracticeMode(customData);
