@@ -4033,7 +4033,7 @@ function renderRenewalStep1() {
         var saveHtml = p.save ? '<div class="pkg-save" style="background:linear-gradient(135deg,#f59e0b,#d97706)">' + escapeHtml(p.save) + '</div>' : '';
         tokenPkgHtml += '<div class="package-card" data-pkg="' + p.id + '" onclick="selectPackage(\'' + p.id + '\')" style="border-color:#fcd34d">' +
             saveHtml +
-            '<div class="pkg-label" style="color:#b45309">' + escapeHtml(p.label) + '</div>' +
+            '<div class="pkg-label" style="color:var(--text); font-weight:800;">' + escapeHtml(p.label) + '</div>' +
             '<div class="pkg-price" style="color:#d97706">' + formatMoney(p.amount) + '</div>' +
             '<div class="pkg-unit">VNĐ</div></div>';
     });
