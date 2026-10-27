@@ -9246,59 +9246,70 @@ window.__toggleUserMenu = function(e) {
     dd.classList.toggle('show');
     try { sessionStorage.setItem('userDropdownClosed', willOpen ? '0' : '1'); } catch(_e) {}
 };
-/* ⭐ DI CHUYỂN KHỐI TRỢ LÝ DỊCH VÀ INTRO LÊN DƯỚI HEADER */
+/* ⭐ SẮP XẾP LẠI TOÀN BỘ GIAO DIỆN THEO ĐÚNG THỨ TỰ */
 (function() {
-    function moveSectionsToTop() {
+    function rearrangeUI() {
         var stickyTop = document.getElementById('stickyTop');
-        var mainContainer = document.querySelector('#mainContent .container');
-        var searchFilterRow = document.querySelector('.search-filter-row');
+        if (!stickyTop) return;
         
-        // 1. Khối Trợ lý dịch thuật
+        var container = stickyTop.querySelector('.container');
+        if (!container) return;
+
+        var header = container.querySelector('.header');
         var cpSection = document.getElementById('cpSection');
-        
-        // 2. Khối Intro Banner (thường có id hoặc class này)
+        var datasetSelector = document.getElementById('datasetSelector');
+        var searchFilterRow = document.querySelector('.search-filter-row');
         var introBanner = document.querySelector('.intro-banner') 
                        || document.getElementById('quickIntroBanner')
                        || document.querySelector('.quick-intro-banner');
 
-        if (!stickyTop) return;
+        if (!header) return;
 
-        // Đảm bảo khung chứa có sẵn
-        var targetContainer = stickyTop.querySelector('.container');
-        if (!targetContainer) return;
+        // Dọn dẹp vị trí cũ của các khối (chỉ cần gắn vào một khung tạm là nó tự tách khỏi vị trí cũ)
+        var tempDiv = document.createElement('div');
+        if (introBanner) tempDiv.appendChild(introBanner);
+        if (cpSection) tempDiv.appendChild(cpSection);
+        if (datasetSelector) tempDiv.appendChild(datasetSelector);
+        if (searchFilterRow) tempDiv.appendChild(searchFilterRow);
 
-        // Nếu tìm thấy Banner Intro -> Đưa lên đầu
-        if (introBanner && searchFilterRow) {
-            targetContainer.insertBefore(introBanner, searchFilterRow);
+        // Bắt đầu xếp lại từ dưới Header
+        var currentAnchor = header;
+
+        // 1. Intro Banner
+        if (introBanner) {
+            currentAnchor.insertAdjacentElement('afterend', introBanner);
+            currentAnchor = introBanner;
         }
 
-        // Nếu tìm thấy Trợ lý dịch -> Đưa xuống dưới Intro (hoặc dưới Header nếu không có Intro)
+        // 2. Trợ lý dịch thuật
         if (cpSection) {
-            // Thêm class để CSS nhận diện (nếu cần)
             cpSection.style.marginTop = '10px';
             cpSection.style.marginBottom = '15px';
-            
-            if (introBanner) {
-                // Nằm ngay sau Intro
-                introBanner.insertAdjacentElement('afterend', cpSection);
-            } else {
-                // Nằm ngay sau header
-                var header = targetContainer.querySelector('.header');
-                if (header) {
-                    header.insertAdjacentElement('afterend', cpSection);
-                }
-            }
+            currentAnchor.insertAdjacentElement('afterend', cpSection);
+            currentAnchor = cpSection;
+        }
+
+        // 3. Bộ dữ liệu
+        if (datasetSelector) {
+            currentAnchor.insertAdjacentElement('afterend', datasetSelector);
+            currentAnchor = datasetSelector;
+        }
+
+        // 4. Ô Tìm kiếm & Bộ lọc
+        if (searchFilterRow) {
+            currentAnchor.insertAdjacentElement('afterend', searchFilterRow);
+            currentAnchor = searchFilterRow;
         }
     }
 
     // Chạy khi DOM sẵn sàng
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', moveSectionsToTop);
+        document.addEventListener('DOMContentLoaded', rearrangeUI);
     } else {
-        moveSectionsToTop();
+        rearrangeUI();
     }
     
-    // Đề phòng các script khác (như custom_practice) load chậm làm mất thẻ, chạy lại sau 1s
-    setTimeout(moveSectionsToTop, 1000);
+    // Chạy lại sau 1s đề phòng các script khác load chậm chèn đè lên
+    setTimeout(rearrangeUI, 1000);
 })();
 """
