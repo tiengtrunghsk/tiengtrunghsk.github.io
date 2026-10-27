@@ -17,7 +17,7 @@ def build_custom_practice_css():
     box-shadow: 0 16px 40px -12px rgba(124, 58, 237, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 10px; /* ⭐ Thu hẹp khoảng cách */
     position: relative;
     overflow: hidden;
 }
@@ -27,12 +27,6 @@ def build_custom_practice_css():
     top: 0; left: 0; right: 0;
     height: 5px;
     background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899);
-}
-.cp-header-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
 }
 .cp-section-header {
     display: flex;
@@ -94,6 +88,7 @@ def build_custom_practice_css():
     transition: all 0.2s;
 }
 .cp-btn-reset:hover { background: #fee2e2; color: #ef4444; border-color: #fca5a5; }
+.cp-btn-reset:disabled { opacity: 0.6; cursor: not-allowed; background: var(--surface-2, #f1f5f9); color: #94a3b8; border-color: #e2e8f0; }
 
 .cp-switch-container {
     display: flex;
@@ -136,13 +131,12 @@ def build_custom_practice_css():
     margin: 0 6px;
     transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
-.cp-switch-container:hover .cp-switch-icon-box {
-    transform: rotate(180deg);
-}
+.cp-switch-container:hover .cp-switch-icon-box { transform: rotate(180deg); }
+.cp-switch-container { display: none !important; } /* Ẩn cụm switch cũ */
 
 .cp-textarea {
     width: 100%;
-    padding: 1.25rem;
+    padding: 1rem 1.25rem;
     border-radius: 16px;
     border: 1.5px solid var(--border, #e2e8f0);
     background: var(--surface, #ffffff);
@@ -150,16 +144,12 @@ def build_custom_practice_css():
     font-family: var(--font-zh, inherit);
     font-size: 1.05rem;
     resize: none;
-    min-height: 120px;
+    min-height: 100px;
     max-height: 400px;
     line-height: 1.6;
     transition: all 0.25s ease;
 }
-.cp-textarea:focus {
-    border-color: #a855f7;
-    outline: none;
-    box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.15);
-}
+.cp-textarea:focus { border-color: #a855f7; outline: none; box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.15); }
 
 .cp-spell-container {
     display: none;
@@ -175,159 +165,57 @@ def build_custom_practice_css():
     animation: fadeIn 0.3s ease;
 }
 .cp-spell-container.show { display: flex; }
-.cp-spell-header {
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.cp-spell-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-.cp-spell-chip {
-    background: #ffffff;
-    border: 1px solid #f59e0b;
-    color: #b45309;
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
+.cp-spell-header { font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.cp-spell-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.cp-spell-chip { background: #ffffff; border: 1px solid #f59e0b; color: #b45309; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
 
+/* MODAL */
 .cp-modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    animation: fadeIn 0.2s ease;
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center;
+    z-index: 9999; animation: fadeIn 0.2s ease;
 }
 .cp-modal-overlay.show { display: flex; }
 .cp-modal-box {
     background: var(--surface, #ffffff);
     border: 1px solid rgba(245, 158, 11, 0.4);
-    border-radius: 20px;
-    padding: 1.5rem;
-    width: 90%;
-    max-width: 400px;
+    border-radius: 20px; padding: 1.5rem;
+    width: 90%; max-width: 400px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
+    display: flex; flex-direction: column; gap: 1rem; text-align: center;
 }
-.cp-modal-icon {
-    font-size: 2.5rem;
-    color: #f59e0b;
-}
-.cp-modal-title {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--text, #1e1b4b);
-    margin: 0;
-}
-.cp-modal-desc {
-    font-size: 0.85rem;
-    color: var(--text-3, #64748b);
-    line-height: 1.5;
-    margin: 0;
-}
-.cp-modal-words {
-    background: rgba(245, 158, 11, 0.1);
-    color: #d97706;
-    padding: 8px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 0.95rem;
-    word-break: break-all;
-}
-.cp-modal-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 5px;
-}
-.cp-modal-btn {
-    flex: 1;
-    padding: 10px;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 0.9rem;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s;
-}
-.cp-modal-btn-cancel {
-    background: var(--surface-2, #f1f5f9);
-    color: var(--text-3, #64748b);
-}
+.cp-modal-icon { font-size: 2.5rem; color: #f59e0b; }
+.cp-modal-title { font-size: 1.1rem; font-weight: 800; color: var(--text, #1e1b4b); margin: 0; }
+.cp-modal-desc { font-size: 0.85rem; color: var(--text-3, #64748b); line-height: 1.5; margin: 0; }
+.cp-modal-words { background: rgba(245, 158, 11, 0.1); color: #d97706; padding: 8px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; word-break: break-all; }
+.cp-modal-actions { display: flex; gap: 10px; margin-top: 5px; }
+.cp-modal-btn { flex: 1; padding: 10px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; cursor: pointer; border: none; transition: all 0.2s; }
+.cp-modal-btn-cancel { background: var(--surface-2, #f1f5f9); color: var(--text-3, #64748b); }
 .cp-modal-btn-cancel:hover { background: #e2e8f0; }
-.cp-modal-btn-proceed {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-}
+.cp-modal-btn-proceed { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); }
 .cp-modal-btn-proceed:hover { opacity: 0.9; }
 
-
-
 .cp-btn-buy-token {
-    width: 100%;
-    height: 52px;
-    border-radius: 16px;
-    border: 2px dashed #f59e0b;
-    background: rgba(245, 158, 11, 0.1);
-    color: #d97706;
-    font-weight: 800;
-    font-size: 1rem;
-    cursor: pointer;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    transition: all 0.2s;
+    width: 100%; height: 52px; border-radius: 16px; border: 2px dashed #f59e0b;
+    background: rgba(245, 158, 11, 0.1); color: #d97706;
+    font-weight: 800; font-size: 1rem; cursor: pointer;
+    display: none; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s;
 }
 .cp-btn-buy-token:hover { background: rgba(245, 158, 11, 0.2); }
 
 .cp-progress-wrap {
-    display: none;
-    flex-direction: column;
-    gap: 0.6rem;
-    background: var(--surface-2, #f1f5f9);
-    padding: 1rem;
-    border-radius: 14px;
-    border: 1px solid var(--border, #e2e8f0);
+    display: none; flex-direction: column; gap: 0.6rem;
+    background: var(--surface-2, #f1f5f9); padding: 1rem; border-radius: 14px; border: 1px solid var(--border, #e2e8f0);
 }
 .cp-progress-wrap.show { display: flex; animation: fadeIn 0.3s ease; }
-.cp-progress-bar-bg {
-    width: 100%;
-    height: 10px;
-    background: var(--surface, #ffffff);
-    border-radius: 50px;
-    overflow: hidden;
-}
-.cp-progress-bar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
-    transition: width 0.3s ease;
-}
+.cp-progress-bar-bg { width: 100%; height: 10px; background: var(--surface, #ffffff); border-radius: 50px; overflow: hidden; }
+.cp-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899); transition: width 0.3s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
 .cp-history-item {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    transition: all 0.2s;
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px;
+    display: flex; flex-direction: column; gap: 6px; transition: all 0.2s;
 }
 .cp-history-item:hover { border-color: #a855f7; box-shadow: 0 4px 12px rgba(168,85,247,0.1); }
 .cp-history-vi { font-size: 0.9rem; color: #1e293b; font-weight: 600; }
@@ -335,271 +223,111 @@ def build_custom_practice_css():
 .cp-history-pinyin { font-size: 0.8rem; color: #64748b; font-style: italic; }
 .cp-history-time { font-size: 0.7rem; color: #94a3b8; text-align: right; margin-top: 4px; }
 
-@media (min-width: 768px) {
-    .cp-btn-start, .cp-btn-buy-token { width: auto; min-width: 280px; align-self: flex-end; }
-}
+.cp-hidden { display: none !important; }
 
-.cp-btn-reset:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background: var(--surface-2, #f1f5f9);
-    color: #94a3b8;
-    border-color: #e2e8f0;
-}
-.cp-hidden {
-    display: none !important;
-}
-/* ⭐ Phóng to toàn màn hình Textarea */
-.cp-input-wrapper {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-}
+/* PHÓNG TO TOÀN MÀN HÌNH */
+.cp-input-wrapper { position: relative; display: flex; flex-direction: column; }
 .cp-input-wrapper.fullscreen {
-    position: fixed !important;
-    inset: 0 !important;
-    z-index: 99999 !important;
-    background: var(--surface, #ffffff) !important;
-    padding: 2rem !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0.75rem !important;
-    box-sizing: border-box !important;
-    box-shadow: 0 0 50px rgba(0,0,0,0.5) !important;
-    overflow-y: auto !important;
+    position: fixed !important; inset: 0 !important; z-index: 99999 !important;
+    background: var(--surface, #ffffff) !important; padding: 2rem !important;
+    display: flex !important; flex-direction: column !important; gap: 0.75rem !important;
+    box-sizing: border-box !important; box-shadow: 0 0 50px rgba(0,0,0,0.5) !important; overflow-y: auto !important;
 }
 .cp-input-wrapper.fullscreen .cp-textarea {
-    flex: 1 !important;
-    min-height: calc(100vh - 200px) !important;
-    max-height: none !important;
-    font-size: 1.15rem !important;
+    flex: 1 !important; min-height: calc(100vh - 200px) !important; max-height: none !important; font-size: 1.15rem !important;
 }
-[data-theme="dark"] .cp-input-wrapper.fullscreen {
-    background: var(--surface-2, #1e1b4b) !important;
-}
+[data-theme="dark"] .cp-input-wrapper.fullscreen { background: var(--surface-2, #1e1b4b) !important; }
 
-/* ⭐ CSS Modal Cắt Ảnh (Crop) */
-.cp-crop-container {
-    max-width: 90% !important;
-    width: 600px !important;
-    text-align: left !important;
-}
-.cp-crop-img-wrap {
-    max-height: 50vh;
-    background: #0f172a;
-    border-radius: 12px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.cp-crop-img-wrap img {
-    max-width: 100%;
-    display: block;
-}
+/* MODAL CẮT ẢNH */
+.cp-crop-container { max-width: 90% !important; width: 600px !important; text-align: left !important; }
+.cp-crop-img-wrap { max-height: 50vh; background: #0f172a; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.cp-crop-img-wrap img { max-width: 100%; display: block; }
 
 /* ═══════════════════════════════════════════════════════════ */
 /* TỐI ƯU GIAO DIỆN HEADER & TOOLBAR                         */
 /* ═══════════════════════════════════════════════════════════ */
 .cp-header-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 15px;
-    width: 100%;
-    margin-bottom: 10px;
+    display: flex; flex-direction: row; justify-content: space-between; align-items: center;
+    gap: 15px; width: 100%; margin-bottom: 0;
 }
-
 .cp-header-top {
+    display: flex; align-items: center; gap: 12px; width: 100%; min-width: 0;
+}
+.cp-title-group { min-width: 0; flex: 1; }
+.cp-title-group h3 { font-size: 1.15rem; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cp-title-group p { font-size: 0.8rem; margin: 2px 0 0 0; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* KHỐI CHỨA CÁC NÚT */
+.cp-action-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap:  6px;
     width: 100%;
-    min-width: 0;
+    flex-wrap: wrap; /* Tự động rớt dòng trên mobile */
+    margin-top: 2px;
 }
 
-.cp-title-group {
-    min-width: 0; 
-    flex: 1; 
+/* ĐỊNH DẠNG NÚT CHUNG */
+.cp-action-btn, .cp-switch-btn, .cp-btn-reset {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 32px; padding: 0 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; border: 1px solid var(--border, #e2e8f0);
+    background: var(--surface, #ffffff); color: var(--text-3, #64748b);
+    gap: 5px; white-space: nowrap;
+}
+.cp-action-btn:hover, .cp-btn-reset:hover, .cp-switch-btn:hover { background: var(--surface-2); border-color: var(--primary); color: var(--primary); }
+.cp-btn-reset:hover { background: #fee2e2; color: #ef4444; border-color: #fca5a5; }
+
+.cp-action-btn.cp-btn-primary { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; border: none; box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3); }
+.cp-action-btn.cp-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4); }
+
+.cp-switch-btn .switch-icon { font-size: 0.8rem; opacity: 0.6; }
+
+.cp-token-badge { padding: 4px 10px; font-size: 0.75rem; border-radius: 8px; background: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.2); white-space: nowrap; }
+
+/* ⭐ GIAO DIỆN MOBILE (Dọc) - 2 HÀNG, THU HẸP KHOẢNG CÁCH */
+@media (max-width: 768px) {
+    .cp-header-container { flex-direction: column; align-items: stretch; gap: 6px; }
+    .cp-header-top { justify-content: space-between; width: 100%; }
+    
+    /* Hàng 1: Dịch Ảnh & Lịch Sử (Nằm cùng hàng) */
+    .cp-action-row { gap: 6px; margin-top: 4px; }
+    .cp-action-btn { flex: 1; } /* Chia đều 2 nút */
+    
+    /* Hàng 2: Switch, Phóng to, Xóa (Tự động rớt xuống do flex-wrap) */
+    /*Ẩn chữ trên nút Phóng to/Xóa để gọn gàng */
+    .cp-btn-reset span { display: none; }
+    .cp-btn-reset { width: 32px; padding: 0; flex: 1; }
+    
+    .cp-switch-btn { flex: 1; }
 }
 
-.cp-title-group h3 {
-    font-size: 1.15rem;
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.cp-title-group p {
-    font-size: 0.8rem;
-    margin: 2px 0 0 0;
-    color: #64748b;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.cp-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* ⭐ THANH CÔNG CỤ NHẬP LIỆU (TỐI GIẢN) */
-.cp-input-toolbar {
-    display: flex;
-    justify-content: flex-end; /* Dồn tất cả sang phải */
-    align-items: center;
-    margin-bottom: 6px;
-    gap: 6px;
-}
-
-.cp-input-tools-right {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-}
-
-/* Nút chuyển đổi ngôn ngữ nhỏ gọn (VI ⇄ ZH) */
-.cp-switch-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    height: 30px;
-    padding: 0 10px;
-    border-radius: 8px;
-    border: 1px solid var(--border, #e2e8f0);
-    background: var(--surface, #ffffff);
-    color: var(--text-3, #64748b);
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.7rem;
-    font-weight: 800;
-}
-.cp-switch-btn:hover {
-    background: var(--primary-light, #ede9fe);
-    color: var(--primary, #7c3aed);
-    border-color: var(--primary, #7c3aed);
-}
-.cp-switch-btn .switch-icon {
-    font-size: 0.8rem;
-    opacity: 0.6;
-}
-
-/* Ẩn cụm switch to cũ */
-.cp-switch-container {
-    display: none !important;
-}
-
-.cp-action-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 10px;
-    border: 1px solid var(--border, #e2e8f0);
-    background: var(--surface, #ffffff);
-    color: var(--text-2, #475569);
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.cp-action-btn i { font-size: 0.9rem; }
-.cp-action-btn.cp-btn-primary {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
-    color: #fff;
-    border: none;
-    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
-}
-.cp-action-btn.cp-btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
-}
-
-.cp-action-btn span {
-    display: inline-block;
-}
-
-.cp-token-badge {
-    padding: 4px 10px;
-    font-size: 0.75rem;
-    border-radius: 8px;
-    background: rgba(16, 185, 129, 0.1); 
-    color: #059669;
-    border: 1px solid rgba(16, 185, 129, 0.2);
-    white-space: nowrap;
-}
-
-@media (max-width: 600px) {
-    .cp-header-container {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
+/* ⭐ GIAO DIỆN PC - GỘP TẤT CẢ VÀO 1 HÀNG */
+@media (min-width: 769px) {
+    .cp-action-row {
+        flex-wrap: nowrap !important; /* Ép không cho rớt dòng */
+        justify-content: flex-end; /* Dồn các nút sang phải */
     }
-    .cp-header-top {
-        justify-content: space-between;
-        width: 100%;
+    .cp-action-btn, .cp-switch-btn, .cp-btn-reset {
+        flex: none; /* Không cho giãn nở */
     }
-    .cp-header-actions {
-        justify-content: space-between;
-        width: 100%;
-    }
-    .cp-action-btn { flex: 1; }
-    .cp-token-badge { flex: 1; justify-content: center; }
-    .cp-action-btn { padding: 8px 10px; }
+    .cp-switch-btn { padding: 0 8px; }
 }
 
-.cp-textarea-wrapper {
-    position: relative;
-    display: flex;
-    width: 100%;
-}
-
-.cp-textarea-wrapper .cp-textarea {
-    width: 100%;
-    padding-right: 55px;
-}
-
+/* KHUNG NHẬP VĂN BẢN */
+.cp-textarea-wrapper { position: relative; display: flex; width: 100%; margin-top: 4px; }
+.cp-textarea-wrapper .cp-textarea { width: 100%; padding-right: 55px; }
 .cp-btn-start-icon {
-    position: absolute;
-    bottom: 12px;
-    right: 12px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: none;
+    position: absolute; bottom: 12px; right: 12px;
+    width: 40px; height: 40px; border-radius: 50%; border: none;
     background: linear-gradient(135deg, #4f46e5, #7c3aed, #ec4899);
-    color: #fff;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
-    transition: all 0.2s ease;
-    z-index: 10;
+    color: #fff; font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+    transition: all 0.2s ease; z-index: 10;
 }
-
-.cp-btn-start-icon:hover:not(:disabled) {
-    transform: scale(1.08);
-    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.6);
-}
-
-.cp-btn-start-icon:disabled {
-    background: #cbd5e1;
-    cursor: not-allowed;
-    box-shadow: none;
-    opacity: 0.7;
-}
-
-.cp-btn-start {
-    display: none !important;
-}
+.cp-btn-start-icon:hover:not(:disabled) { transform: scale(1.08); box-shadow: 0 6px 16px rgba(124, 58, 237, 0.6); }
+.cp-btn-start-icon:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; opacity: 0.7; }
+.cp-btn-start { display: none !important; }
 """
 
 def build_custom_practice_html():
@@ -623,43 +351,44 @@ def build_custom_practice_html():
         </div>
     </div>
 
-    <!-- Các nút thao tác chính (Ảnh & Lịch sử) -->
-    <div class="cp-header-actions" style="margin-bottom: 10px;">
+    <!-- ⭐ GỘP CÁC NÚT VÀO 1 KHỐI DUY NHẤT -->
+    <div class="cp-action-row">
+        <!-- Nút Dịch Ảnh -->
         <button class="cp-action-btn cp-btn-primary" id="cpUploadImgBtn" type="button" title="Dịch từ ảnh">
             <i class="fas fa-camera"></i> <span>Dịch Ảnh</span>
         </button>
         <input type="file" id="cpImageInput" accept="image/*" style="display:none;">
         
+        <!-- Nút Lịch Sử -->
         <button class="cp-action-btn" id="cpHistoryBtn" type="button" title="Xem lịch sử">
             <i class="fas fa-clock-rotate-left"></i> <span>Lịch sử</span>
+        </button>
+
+        <!-- Nút Switch Ngôn Ngữ (VI ⇄ ZH) -->
+        <button type="button" id="cpSwitchBtn" class="cp-switch-btn" title="Đảo chiều dịch">
+            <span id="cpSwitchFrom">VI</span>
+            <i class="fas fa-exchange-alt switch-icon"></i>
+            <span id="cpSwitchTo">ZH</span>
+        </button>
+
+        <!-- Nút Phóng To -->
+        <button type="button" id="cpExpandBtn" class="cp-btn-reset" title="Phóng to toàn màn hình">
+            <i class="fas fa-expand" id="cpExpandIcon"></i> <span id="cpExpandText">Phóng to</span>
+        </button>
+        
+        <!-- Nút Xóa (PC) -->
+        <button class="cp-btn-reset" id="cpResetBtn" type="button" title="Làm mới">
+            <i class="fas fa-rotate-right"></i> <span>Xóa</span>
+        </button>
+        
+        <!-- Nút Xóa (Mobile) -->
+        <button class="cp-btn-reset cp-btn-reset-mobile" id="cpResetBtnMobile" type="button" title="Làm mới" style="display: none;">
+            <i class="fas fa-rotate-right"></i> <span>Xóa</span>
         </button>
     </div>
 
     <!-- Vùng nhập văn bản -->
     <div class="cp-input-wrapper" id="cpInputWrapper">
-        <!-- Thanh công cụ: Switch VI⇄ZH + Phóng to + Xóa -->
-        <div class="cp-input-toolbar">
-            <div class="cp-input-tools-right">
-                <!-- Nút đổi chiều ngôn ngữ (VI ⇄ ZH) -->
-                <button type="button" id="cpSwitchBtn" class="cp-switch-btn" title="Đảo chiều dịch">
-                    <span id="cpSwitchFrom">VI</span>
-                    <i class="fas fa-exchange-alt switch-icon"></i>
-                    <span id="cpSwitchTo">ZH</span>
-                </button>
-                
-                <button type="button" id="cpExpandBtn" class="cp-btn-reset" style="padding: 4px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px; border-radius: 8px;" title="Phóng to toàn màn hình">
-                    <i class="fas fa-expand" id="cpExpandIcon"></i> <span id="cpExpandText">Phóng to</span>
-                </button>
-                
-                <button class="cp-btn-reset" id="cpResetBtn" type="button" title="Làm mới" style="padding: 4px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px; border-radius: 8px;">
-                    <i class="fas fa-rotate-right"></i> <span>Xóa</span>
-                </button>
-                <button class="cp-btn-reset cp-btn-reset-mobile" id="cpResetBtnMobile" type="button" title="Làm mới" style="padding: 4px 10px; font-size: 0.75rem; display: none; align-items: center; gap: 4px; border-radius: 8px;">
-                    <i class="fas fa-rotate-right"></i> <span>Xóa</span>
-                </button>
-            </div>
-        </div>
-        
         <div class="cp-textarea-wrapper">
             <textarea class="cp-textarea" id="cpInputZh" rows="4" placeholder="Nhập hoặc dán văn bản để Trợ lý dịch giúp bạn..."></textarea>
             
@@ -765,8 +494,8 @@ def build_custom_practice_js():
     var tokenText = document.getElementById('cpTokenText');
     
     var switchBtn = document.getElementById('cpSwitchBtn');
-    var switchFrom = document.getElementById('cpSwitchFrom'); // ⭐ Thêm
-    var switchTo = document.getElementById('cpSwitchTo');     // ⭐ Thêm
+    var switchFrom = document.getElementById('cpSwitchFrom');
+    var switchTo = document.getElementById('cpSwitchTo');
     
     var progressWrap = document.getElementById('cpProgressWrap');
     var progressBar = document.getElementById('cpProgressBar');
@@ -1217,8 +946,8 @@ def build_custom_practice_js():
 
         if (hasChinese && currentMode !== 'zh2vi') {
             currentMode = 'zh2vi';
-            switchFrom.textContent = 'ZH'; // ⭐ Cập nhật nhãn
-            switchTo.textContent = 'VI';
+            if (switchFrom) switchFrom.textContent = 'ZH';
+            if (switchTo) switchTo.textContent = 'VI';
             spellContainer.classList.remove('show');
             if (!inputArea.disabled) {
                 inputArea.placeholder = '输入或粘贴中文文本，让翻译助手帮您搞定...';
@@ -1227,8 +956,8 @@ def build_custom_practice_js():
             var hasLatin = /[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềếểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴÝỶỸ]/.test(text);
             if (hasLatin) {
                 currentMode = 'vi2zh';
-                switchFrom.textContent = 'VI'; // ⭐ Cập nhật nhãn
-                switchTo.textContent = 'ZH';
+                if (switchFrom) switchFrom.textContent = 'VI';
+                if (switchTo) switchTo.textContent = 'ZH';
                 if (!inputArea.disabled) {
                     inputArea.placeholder = 'Nhập hoặc dán văn bản để Trợ lý dịch giúp bạn...';
                 }
@@ -1250,22 +979,24 @@ def build_custom_practice_js():
 
     setTimeout(updateCharCount, 200);
 
-    switchBtn.addEventListener('click', function() {
-        if (currentMode === 'vi2zh') {
-            currentMode = 'zh2vi';
-            switchFrom.textContent = 'ZH'; // ⭐ Cập nhật nhãn
-            switchTo.textContent = 'VI';
-            spellContainer.classList.remove('show');
-            if (!inputArea.disabled) inputArea.placeholder = '输入或粘贴中文文本，让翻译助手帮您搞定...';
-        } else {
-            currentMode = 'vi2zh';
-            switchFrom.textContent = 'VI';
-            switchTo.textContent = 'ZH';
-            if (!inputArea.disabled) inputArea.placeholder = 'Nhập hoặc dán văn bản để Trợ lý dịch giúp bạn...';
-        }
-        
-        updateCharCount();
-    });
+    if (switchBtn) {
+        switchBtn.addEventListener('click', function() {
+            if (currentMode === 'vi2zh') {
+                currentMode = 'zh2vi';
+                if (switchFrom) switchFrom.textContent = 'ZH';
+                if (switchTo) switchTo.textContent = 'VI';
+                spellContainer.classList.remove('show');
+                if (!inputArea.disabled) inputArea.placeholder = '输入或粘贴中文文本，让翻译助手帮您搞定...';
+            } else {
+                currentMode = 'vi2zh';
+                if (switchFrom) switchFrom.textContent = 'VI';
+                if (switchTo) switchTo.textContent = 'ZH';
+                if (!inputArea.disabled) inputArea.placeholder = 'Nhập hoặc dán văn bản để Trợ lý dịch giúp bạn...';
+            }
+            
+            updateCharCount();
+        });
+    }
 
     var handleResetClick = async function() {
         var currentText = inputArea.value;
@@ -2174,13 +1905,13 @@ def build_custom_practice_js():
                     
                     if (json.detected_source === 'zh' && currentMode !== 'zh2vi') {
                         currentMode = 'zh2vi';
-                        switchFrom.textContent = 'ZH'; // ⭐ Cập nhật nhãn
-                        switchTo.textContent = 'VI';
+                        if (switchFrom) switchFrom.textContent = 'ZH';
+                        if (switchTo) switchTo.textContent = 'VI';
                         if (!inputArea.disabled) inputArea.placeholder = 'Dán văn bản tiếng Trung vào đây...';
                     } else if (json.detected_source === 'vi' && currentMode !== 'vi2zh') {
                         currentMode = 'vi2zh';
-                        switchFrom.textContent = 'VI'; // ⭐ Cập nhật nhãn
-                        switchTo.textContent = 'ZH';
+                        if (switchFrom) switchFrom.textContent = 'VI';
+                        if (switchTo) switchTo.textContent = 'ZH';
                         if (!inputArea.disabled) inputArea.placeholder = 'Nhập văn bản tiếng Việt vào đây...';
                     }
                                       
