@@ -11765,7 +11765,51 @@ html body .tiktok-float-btn > i {
 }
 
 .cp-input-wrapper.fullscreen .cp-textarea {
-    flex: 1 !important; min-height: calc(100vh - 200px) !important; max-height: none !important; font-size: 1.15rem !important;
+    flex: 1 !important; 
+    min-height: calc(100vh - 200px) !important; 
+    max-height: none !important; 
+    font-size: 1.15rem !important;
+    padding-bottom: 90px !important; /* Nhường chỗ cho nút dịch ở dưới */
+}
+
+/* ⭐ ĐƯA NÚT DỊCH RA GIỮA VÀ TO HƠN KHI FULLSCREEN */
+.cp-input-wrapper.fullscreen .cp-btn-start-icon {
+    position: fixed !important;
+    bottom: 30px !important; /* Cách đáy 30px */
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important; /* Căn giữa hoàn hảo */
+    width: auto !important;
+    min-width: 200px !important;
+    height: 56px !important;
+    border-radius: 50px !important;
+    padding: 0 24px !important;
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    z-index: 100000 !important; /* Đảm bảo nổi lên trên */
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.5) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+}
+
+/* Thêm icon mũi tên và chữ "Bắt đầu dịch" */
+.cp-input-wrapper.fullscreen .cp-btn-start-icon::before {
+    content: 'Bắt đầu dịch';
+    font-family: inherit;
+    font-size: 1.1rem;
+}
+
+.cp-input-wrapper.fullscreen .cp-btn-start-icon:hover:not(:disabled) {
+    transform: translateX(-50%) scale(1.05) !important;
+    box-shadow: 0 12px 32px rgba(124, 58, 237, 0.7) !important;
+}
+
+.cp-input-wrapper.fullscreen .cp-btn-start-icon:disabled {
+    transform: translateX(-50%) !important;
+    background: #cbd5e1 !important;
+    box-shadow: none !important;
 }
 [data-theme="dark"] .cp-input-wrapper.fullscreen { background: var(--surface-2, #1e1b4b) !important; }
 
