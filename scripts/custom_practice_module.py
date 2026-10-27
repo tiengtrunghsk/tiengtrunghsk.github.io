@@ -225,18 +225,71 @@ def build_custom_practice_css():
 
 .cp-hidden { display: none !important; }
 
-/* PHÓNG TO TOÀN MÀN HÌNH */
-.cp-input-wrapper { position: relative; display: flex; flex-direction: column; }
+/* ⭐ PHÓNG TO TOÀN MÀN HÌNH */
+.cp-input-wrapper { 
+    position: relative; 
+    display: flex; 
+    flex-direction: column; 
+}
+
 .cp-input-wrapper.fullscreen {
-    position: fixed !important; inset: 0 !important; z-index: 99999 !important;
-    background: var(--surface, #ffffff) !important; padding: 2rem !important;
-    display: flex !important; flex-direction: column !important; gap: 0.75rem !important;
-    box-sizing: border-box !important; box-shadow: 0 0 50px rgba(0,0,0,0.5) !important; overflow-y: auto !important;
+    position: fixed !important; 
+    inset: 0 !important; 
+    z-index: 99999 !important;
+    background: var(--surface, #ffffff) !important; 
+    padding: 1rem !important; /* Giảm padding để có thêm không gian */
+    display: flex !important; 
+    flex-direction: column !important; 
+    gap: 0.75rem !important;
+    box-sizing: border-box !important; 
+    overflow: hidden !important; /* Ngăn cuộn toàn bộ, chỉ cuộn ô nhập */
 }
+
+/* ⭐ Đưa thanh công cụ vào trong màn hình phóng to và ghim lên đầu */
+.cp-input-wrapper.fullscreen .cp-action-row {
+    position: relative !important;
+    z-index: 100 !important;
+    background: var(--surface-2, #f8fafc) !important;
+    padding: 8px !important;
+    border-radius: 12px !important;
+    border: 1px solid var(--border, #e2e8f0) !important;
+    justify-content: flex-end !important;
+    flex-shrink: 0 !important;
+}
+
+/* ⭐ Ô nhập chiếm toàn bộ diện tích còn lại và tự cuộn */
+.cp-input-wrapper.fullscreen .cp-textarea-wrapper {
+    flex: 1 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
 .cp-input-wrapper.fullscreen .cp-textarea {
-    flex: 1 !important; min-height: calc(100vh - 200px) !important; max-height: none !important; font-size: 1.15rem !important;
+    flex: 1 !important; 
+    height: 100% !important;
+    max-height: none !important; 
+    overflow-y: auto !important;
+    font-size: 1.15rem !important;
+    resize: none !important;
 }
-[data-theme="dark"] .cp-input-wrapper.fullscreen { background: var(--surface-2, #1e1b4b) !important; }
+
+/* ⭐ Làm nổi bật nút "Thu nhỏ" để dễ nhìn thấy */
+.cp-input-wrapper.fullscreen #cpExpandBtn {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+    color: #fff !important;
+    border-color: transparent !important;
+    font-weight: 800 !important;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4) !important;
+}
+.cp-input-wrapper.fullscreen #cpExpandBtn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.6) !important;
+}
+
+[data-theme="dark"] .cp-input-wrapper.fullscreen { 
+    background: var(--surface-2, #1e1b4b) !important; 
+}
 
 /* MODAL CẮT ẢNH */
 .cp-crop-container { max-width: 90% !important; width: 600px !important; text-align: left !important; }
