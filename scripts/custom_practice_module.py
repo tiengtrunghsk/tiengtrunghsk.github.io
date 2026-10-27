@@ -277,18 +277,22 @@ def build_custom_practice_css():
     right: auto !important;
     transform: translateX(-50%) !important;
     width: auto !important;
-    min-width: 200px !important;
-    height: 56px !important;
+    min-width: 170px !important;      /* Thu hẹp chiều ngang một chút */
+    height: 46px !important;          /* ⬇️ Giảm chiều cao (từ 56px xuống 46px) */
     border-radius: 50px !important;
-    padding: 0 24px !important;
-    font-size: 1.1rem !important;
-    font-weight: 700 !important;
+    padding: 0 20px !important;
+    font-size: 1rem !important;       /* Chữ nhỏ lại một chút cho cân đối */
+    font-weight: 600 !important;      /* Bớt in đậm để thanh thoát hơn */
     z-index: 100000 !important;
-    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.5) !important;
+    
+    /* Bóng mờ mềm mại, không bị viền tím quá gắt */
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important; 
+    
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 10px !important;
+    gap: 8px !important;
 }
 
 /* Hiển thị chữ "Bắt đầu dịch" khi ở fullscreen */
@@ -1129,7 +1133,7 @@ def build_custom_practice_js():
             updateCharCount();
             progressWrap.classList.remove('show');
             startBtn.disabled = false;
-            startBtn.innerHTML = '<i class="fas fa-arrow-right"></i>';
+            startBtn.innerHTML = '<span class="cp-start-text">Bắt đầu dịch</span><i class="fas fa-arrow-right"></i>';
             setTimeout(autoResizeTextarea, 50);
         } 
         else if (lastDeletedText !== '') {
@@ -1441,7 +1445,7 @@ def build_custom_practice_js():
     }
 
     function finishProcess() {
-        startBtn.innerHTML = '<i class="fas fa-arrow-right"></i>';
+        startBtn.innerHTML = '<span class="cp-start-text">Bắt đầu dịch</span><i class="fas fa-arrow-right"></i>';
         startBtn.disabled = false;
         switchBtn.style.pointerEvents = 'auto';
         setTimeout(function() { progressWrap.classList.remove('show'); }, 1200);
