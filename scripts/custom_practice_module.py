@@ -462,30 +462,31 @@ def build_custom_practice_css():
     align-items: center;
 }
 
-/* Nút chuyển đổi ngôn ngữ nhỏ gọn */
+/* Nút chuyển đổi ngôn ngữ nhỏ gọn (VI ⇄ ZH) */
 .cp-switch-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
+    gap: 4px;
     height: 30px;
+    padding: 0 10px;
     border-radius: 8px;
     border: 1px solid var(--border, #e2e8f0);
     background: var(--surface, #ffffff);
     color: var(--text-3, #64748b);
     cursor: pointer;
     transition: all 0.2s;
-    padding: 0;
+    font-size: 0.7rem;
+    font-weight: 800;
 }
 .cp-switch-btn:hover {
     background: var(--primary-light, #ede9fe);
     color: var(--primary, #7c3aed);
     border-color: var(--primary, #7c3aed);
 }
-.cp-switch-btn.active {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
-    color: #fff;
-    border-color: transparent;
+.cp-switch-btn .switch-icon {
+    font-size: 0.8rem;
+    opacity: 0.6;
 }
 
 /* Ẩn cụm switch to cũ */
@@ -636,11 +637,14 @@ def build_custom_practice_html():
 
     <!-- Vùng nhập văn bản -->
     <div class="cp-input-wrapper" id="cpInputWrapper">
-        <!-- Thanh công cụ: Switch nhỏ + Phóng to + Xóa -->
+        <!-- Thanh công cụ: Switch VI⇄ZH + Phóng to + Xóa -->
         <div class="cp-input-toolbar">
             <div class="cp-input-tools-right">
+                <!-- Nút đổi chiều ngôn ngữ (VI ⇄ ZH) -->
                 <button type="button" id="cpSwitchBtn" class="cp-switch-btn" title="Đảo chiều dịch">
-                    <i class="fas fa-exchange-alt"></i>
+                    <span id="cpSwitchFrom">VI</span>
+                    <i class="fas fa-exchange-alt switch-icon"></i>
+                    <span id="cpSwitchTo">ZH</span>
                 </button>
                 
                 <button type="button" id="cpExpandBtn" class="cp-btn-reset" style="padding: 4px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px; border-radius: 8px;" title="Phóng to toàn màn hình">
@@ -761,6 +765,8 @@ def build_custom_practice_js():
     var tokenText = document.getElementById('cpTokenText');
     
     var switchBtn = document.getElementById('cpSwitchBtn');
+    var switchFrom = document.getElementById('cpSwitchFrom'); // ⭐ Thêm
+    var switchTo = document.getElementById('cpSwitchTo');     // ⭐ Thêm
     
     var progressWrap = document.getElementById('cpProgressWrap');
     var progressBar = document.getElementById('cpProgressBar');
@@ -1211,6 +1217,8 @@ def build_custom_practice_js():
 
         if (hasChinese && currentMode !== 'zh2vi') {
             currentMode = 'zh2vi';
+            switchFrom.textContent = 'ZH'; // ⭐ Cập nhật nhãn
+            switchTo.textContent = 'VI';
             spellContainer.classList.remove('show');
             if (!inputArea.disabled) {
                 inputArea.placeholder = '输入或粘贴中文文本，让翻译助手帮您搞定...';
@@ -1219,6 +1227,8 @@ def build_custom_practice_js():
             var hasLatin = /[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềếểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴÝỶỸ]/.test(text);
             if (hasLatin) {
                 currentMode = 'vi2zh';
+                switchFrom.textContent = 'VI'; // ⭐ Cập nhật nhãn
+                switchTo.textContent = 'ZH';
                 if (!inputArea.disabled) {
                     inputArea.placeholder = 'Nhập hoặc dán văn bản để Trợ lý dịch giúp bạn...';
                 }
@@ -1243,10 +1253,14 @@ def build_custom_practice_js():
     switchBtn.addEventListener('click', function() {
         if (currentMode === 'vi2zh') {
             currentMode = 'zh2vi';
+            switchFrom.textContent = 'ZH'; // ⭐ Cập nhật nhãn
+            switchTo.textContent = 'VI';
             spellContainer.classList.remove('show');
             if (!inputArea.disabled) inputArea.placeholder = '输入或粘贴中文文本，让翻译助手帮您搞定...';
         } else {
             currentMode = 'vi2zh';
+            switchFrom.textContent = 'VI';
+            switchTo.textContent = 'ZH';
             if (!inputArea.disabled) inputArea.placeholder = 'Nhập hoặc dán văn bản để Trợ lý dịch giúp bạn...';
         }
         
@@ -2160,9 +2174,13 @@ def build_custom_practice_js():
                     
                     if (json.detected_source === 'zh' && currentMode !== 'zh2vi') {
                         currentMode = 'zh2vi';
+                        switchFrom.textContent = 'ZH'; // ⭐ Cập nhật nhãn
+                        switchTo.textContent = 'VI';
                         if (!inputArea.disabled) inputArea.placeholder = 'Dán văn bản tiếng Trung vào đây...';
                     } else if (json.detected_source === 'vi' && currentMode !== 'vi2zh') {
                         currentMode = 'vi2zh';
+                        switchFrom.textContent = 'VI'; // ⭐ Cập nhật nhãn
+                        switchTo.textContent = 'ZH';
                         if (!inputArea.disabled) inputArea.placeholder = 'Nhập văn bản tiếng Việt vào đây...';
                     }
                                       
