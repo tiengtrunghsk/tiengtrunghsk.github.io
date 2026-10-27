@@ -797,7 +797,7 @@ def build_custom_practice_js():
             buyTokenBtn.classList.add('cp-hidden');
             
             inputArea.disabled = false;
-            inputArea.placeholder = currentMode === 'vi2zh' ? 'Nhập văn bản tiếng Việt vào đây...' : 'Dán văn bản tiếng Trung vào đây...';
+            <textarea class="cp-textarea" id="cpInputZh" rows="4" placeholder="Dán văn bản hoặc tải ảnh vào đây để Trợ lý tạo bài tập cho bạn..."></textarea>
         }
     }
 
