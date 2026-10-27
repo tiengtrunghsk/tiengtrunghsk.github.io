@@ -17,7 +17,7 @@ def build_custom_practice_css():
     box-shadow: 0 16px 40px -12px rgba(124, 58, 237, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
     display: flex;
     flex-direction: column;
-    gap: 10px; /* ⭐ Thu hẹp khoảng cách */
+    gap: 10px;
     position: relative;
     overflow: hidden;
 }
@@ -174,7 +174,8 @@ def build_custom_practice_css():
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
     display: none; align-items: center; justify-content: center;
-    z-index: 9999; animation: fadeIn 0.2s ease;
+    z-index: 100001; /* ⭐ Tăng z-index để đè lên cả, fullscreen */
+    animation: fadeIn 0.2s ease;
 }
 .cp-modal-overlay.show { display: flex; }
 .cp-modal-box {
@@ -198,7 +199,7 @@ def build_custom_practice_css():
 
 .cp-btn-buy-token {
     width: 100%; height: 52px; border-radius: 16px; border: 2px dashed #f59e0b;
-    background: rgba(245, 158, 11, 0.1); color: #d97706;
+    background: rgba(245, 158 11, 0.1); color: #d97706;
     font-weight: 800; font-size: 1rem; cursor: pointer;
     display: none; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s;
 }
@@ -229,7 +230,7 @@ def build_custom_practice_css():
 .cp-input-wrapper { position: relative; display: flex; flex-direction: column; }
 .cp-input-wrapper.fullscreen {
     position: fixed !important; inset: 0 !important; z-index: 99999 !important;
-    background: var(--surface, #ffffff) !important; padding: 4rem 1.5rem 1.5rem 1.5rem !important; /* Tăng padding-top để nhường chỗ cho nút */
+    background: var(--surface, #ffffff) !important; padding: 4rem 1.5rem 1.5rem 1.5rem !important;
     display: flex !important; flex-direction: column !important; gap: 0.75rem !important;
     box-sizing: border-box !important; box-shadow: 0 0 50px rgba(0,0,0,0.5) !important; overflow-y: auto !important;
 }
@@ -268,13 +269,13 @@ def build_custom_practice_css():
     padding-bottom: 90px !important; /* Nhường chỗ cho nút dịch ở dưới */
 }
 
-/* ⭐ ĐƯA NÚT DỊCH RA GIỮA VÀ TO HƠN KHI FULLSCREEN */
+/* ⭐ NÚT DỊCH: Căn giữa và to ra khi ở fullscreen */
 .cp-input-wrapper.fullscreen .cp-btn-start-icon {
     position: fixed !important;
-    bottom: 30px !important; /* Cách đáy 30px */
+    bottom: 30px !important;
     left: 50% !important;
     right: auto !important;
-    transform: translateX(-50%) !important; /* Căn giữa hoàn hảo */
+    transform: translateX(-50%) !important;
     width: auto !important;
     min-width: 200px !important;
     height: 56px !important;
@@ -282,7 +283,7 @@ def build_custom_practice_css():
     padding: 0 24px !important;
     font-size: 1.1rem !important;
     font-weight: 700 !important;
-    z-index: 100000 !important; /* Đảm bảo nổi lên trên */
+    z-index: 100000 !important;
     box-shadow: 0 8px 24px rgba(124, 58, 237, 0.5) !important;
     display: flex !important;
     align-items: center !important;
@@ -290,11 +291,15 @@ def build_custom_practice_css():
     gap: 10px !important;
 }
 
-/* Thêm icon mũi tên và chữ "Bắt đầu dịch" */
-.cp-input-wrapper.fullscreen .cp-btn-start-icon::before {
-    content: 'Bắt đầu dịch';
+/* Hiển thị chữ "Bắt đầu dịch" khi ở fullscreen */
+.cp-input-wrapper.fullscreen .cp-btn-start-icon .cp-start-text {
+    display: inline-block !important;
     font-family: inherit;
-    font-size: 1.1rem;
+}
+
+/* Mặc định ẩn chữ "Bắt đầu dịch" ở chế độ bình thường (chỉ hiện icon) */
+.cp-btn-start-icon .cp-start-text {
+    display: none;
 }
 
 .cp-input-wrapper.fullscreen .cp-btn-start-icon:hover:not(:disabled) {
@@ -307,6 +312,7 @@ def build_custom_practice_css():
     background: #cbd5e1 !important;
     box-shadow: none !important;
 }
+
 [data-theme="dark"] .cp-input-wrapper.fullscreen { background: var(--surface-2, #1e1b4b) !important; }
 
 /* MODAL CẮT ẢNH */
@@ -334,7 +340,7 @@ def build_custom_practice_css():
     align-items: center;
     gap:  6px;
     width: 100%;
-    flex-wrap: wrap; /* Tự động rớt dòng trên mobile */
+    flex-wrap: wrap;
     margin-top: 2px;
 }
 
@@ -464,7 +470,8 @@ def build_custom_practice_html():
             <textarea class="cp-textarea" id="cpInputZh" rows="4" placeholder="Nhập hoặc dán văn bản để Trợ lý dịch giúp bạn..."></textarea>
             
             <button class="cp-btn-start-icon" id="cpStartBtn" type="button" title="Bắt đầu luyện tập">
-                <i class="fas fa-arrow-right"></i>
+              <span class="cp-start-text">Bắt đầu dịch</span>
+              <i class="fas fa-arrow-right"></i>
             </button>
         </div>
         
@@ -949,9 +956,21 @@ def build_custom_practice_js():
     });
 
     function autoResizeTextarea() {
-        inputArea.style.height = 'auto';
+        if (!inputArea) return;
+        
+        // 1. Kiểm tra nếu đang ở chế độ Fullscreen
+        if (inputWrapper && inputWrapper.classList.contains('fullscreen')) {
+            // Ở fullscreen, để CSS (flex: 1) tự động lo chiều cao, ta xóa style inline
+            inputArea.style.height = '100%';
+            inputArea.style.overflowY = 'auto';
+            return; 
+        }
+
+        // 2. Chế độ bình thường: Tính toán chiều cao dựa trên nội dung
+        inputArea.style.height = 'auto'; // Reset để đo lại
         var newHeight = inputArea.scrollHeight;
         var maxHeight = 400;
+
         if (newHeight > maxHeight) {
             inputArea.style.height = maxHeight + 'px';
             inputArea.style.overflowY = 'auto';
