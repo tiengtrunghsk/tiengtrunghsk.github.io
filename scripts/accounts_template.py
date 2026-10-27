@@ -1406,7 +1406,7 @@ def build_accounts_html():
     <div class="renewal-box">
         <div class="renewal-header">
             <div>
-                <h2><i class="fas fa-gem"></i> Gia hạn tài khoản</h2>
+                <h2><i class="fas fa-gem"></i> Gia hạn/+Token</h2>
                 <div class="subtitle">Chọn gói phù hợp và thanh toán</div>
             </div>
             <button class="renewal-close" id="renewalClose"><i class="fas fa-times"></i></button>
@@ -1758,7 +1758,7 @@ def build_user_dropdown_html():
 
         <button class="dropdown-renew" id="dropdownRenewBtn" style="display:none">
             <i class="fas fa-gem"></i>
-            <span>Gia hạn tài khoản</span>
+            <span>Gia hạn/+Token</span>
             <span class="renew-badge">VIP</span>
         </button>
         <button class="dropdown-renew dropdown-forever" id="dropdownForeverBtn" style="display:none">
