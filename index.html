@@ -6,6 +6,9 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Học Tiếng Trung">
@@ -13751,19 +13754,7 @@ body.has-floating-group #quickSearchRoot{
 }
 
 </style>
-
-    <meta name="keywords" content="tiếng trung văn phòng, tiếng trung công xưởng, học tiếng trung miễn phí, từ vựng tiếng trung">
-    <meta name="author" content="Tuhoctiengtrung.org">
-    <link rel="canonical" href="https://tuhoctiengtrung.org/">
-    <meta property="og:title" content="Học tiếng Trung · Văn phòng & Công xưởng">
-    <meta property="og:description" content="Học tiếng Trung giao tiếp Văn phòng & Công xưởng miễn phí. Tổng hợp từ vựng, mẫu câu thông dụng, luyện viết chữ Hán và phát âm chuẩn.">
-    <meta property="og:url" content="https://tuhoctiengtrung.org/">
-    <meta property="og:type" content="website">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Học Tiếng Trung">
-    <meta name="theme-color" content="#7c3aed">
-  </head>
+</head>
 <body>
 
 <div class="page-wrap">
@@ -13922,7 +13913,7 @@ body.has-floating-group #quickSearchRoot{
 
 
 <!-- QUICK INTRO BANNER — Giới thiệu Tạo bài học từ ảnh & Trợ lý Dịch thuật AI -->
-<div class="quick-intro-banner" id="quickIntroBanner" data-nosnippet>
+<div class="quick-intro-banner" id="quickIntroBanner">
     <div class="qib-icon">
         <i class="fas fa-camera-retro"></i>
     </div>
@@ -38952,23 +38943,35 @@ console.log('[Mnemonic] Module loaded OK — API: ' + VOCAB_API_URL);
 
         expandBtn.addEventListener('click', function() {
             var isFullscreen = inputWrapper.classList.toggle('fullscreen');
+            
             if (isFullscreen) {
                 // Bê nguyên thanh công cụ vào trong khung fullscreen
                 inputWrapper.insertBefore(actionRow, inputWrapper.firstChild);
                 expandIcon.className = 'fas fa-compress';
                 expandText.textContent = 'Thu nhỏ';
                 expandBtn.title = 'Thu nhỏ lại';
+                
+                // Cập nhật chiều cao cho chế độ Fullscreen
+                autoResizeTextarea();
             } else {
                 // Trả thanh công cụ về vị trí cũ
                 originalActionRowParent.insertBefore(actionRow, originalActionRowParent.firstChild);
                 expandIcon.className = 'fas fa-expand';
                 expandText.textContent = 'Phóng to';
                 expandBtn.title = 'Phóng to toàn màn hình';
+                
+                // ⭐ SỬA LỖI TẠI ĐÂY:
+                // 1. Xóa chiều cao inline đang bị kẹt từ chế độ fullscreen
+                inputArea.style.height = 'auto';
+                inputArea.style.overflowY = 'hidden';
+                
+                // 2. Đợi 50ms để CSS gỡ bỏ hoàn toàn hiệu ứng fullscreen, sau đó mới đo lại chiều cao
+                setTimeout(function() {
+                    autoResizeTextarea();
+                }, 50);
             }
-            autoResizeTextarea();
         });
     }
-
     function checkIsExpired() {
         if (window.APP_TIER === 'expired' || window.APP_TIER === 'expire') return true;
         if (window.isUserExpired === true) return true;
