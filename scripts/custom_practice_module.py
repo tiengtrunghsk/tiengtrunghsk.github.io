@@ -447,20 +447,50 @@ def build_custom_practice_css():
     gap: 8px;
 }
 
+/* ⭐ THANH CÔNG CỤ NHẬP LIỆU (TỐI GIẢN) */
 .cp-input-toolbar {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end; /* Dồn tất cả sang phải */
     align-items: center;
     margin-bottom: 6px;
+    gap: 6px;
 }
-.cp-input-label {
-    font-size: 0.75rem; 
-    font-weight: 700; 
-    color: var(--text-3, #64748b);
-}
+
 .cp-input-tools-right {
     display: flex;
     gap: 6px;
+    align-items: center;
+}
+
+/* Nút chuyển đổi ngôn ngữ nhỏ gọn */
+.cp-switch-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--border, #e2e8f0);
+    background: var(--surface, #ffffff);
+    color: var(--text-3, #64748b);
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0;
+}
+.cp-switch-btn:hover {
+    background: var(--primary-light, #ede9fe);
+    color: var(--primary, #7c3aed);
+    border-color: var(--primary, #7c3aed);
+}
+.cp-switch-btn.active {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #fff;
+    border-color: transparent;
+}
+
+/* Ẩn cụm switch to cũ */
+.cp-switch-container {
+    display: none !important;
 }
 
 .cp-action-btn {
@@ -604,25 +634,23 @@ def build_custom_practice_html():
         </button>
     </div>
 
-    <!-- Phần chuyển đổi ngôn ngữ -->
-    <div class="cp-switch-container" id="cpSwitchBtn" title="Đảo chiều dịch" style="margin-bottom: 10px;">
-        <span class="cp-switch-label active" id="cpLabelVi">Tiếng Việt</span>
-        <div class="cp-switch-icon-box"><i class="fas fa-exchange-alt"></i></div>
-        <span class="cp-switch-label" id="cpLabelZh">Tiếng Trung</span>
-    </div>
-
     <!-- Vùng nhập văn bản -->
     <div class="cp-input-wrapper" id="cpInputWrapper">
+        <!-- Thanh công cụ: Switch nhỏ + Phóng to + Xóa -->
         <div class="cp-input-toolbar">
-            <span class="cp-input-label">Nội dung văn bản</span>
             <div class="cp-input-tools-right">
-                <button type="button" id="cpExpandBtn" class="cp-btn-reset" style="padding: 3px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;" title="Phóng to toàn màn hình">
+                <button type="button" id="cpSwitchBtn" class="cp-switch-btn" title="Đảo chiều dịch">
+                    <i class="fas fa-exchange-alt"></i>
+                </button>
+                
+                <button type="button" id="cpExpandBtn" class="cp-btn-reset" style="padding: 4px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px; border-radius: 8px;" title="Phóng to toàn màn hình">
                     <i class="fas fa-expand" id="cpExpandIcon"></i> <span id="cpExpandText">Phóng to</span>
                 </button>
-                <button class="cp-btn-reset" id="cpResetBtn" type="button" title="Làm mới" style="padding: 3px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;">
+                
+                <button class="cp-btn-reset" id="cpResetBtn" type="button" title="Làm mới" style="padding: 4px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px; border-radius: 8px;">
                     <i class="fas fa-rotate-right"></i> <span>Xóa</span>
                 </button>
-                <button class="cp-btn-reset cp-btn-reset-mobile" id="cpResetBtnMobile" type="button" title="Làm mới" style="padding: 3px 10px; font-size: 0.75rem; display: none; align-items: center; gap: 4px;">
+                <button class="cp-btn-reset cp-btn-reset-mobile" id="cpResetBtnMobile" type="button" title="Làm mới" style="padding: 4px 10px; font-size: 0.75rem; display: none; align-items: center; gap: 4px; border-radius: 8px;">
                     <i class="fas fa-rotate-right"></i> <span>Xóa</span>
                 </button>
             </div>
@@ -711,7 +739,6 @@ def build_custom_practice_html():
     </div>
 </div>
 """
-
 def build_custom_practice_js():
     return r"""
 (function() {
@@ -734,8 +761,6 @@ def build_custom_practice_js():
     var tokenText = document.getElementById('cpTokenText');
     
     var switchBtn = document.getElementById('cpSwitchBtn');
-    var labelZh = document.getElementById('cpLabelZh');
-    var labelVi = document.getElementById('cpLabelVi');
     
     var progressWrap = document.getElementById('cpProgressWrap');
     var progressBar = document.getElementById('cpProgressBar');
@@ -1186,8 +1211,6 @@ def build_custom_practice_js():
 
         if (hasChinese && currentMode !== 'zh2vi') {
             currentMode = 'zh2vi';
-            labelVi.classList.remove('active');
-            labelZh.classList.add('active');
             spellContainer.classList.remove('show');
             if (!inputArea.disabled) {
                 inputArea.placeholder = '输入或粘贴中文文本，让翻译助手帮您搞定...';
@@ -1196,8 +1219,6 @@ def build_custom_practice_js():
             var hasLatin = /[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềếểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴÝỶỸ]/.test(text);
             if (hasLatin) {
                 currentMode = 'vi2zh';
-                labelZh.classList.remove('active');
-                labelVi.classList.add('active');
                 if (!inputArea.disabled) {
                     inputArea.placeholder = 'Nhập hoặc dán văn bản để Trợ lý dịch giúp bạn...';
                 }
@@ -1222,14 +1243,10 @@ def build_custom_practice_js():
     switchBtn.addEventListener('click', function() {
         if (currentMode === 'vi2zh') {
             currentMode = 'zh2vi';
-            labelVi.classList.remove('active');
-            labelZh.classList.add('active');
             spellContainer.classList.remove('show');
             if (!inputArea.disabled) inputArea.placeholder = '输入或粘贴中文文本，让翻译助手帮您搞定...';
         } else {
             currentMode = 'vi2zh';
-            labelZh.classList.remove('active');
-            labelVi.classList.add('active');
             if (!inputArea.disabled) inputArea.placeholder = 'Nhập hoặc dán văn bản để Trợ lý dịch giúp bạn...';
         }
         
@@ -2143,13 +2160,9 @@ def build_custom_practice_js():
                     
                     if (json.detected_source === 'zh' && currentMode !== 'zh2vi') {
                         currentMode = 'zh2vi';
-                        labelVi.classList.remove('active');
-                        labelZh.classList.add('active');
                         if (!inputArea.disabled) inputArea.placeholder = 'Dán văn bản tiếng Trung vào đây...';
                     } else if (json.detected_source === 'vi' && currentMode !== 'vi2zh') {
                         currentMode = 'vi2zh';
-                        labelZh.classList.remove('active');
-                        labelVi.classList.add('active');
                         if (!inputArea.disabled) inputArea.placeholder = 'Nhập văn bản tiếng Việt vào đây...';
                     }
                                       
