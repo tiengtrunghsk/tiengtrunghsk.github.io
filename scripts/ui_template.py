@@ -3996,7 +3996,7 @@ def build_ui_html():
     <span id="renewalPendingCount" style="margin-left:auto;background:#f59e0b;color:#fff;font-size:.65rem;font-weight:800;padding:.15rem .45rem;border-radius:50px;min-width:20px;text-align:center;">1</span>
 </button>
 <button class="dropdown-item" id="renewalHistoryBtn"><i class="fas fa-history"></i> Lịch sử gia hạn</button>
-<button class="dropdown-renew" id="dropdownRenewBtn" style="display:none"><i class="fas fa-gem"></i><span>Gia hạn tài khoản</span><span class="renew-badge">VIP</span></button>
+<button class="dropdown-renew" id="dropdownRenewBtn" style="display:none"><i class="fas fa-gem"></i><span>Gia hạn/+Token</span><span class="renew-badge">VIP</span></button>
 <button class="dropdown-item danger" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
 </div>
 </div>
