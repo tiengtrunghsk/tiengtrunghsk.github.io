@@ -630,23 +630,35 @@ def build_custom_practice_js():
 
         expandBtn.addEventListener('click', function() {
             var isFullscreen = inputWrapper.classList.toggle('fullscreen');
+            
             if (isFullscreen) {
                 // Bê nguyên thanh công cụ vào trong khung fullscreen
                 inputWrapper.insertBefore(actionRow, inputWrapper.firstChild);
                 expandIcon.className = 'fas fa-compress';
                 expandText.textContent = 'Thu nhỏ';
                 expandBtn.title = 'Thu nhỏ lại';
+                
+                // Cập nhật chiều cao cho chế độ Fullscreen
+                autoResizeTextarea();
             } else {
                 // Trả thanh công cụ về vị trí cũ
                 originalActionRowParent.insertBefore(actionRow, originalActionRowParent.firstChild);
                 expandIcon.className = 'fas fa-expand';
                 expandText.textContent = 'Phóng to';
                 expandBtn.title = 'Phóng to toàn màn hình';
+                
+                // ⭐ SỬA LỖI TẠI ĐÂY:
+                // 1. Xóa chiều cao inline đang bị kẹt từ chế độ fullscreen
+                inputArea.style.height = 'auto';
+                inputArea.style.overflowY = 'hidden';
+                
+                // 2. Đợi 50ms để CSS gỡ bỏ hoàn toàn hiệu ứng fullscreen, sau đó mới đo lại chiều cao
+                setTimeout(function() {
+                    autoResizeTextarea();
+                }, 50);
             }
-            autoResizeTextarea();
         });
     }
-
     function checkIsExpired() {
         if (window.APP_TIER === 'expired' || window.APP_TIER === 'expire') return true;
         if (window.isUserExpired === true) return true;
