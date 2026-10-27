@@ -626,33 +626,28 @@ def build_custom_practice_js():
 
     if (expandBtn && inputWrapper) {
         var actionRow = document.getElementById('cpActionRow');
-        var originalActionRowParent = actionRow.parentNode; // Lưu vị trí gốc của thanh công cụ
+        var originalActionRowParent = actionRow.parentNode; 
 
         expandBtn.addEventListener('click', function() {
             var isFullscreen = inputWrapper.classList.toggle('fullscreen');
             
             if (isFullscreen) {
-                // Bê nguyên thanh công cụ vào trong khung fullscreen
                 inputWrapper.insertBefore(actionRow, inputWrapper.firstChild);
                 expandIcon.className = 'fas fa-compress';
                 expandText.textContent = 'Thu nhỏ';
                 expandBtn.title = 'Thu nhỏ lại';
-                
-                // Cập nhật chiều cao cho chế độ Fullscreen
                 autoResizeTextarea();
             } else {
-                // Trả thanh công cụ về vị trí cũ
                 originalActionRowParent.insertBefore(actionRow, originalActionRowParent.firstChild);
                 expandIcon.className = 'fas fa-expand';
                 expandText.textContent = 'Phóng to';
                 expandBtn.title = 'Phóng to toàn màn hình';
                 
-                // ⭐ SỬA LỖI TẠI ĐÂY:
-                // 1. Xóa chiều cao inline đang bị kẹt từ chế độ fullscreen
-                inputArea.style.height = 'auto';
-                inputArea.style.overflowY = 'hidden';
+                // Xóa inline style để nó về trạng thái mặc định
+                inputArea.style.height = ''; 
+                inputArea.style.overflowY = '';
                 
-                // 2. Đợi 50ms để CSS gỡ bỏ hoàn toàn hiệu ứng fullscreen, sau đó mới đo lại chiều cao
+                // Đợi 50ms cho CSS render xong rồi mới gọi hàm đo lại
                 setTimeout(function() {
                     autoResizeTextarea();
                 }, 50);
@@ -969,13 +964,20 @@ def build_custom_practice_js():
         
         // 1. Kiểm tra nếu đang ở chế độ Fullscreen
         if (inputWrapper && inputWrapper.classList.contains('fullscreen')) {
-            // Ở fullscreen, để CSS (flex: 1) tự động lo chiều cao, ta xóa style inline
             inputArea.style.height = '100%';
             inputArea.style.overflowY = 'auto';
             return; 
         }
 
-        // 2. Chế độ bình thường: Tính toán chiều cao dựa trên nội dung
+        // 2. Chế độ bình thường
+        // Nếu nội dung trống, trả về chiều cao mặc định (khoảng 4 dòng như rows=4)
+        if (inputArea.value.trim() === '') {
+            inputArea.style.height = '100px'; // Hoặc 'auto' tùy theo CSS min-height của bạn
+            inputArea.style.overflowY = 'hidden';
+            return;
+        }
+
+        // 3. Nếu có nội dung: Tính toán chiều cao
         inputArea.style.height = 'auto'; // Reset để đo lại
         var newHeight = inputArea.scrollHeight;
         var maxHeight = 400;
@@ -988,7 +990,6 @@ def build_custom_practice_js():
             inputArea.style.overflowY = 'hidden';
         }
     }
-
     function findSuspiciousWords() {
         if (currentMode !== 'vi2zh') return [];
         var text = inputArea.value;
