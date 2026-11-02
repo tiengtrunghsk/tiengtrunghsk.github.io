@@ -11941,33 +11941,6 @@ html body .tiktok-float-btn > i {
     border-color: transparent !important;
 }
 
-/* Style cho tab tu-vung-hsk-old */
-.ds-btn[data-dataset="tu-vung-hsk-old"] {
-    background: var(--surface) !important;
-    border-color: var(--border) !important;
-    color: var(--text) !important;
-}
-.ds-btn[data-dataset="tu-vung-hsk-old"] i:first-child { color: var(--primary) !important; }
-.ds-btn[data-dataset="tu-vung-hsk-old"]:hover {
-    border-color: var(--primary) !important;
-    background: var(--primary-light) !important;
-}
-.ds-btn[data-dataset="tu-vung-hsk-old"].active {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
-    color: #fff !important;
-    border-color: transparent !important;
-    box-shadow: 0 4px 12px rgba(124, 58, 237, .35) !important;
-}
-.ds-btn[data-dataset="tu-vung-hsk-old"].active i:first-child { color: #fff !important; }
-[data-theme="dark"] .ds-btn[data-dataset="tu-vung-hsk-old"] {
-    background: var(--surface) !important;
-    border-color: var(--border) !important;
-}
-[data-theme="dark"] .ds-btn[data-dataset="tu-vung-hsk-old"].active {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
-    border-color: transparent !important;
-}
-
 /* VOCAB PREMIUM CSS */
 
 .ds-btn[data-dataset="tu-vung"] {
@@ -13833,14 +13806,6 @@ body.has-floating-group #quickSearchRoot{
             <i class="fas fa-comments ds-btn-icon"></i>
             <span class="ds-btn-text">
                 <span class="ds-btn-title"><b>1K+</b> Câu giao tiếp</span>
-                <span class="ds-btn-sub">Hội thoại thực tế</span>
-            </span>
-            
-        </button>
-        <button class="ds-btn ds-btn-primary" data-dataset="tu-vung-hsk-old" >
-            <i class="fas fa-comments ds-btn-icon"></i>
-            <span class="ds-btn-text">
-                <span class="ds-btn-title">Tu Vung Hsk Old</span>
                 <span class="ds-btn-sub">Hội thoại thực tế</span>
             </span>
             
@@ -40793,11 +40758,11 @@ window.__switchRawData = function(datasetId) {
 /* FIX.PY - Lazy load preview + full data tu JSON (Co thong bao loading) */
 (function() {
     'use strict';
-    var NEW_IDS = ["1k-cau-giao-tiep", "tu-vung-hsk-old"];
+    var NEW_IDS = ["1k-cau-giao-tiep"];
 
     window.FIXPY_DATASETS = {};
     window.__fixpyFullLoaded = false;
-    window.__fixpyMeta = {"tu-vung":{"id":"tu-vung","name":"11000+ Từ vựng HSK","icon":"fa-book","color":"#f59e0b","count":11747,"source":"tu_vung_hsk.xlsx","type":"premium","group":"fixpy"},"1k-cau-giao-tiep":{"id":"1k-cau-giao-tiep","name":"1K+ Câu giao tiếp","icon":"fa-comments","color":"#0891b2","count":1060,"source":"1K+_Câu_giao_tiếp.xlsx","type":"main","group":"fixpy"},"tu-vung-hsk-old":{"id":"tu-vung-hsk-old","name":"Tu Vung Hsk Old","icon":"fa-file-alt","color":"#dc2626","count":506,"source":"tu_vung_hsk_old.xlsx","type":"main","group":"fixpy"},"tonghop":{"id":"tonghop","name":"1750 câu phản xạ tổng hợp VPCX","icon":"fa-book-open","color":"#4f46e5","count":1750,"source":"data/input.xlsx","type":"main","group":"chuyen-nganh"},"chat-luong":{"id":"chat-luong","name":"Chất lượng","icon":"fa-award","color":"#7c3aed","count":706,"source":"Chất_lượng.xlsx","type":"main","group":"chuyen-nganh"},"co-khi-che-tao":{"id":"co-khi-che-tao","name":"Cơ khí - Chế tạo","icon":"fa-folder","color":"#7c3aed","count":354,"source":"Cơ_khí_-_Chế_tạo.xlsx","type":"main","group":"chuyen-nganh"},"giay-da":{"id":"giay-da","name":"Giày da","icon":"fa-shoe-prints","color":"#7c3aed","count":423,"source":"Giày_da.xlsx","type":"main","group":"chuyen-nganh"},"hanh-chinh-nhan-su":{"id":"hanh-chinh-nhan-su","name":"Hành chính - Nhân sự","icon":"fa-briefcase","color":"#7c3aed","count":1326,"source":"Hành_chính_-_Nhân_sự.xlsx","type":"main","group":"chuyen-nganh"},"ke-toan":{"id":"ke-toan","name":"Kế toán","icon":"fa-calculator","color":"#7c3aed","count":365,"source":"Kế_toán.xlsx","type":"main","group":"chuyen-nganh"},"logistics-kho-van":{"id":"logistics-kho-van","name":"Logistics - Kho Vận","icon":"fa-truck","color":"#7c3aed","count":955,"source":"Logistics_-_Kho_Vận.xlsx","type":"main","group":"chuyen-nganh"},"may-mac":{"id":"may-mac","name":"May mặc","icon":"fa-tshirt","color":"#7c3aed","count":404,"source":"May_mặc.xlsx","type":"main","group":"chuyen-nganh"},"may-tinh-it":{"id":"may-tinh-it","name":"Máy tính & IT","icon":"fa-laptop-code","color":"#7c3aed","count":286,"source":"Máy_tính_&_IT.xlsx","type":"main","group":"chuyen-nganh"},"thu-mua":{"id":"thu-mua","name":"Thu mua","icon":"fa-shopping-cart","color":"#7c3aed","count":1051,"source":"Thu_mua.xlsx","type":"main","group":"chuyen-nganh"},"to-truong-quan-li-san-xuat":{"id":"to-truong-quan-li-san-xuat","name":"Tổ trưởng - Quản lí sản xuất","icon":"fa-industry","color":"#7c3aed","count":350,"source":"Tổ_trưởng_-_Quản_lí_sản_xuất.xlsx","type":"main","group":"chuyen-nganh"},"van-thu-tro-ly-san-xuat":{"id":"van-thu-tro-ly-san-xuat","name":"Văn thư - Trợ lý sản xuất","icon":"fa-industry","color":"#7c3aed","count":1050,"source":"Văn_thư_-_Trợ_lý_sản_xuất.xlsx","type":"main","group":"chuyen-nganh"},"xuat-nhap-khau":{"id":"xuat-nhap-khau","name":"Xuất nhập khẩu","icon":"fa-ship","color":"#7c3aed","count":300,"source":"Xuất_nhập_khẩu.xlsx","type":"main","group":"chuyen-nganh"},"dau-tu-tai-chinh":{"id":"dau-tu-tai-chinh","name":"Đầu tư - Tài chính","icon":"fa-coins","color":"#7c3aed","count":504,"source":"Đầu_tư_-_Tài_chính.xlsx","type":"main","group":"chuyen-nganh"},"dien-tu-smt":{"id":"dien-tu-smt","name":"Điện Tử - SMT","icon":"fa-folder","color":"#7c3aed","count":326,"source":"Điện_Tử_-_SMT.xlsx","type":"main","group":"chuyen-nganh"},"doi-song-du-lich":{"id":"doi-song-du-lich","name":"Đời Sống - Du Lịch","icon":"fa-folder","color":"#7c3aed","count":378,"source":"Đời_Sống_-_Du_Lịch.xlsx","type":"main","group":"chuyen-nganh"}};
+    window.__fixpyMeta = {"tu-vung":{"id":"tu-vung","name":"11000+ Từ vựng HSK","icon":"fa-book","color":"#f59e0b","count":11747,"source":"tu_vung_hsk.xlsx","type":"premium","group":"fixpy"},"1k-cau-giao-tiep":{"id":"1k-cau-giao-tiep","name":"1K+ Câu giao tiếp","icon":"fa-comments","color":"#0891b2","count":1060,"source":"1K+_Câu_giao_tiếp.xlsx","type":"main","group":"fixpy"},"tonghop":{"id":"tonghop","name":"1750 câu phản xạ tổng hợp VPCX","icon":"fa-book-open","color":"#4f46e5","count":1750,"source":"data/input.xlsx","type":"main","group":"chuyen-nganh"},"chat-luong":{"id":"chat-luong","name":"Chất lượng","icon":"fa-award","color":"#7c3aed","count":706,"source":"Chất_lượng.xlsx","type":"main","group":"chuyen-nganh"},"co-khi-che-tao":{"id":"co-khi-che-tao","name":"Cơ khí - Chế tạo","icon":"fa-folder","color":"#7c3aed","count":354,"source":"Cơ_khí_-_Chế_tạo.xlsx","type":"main","group":"chuyen-nganh"},"giay-da":{"id":"giay-da","name":"Giày da","icon":"fa-shoe-prints","color":"#7c3aed","count":423,"source":"Giày_da.xlsx","type":"main","group":"chuyen-nganh"},"hanh-chinh-nhan-su":{"id":"hanh-chinh-nhan-su","name":"Hành chính - Nhân sự","icon":"fa-briefcase","color":"#7c3aed","count":1326,"source":"Hành_chính_-_Nhân_sự.xlsx","type":"main","group":"chuyen-nganh"},"ke-toan":{"id":"ke-toan","name":"Kế toán","icon":"fa-calculator","color":"#7c3aed","count":365,"source":"Kế_toán.xlsx","type":"main","group":"chuyen-nganh"},"logistics-kho-van":{"id":"logistics-kho-van","name":"Logistics - Kho Vận","icon":"fa-truck","color":"#7c3aed","count":955,"source":"Logistics_-_Kho_Vận.xlsx","type":"main","group":"chuyen-nganh"},"may-mac":{"id":"may-mac","name":"May mặc","icon":"fa-tshirt","color":"#7c3aed","count":404,"source":"May_mặc.xlsx","type":"main","group":"chuyen-nganh"},"may-tinh-it":{"id":"may-tinh-it","name":"Máy tính & IT","icon":"fa-laptop-code","color":"#7c3aed","count":286,"source":"Máy_tính_&_IT.xlsx","type":"main","group":"chuyen-nganh"},"thu-mua":{"id":"thu-mua","name":"Thu mua","icon":"fa-shopping-cart","color":"#7c3aed","count":1051,"source":"Thu_mua.xlsx","type":"main","group":"chuyen-nganh"},"to-truong-quan-li-san-xuat":{"id":"to-truong-quan-li-san-xuat","name":"Tổ trưởng - Quản lí sản xuất","icon":"fa-industry","color":"#7c3aed","count":350,"source":"Tổ_trưởng_-_Quản_lí_sản_xuất.xlsx","type":"main","group":"chuyen-nganh"},"van-thu-tro-ly-san-xuat":{"id":"van-thu-tro-ly-san-xuat","name":"Văn thư - Trợ lý sản xuất","icon":"fa-industry","color":"#7c3aed","count":1050,"source":"Văn_thư_-_Trợ_lý_sản_xuất.xlsx","type":"main","group":"chuyen-nganh"},"xuat-nhap-khau":{"id":"xuat-nhap-khau","name":"Xuất nhập khẩu","icon":"fa-ship","color":"#7c3aed","count":300,"source":"Xuất_nhập_khẩu.xlsx","type":"main","group":"chuyen-nganh"},"dau-tu-tai-chinh":{"id":"dau-tu-tai-chinh","name":"Đầu tư - Tài chính","icon":"fa-coins","color":"#7c3aed","count":504,"source":"Đầu_tư_-_Tài_chính.xlsx","type":"main","group":"chuyen-nganh"},"dien-tu-smt":{"id":"dien-tu-smt","name":"Điện Tử - SMT","icon":"fa-folder","color":"#7c3aed","count":326,"source":"Điện_Tử_-_SMT.xlsx","type":"main","group":"chuyen-nganh"},"doi-song-du-lich":{"id":"doi-song-du-lich","name":"Đời Sống - Du Lịch","icon":"fa-folder","color":"#7c3aed","count":378,"source":"Đời_Sống_-_Du_Lịch.xlsx","type":"main","group":"chuyen-nganh"}};
     window.__fixpyPendingSwitch = null;
 
     /* Hiển thị thông báo đang tải ngầm ban đầu */
