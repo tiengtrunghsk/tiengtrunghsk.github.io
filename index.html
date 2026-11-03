@@ -20433,41 +20433,49 @@ window.__toggleUserMenu = function(e) {
     try { sessionStorage.setItem('userDropdownClosed', willOpen ? '0' : '1'); } catch(_e) {}
 };
 /* ⭐ SẮP XẾP LẠI TOÀN BỘ GIAO DIỆN THEO ĐÚNG THỨ TỰ */
+/* ⭐ SẮP XẾP LẠI TOÀN BỘ GIAO DIỆN THEO ĐÚNG THỨ TỰ */
 (function() {
     function rearrangeUI() {
         var stickyTop = document.getElementById('stickyTop');
         if (!stickyTop) return;
-        
+
         var container = stickyTop.querySelector('.container');
         if (!container) return;
 
-        var header = container.querySelector('.header');
-        var cpSection = document.getElementById('cpSection');
+        var header          = container.querySelector('.header');
+        var tiktokBar       = container.querySelector('.tiktok-bar');
+        var cpSection       = document.getElementById('cpSection');
         var datasetSelector = document.getElementById('datasetSelector');
         var searchFilterRow = document.querySelector('.search-filter-row');
-        var introBanner = document.querySelector('.intro-banner') 
-                       || document.getElementById('quickIntroBanner')
-                       || document.querySelector('.quick-intro-banner');
+        var introBanner     = document.querySelector('.intro-banner')
+                           || document.getElementById('quickIntroBanner')
+                           || document.querySelector('.quick-intro-banner');
 
         if (!header) return;
 
-        // Dọn dẹp vị trí cũ của các khối (chỉ cần gắn vào một khung tạm là nó tự tách khỏi vị trí cũ)
+        // Gỡ tất cả khỏi vị trí cũ
         var tempDiv = document.createElement('div');
-        if (introBanner) tempDiv.appendChild(introBanner);
-        if (cpSection) tempDiv.appendChild(cpSection);
+        if (introBanner)     tempDiv.appendChild(introBanner);
+        if (tiktokBar)       tempDiv.appendChild(tiktokBar);
+        if (cpSection)       tempDiv.appendChild(cpSection);
         if (datasetSelector) tempDiv.appendChild(datasetSelector);
         if (searchFilterRow) tempDiv.appendChild(searchFilterRow);
 
-        // Bắt đầu xếp lại từ dưới Header
         var currentAnchor = header;
 
-        // 1. Intro Banner
+        // ⭐ 1. TikTok bar — chỉ chèn NGOÀI header nếu đang ở mobile
+        if (tiktokBar && !header.contains(tiktokBar)) {
+            currentAnchor.insertAdjacentElement('afterend', tiktokBar);
+            currentAnchor = tiktokBar;
+        }
+
+        // 2. Intro banner
         if (introBanner) {
             currentAnchor.insertAdjacentElement('afterend', introBanner);
             currentAnchor = introBanner;
         }
 
-        // 2. Trợ lý dịch thuật
+        // 3. Trợ lý dịch thuật
         if (cpSection) {
             cpSection.style.marginTop = '10px';
             cpSection.style.marginBottom = '15px';
@@ -20475,27 +20483,25 @@ window.__toggleUserMenu = function(e) {
             currentAnchor = cpSection;
         }
 
-        // 3. Bộ dữ liệu
+        // 4. Bộ dữ liệu
         if (datasetSelector) {
             currentAnchor.insertAdjacentElement('afterend', datasetSelector);
             currentAnchor = datasetSelector;
         }
 
-        // 4. Ô Tìm kiếm & Bộ lọc
+        // 5. Ô Tìm kiếm & Bộ lọc
         if (searchFilterRow) {
             currentAnchor.insertAdjacentElement('afterend', searchFilterRow);
             currentAnchor = searchFilterRow;
         }
     }
 
-    // Chạy khi DOM sẵn sàng
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', rearrangeUI);
     } else {
         rearrangeUI();
     }
-    
-    // Chạy lại sau 1s đề phòng các script khác load chậm chèn đè lên
+
     setTimeout(rearrangeUI, 1000);
 })();
 
