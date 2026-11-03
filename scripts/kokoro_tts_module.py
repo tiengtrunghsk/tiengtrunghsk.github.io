@@ -140,7 +140,7 @@ def build_kokoro_js():
             kkModel = await window.KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.1-zh-ONNX", {
                 dtype: "q8",
                 device: "wasm",
-                voicePath: "/kokoro/voices", // Thư mục chứa zm_009.bin và zf_008.bin
+                voicePath: "/public/kokoro/voices",
                 progress_callback: function(progress) {
                     if (progress.status === 'progress' && progress.total) {
                         var pct = Math.round((progress.loaded / progress.total) * 100);
