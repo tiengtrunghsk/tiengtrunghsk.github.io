@@ -4233,9 +4233,18 @@ def build_ui_html():
                 </div>
                 <div class="voice-slider-row">
                     <button type="button" id="voicePitchMinus" title="Trầm hơn">−</button>
-                    <input type="range" class="voice-slider" id="voicePitchSlider" min="0.5" max="1.5" step="0.05" value="1.0">
+                    <input type="range" class="voice-slider" id="voicePitchSlider" min="0.1" max="2.0" step="0.05" value="1.0">
                     <button type="button" id="voicePitchPlus" title="Cao hơn">+</button>
                 </div>
+                <!-- ⬇️ THÊM MỚI TẠI ĐÂY ⬇️ -->
+                <div class="voice-preset-row">
+                    <button class="voice-preset-pitch" data-pitch="0.3">👨 Trầm</button>
+                    <button class="voice-preset-pitch" data-pitch="0.7">🧑 Nam</button>
+                    <button class="voice-preset-pitch" data-pitch="1.0">😐 Gốc</button>
+                    <button class="voice-preset-pitch" data-pitch="1.35">👩 Nữ</button>
+                    <button class="voice-preset-pitch" data-pitch="1.7">👧 Nữ cao</button>
+                </div>
+                <!-- ⬆️ HẾT PHẦN THÊM ⬆️ -->
             </div>
 
             <div class="voice-group">
@@ -4266,7 +4275,6 @@ def build_ui_html():
         </div>
     </div>
 </div>
-
 <!-- ONBOARDING MODAL - CHON CHU DE QUAN TAM -->
 <div class="onboarding-modal" id="onboardingModal">
     <div class="onboarding-box">
@@ -6625,6 +6633,12 @@ function updateVoiceUI() {
         var r = parseFloat(b.dataset.rate);
         b.classList.toggle('active', Math.abs(r - voiceState.rate) < 0.001);
     });
+
+    // ⭐ Cập nhật trạng thái sáng/tối cho các nút Cao độ (Nam/Nữ)
+    document.querySelectorAll('.voice-preset-pitch').forEach(function(b) {
+        var p = parseFloat(b.dataset.pitch);
+        b.classList.toggle('active', Math.abs(p - voiceState.pitch) < 0.05);
+    });
 }
 
 function voiceTestSpeak() {
@@ -6685,16 +6699,27 @@ function initVoiceSettings() {
         updateVoiceUI();
         saveVoiceSettings();
     }
+    
+    // ⭐ Cập nhật giới hạn mới cho nút + / - của Pitch (0.1 -> 2.0)
     if ($('voiceRateMinus'))  $('voiceRateMinus').addEventListener('click',  function(){ adjust('rate',   -0.05, 0.5, 1.5); });
     if ($('voiceRatePlus'))   $('voiceRatePlus').addEventListener('click',   function(){ adjust('rate',    0.05, 0.5, 1.5); });
-    if ($('voicePitchMinus')) $('voicePitchMinus').addEventListener('click', function(){ adjust('pitch',  -0.05, 0.5, 1.5); });
-    if ($('voicePitchPlus'))  $('voicePitchPlus').addEventListener('click',  function(){ adjust('pitch',   0.05, 0.5, 1.5); });
+    if ($('voicePitchMinus')) $('voicePitchMinus').addEventListener('click', function(){ adjust('pitch',  -0.1, 0.1, 2.0); });
+    if ($('voicePitchPlus'))  $('voicePitchPlus').addEventListener('click',  function(){ adjust('pitch',   0.1, 0.1, 2.0); });
     if ($('voiceVolumeMinus'))$('voiceVolumeMinus').addEventListener('click',function(){ adjust('volume', -0.05, 0, 1); });
     if ($('voiceVolumePlus')) $('voiceVolumePlus').addEventListener('click', function(){ adjust('volume',  0.05, 0, 1); });
 
     document.querySelectorAll('.voice-preset-btn').forEach(function(b) {
         b.addEventListener('click', function() {
             voiceState.rate = parseFloat(this.dataset.rate);
+            updateVoiceUI();
+            saveVoiceSettings();
+        });
+    });
+
+    // ⭐ THÊM MỚI: Xử lý sự kiện cho nút Preset Pitch (Nam, Nữ...)
+    document.querySelectorAll('.voice-preset-pitch').forEach(function(b) {
+        b.addEventListener('click', function() {
+            voiceState.pitch = parseFloat(this.dataset.pitch);
             updateVoiceUI();
             saveVoiceSettings();
         });
@@ -6742,7 +6767,6 @@ function initVoiceSettings() {
         if (e.key === 'Escape' && modal.classList.contains('show')) modal.classList.remove('show');
     });
 }
-
 /* ============================================================ */
 /* BUILD FILTERS                                                 */
 /* ============================================================ */
