@@ -77,7 +77,7 @@ def build_kokoro_html():
 def build_kokoro_js():
     return r"""
 /* ═══════════════════════════════════════════════════════════ */
-/* KOKORO TTS MODULE (Chạy 100% Client-side)                   */
+/* KOKORO TTS MODULE - BẢN DEBUG & BÁM ĐUÔI                      */
 /* ═══════════════════════════════════════════════════════════ */
 (function() {
     'use strict';
@@ -86,7 +86,7 @@ def build_kokoro_js():
     var isDownloading = false;
     var KK_CACHE_KEY = 'kokoro_model_loaded';
 
-    // 1. Tự động kiểm tra xem đã tải model chưa (lưu trong localStorage)
+    // 1. Kiểm tra trạng thái
     function checkKokoroStatus() {
         var badge = document.getElementById('kkStatusBadge');
         var btn = document.getElementById('kkDownloadBtn');
@@ -98,18 +98,19 @@ def build_kokoro_js():
             badge.textContent = 'Đã tải';
             badge.style.background = '#dcfce7';
             badge.style.color = '#16a34a';
-            btn.style.display = 'none';
-            voiceWrap.classList.add('show');
+            if(btn) btn.style.display = 'none';
+            if(voiceWrap) voiceWrap.classList.add('show');
         }
     }
 
-    // 2. Hàm tải thư viện Kokoro-JS từ CDN
+    // 2. Tải thư viện (Dùng cách an toàn hơn, tránh lỗi ESM)
     function loadKokoroLibrary() {
         return new Promise(function(resolve, reject) {
             if (window.KokoroTTS) return resolve();
             
             var script = document.createElement('script');
             script.type = 'module';
+            // Dùng skypack hoặc jsdelivr
             script.innerHTML = `
                 import { KokoroTTS } from 'https://cdn.jsdelivr.net/npm/kokoro-js@1.2.0/+esm';
                 window.KokoroTTS = KokoroTTS;
@@ -119,14 +120,13 @@ def build_kokoro_js():
             
             window.addEventListener('kokoroLoaded', resolve, { once: true });
             
-            // Timeout phòng trường hợp mạng lỗi
             setTimeout(function() {
-                if (!window.KokoroTTS) reject(new Error('Timeout tải thư viện Kokoro'));
+                if (!window.KokoroTTS) reject(new Error('Timeout tải thư viện Kokoro (30s)'));
             }, 30000);
         });
     }
 
-    // 3. Hàm khởi tạo Model (Tải 1 lần, sau đó trình duyệt tự cache)
+    // 3. Khởi tạo Model
     async function initKokoro() {
         if (kkModel) return kkModel;
         if (isDownloading) return null;
@@ -136,83 +136,76 @@ def build_kokoro_js():
         var progressText = document.getElementById('kkProgressText');
         var progressBar = document.getElementById('kkProgressBar');
         
-        progressWrap.classList.add('show');
-        progressText.textContent = 'Đang tải thư viện AI...';
+        if(progressWrap) progressWrap.classList.add('show');
+        if(progressText) progressText.textContent = 'Đang tải thư viện AI...';
 
         try {
             await loadKokoroLibrary();
             
-            progressText.textContent = 'Đang tải Model (khoảng 90MB)...';
-            progressBar.style.width = '20%';
+            if(progressText) progressText.textContent = 'Đang tải Model (khoảng 90MB)...';
+            if(progressBar) progressBar.style.width = '20%';
 
-            // ⭐ Tải model Q8 (~90MB) để nhẹ nhất
             kkModel = await window.KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX", {
                 dtype: "q8",
-                device: "wasm", // Hoặc "webgpu" nếu muốn nhanh hơn
+                device: "wasm",
                 progress_callback: function(progress) {
                     if (progress.status === 'progress' && progress.total) {
                         var pct = Math.round((progress.loaded / progress.total) * 100);
-                        progressBar.style.width = pct + '%';
-                        progressText.textContent = 'Đang tải Model: ' + pct + '%';
+                        if(progressBar) progressBar.style.width = pct + '%';
+                        if(progressText) progressText.textContent = 'Đang tải Model: ' + pct + '%';
                     }
                 }
             });
 
-            progressBar.style.width = '100%';
-            progressText.textContent = 'Hoàn tất!';
+            if(progressBar) progressBar.style.width = '100%';
+            if(progressText) progressText.textContent = 'Hoàn tất!';
             
-            // Lưu trạng thái vào localStorage
             localStorage.setItem(KK_CACHE_KEY, 'true');
             
             setTimeout(function() {
-                progressWrap.classList.remove('show');
+                if(progressWrap) progressWrap.classList.remove('show');
                 checkKokoroStatus();
-                if (typeof showUserChangedToast === 'function') {
-                    showUserChangedToast('✅ Đã tải xong giọng AI!', 'success');
-                }
+                alert("✅ Đã tải xong giọng AI! Hãy thử bấm nút loa.");
             }, 800);
 
             return kkModel;
         } catch (e) {
             console.error("Lỗi tải Kokoro:", e);
-            progressText.textContent = '❌ Lỗi tải. Vui lòng thử lại.';
-            progressBar.style.background = '#ef4444';
+            alert("❌ Lỗi tải AI: " + e.message);
+            if(progressText) progressText.textContent = '❌ Lỗi tải. Vui lòng thử lại.';
+            if(progressBar) progressBar.style.background = '#ef4444';
             isDownloading = false;
             return null;
         }
     }
 
-    // 4. Ghi đè hàm speakText hiện tại của bạn
-    // 4. Ghi đè hàm speakText hiện tại của bạn
+    // 4. Ghi đè hàm speakText
     function overrideSpeakText() {
-        // Lưu lại hàm gốc
         if (!window.__originalSpeakText) {
             window.__originalSpeakText = window.speakText;
         }
         
-        // Tạo hàm mới
         window.speakText = async function(text, btn, evt) {
-            if (evt) evt.stopPropagation();
+            if (evt && evt.stopPropagation) evt.stopPropagation();
             
-            // Nếu chưa tải Model, dùng giọng mặc định
+            // Nếu chưa tải, dùng giọng cũ
             if (!kkModel || localStorage.getItem(KK_CACHE_KEY) !== 'true') {
+                console.log("[Kokoro] Chưa tải model, dùng giọng mặc định.");
                 if (typeof window.__originalSpeakText === 'function') {
                     return window.__originalSpeakText.call(this, text, btn, evt);
                 }
                 return;
             }
 
-            // Nếu đã có Model, dùng Kokoro
+            console.log("[Kokoro] Đang xử lý:", text);
             if (btn) btn.classList.add('speaking');
             
             try {
-                // ⭐ LẤY GIỌNG TỪ DROPDOWN ĐÃ CHỌN
                 var voiceSelect = document.getElementById('kkVoiceSelect');
                 var selectedVoice = voiceSelect ? voiceSelect.value : 'zm_yunxi'; 
-                // Nếu value rỗng thì mặc định là Vân Hy
                 if (!selectedVoice) selectedVoice = 'zm_yunxi';
 
-                console.log("[Kokoro] Đang đọc với giọng:", selectedVoice);
+                console.log("[Kokoro] Giọng chọn:", selectedVoice);
 
                 var audio = await kkModel.generate(text, { 
                     voice: selectedVoice,
@@ -229,32 +222,23 @@ def build_kokoro_js():
                 };
                 
                 await audioEl.play();
+                console.log("[Kokoro] Đã phát xong.");
             } catch (e) {
-                console.error("Lỗi Kokoro generate:", e);
+                console.error("[Kokoro] Lỗi:", e);
+                alert("Lỗi khi đọc AI: " + e.message);
                 if (btn) btn.classList.remove('speaking');
-                // Fallback
                 if (typeof window.__originalSpeakText === 'function') {
                     return window.__originalSpeakText.call(this, text, btn, evt);
                 }
             }
         };
+        window.speakText.__isKokoro = true;
     }
 
-    // ⭐ Thêm hàm bảo vệ để chống bị module khác ghi đè
-    setInterval(function() {
-        if (localStorage.getItem(KK_CACHE_KEY) === 'true' && kkModel) {
-            // Nếu phát hiện hàm speakText đã bị module khác đổi mất
-            if (!window.speakText.__isKokoro) {
-                overrideSpeakText();
-                window.speakText.__isKokoro = true; // Đánh dấu
-            }
-        }
-    }, 2000);
-    // 5. Khởi tạo các sự kiện
+    // 5. Khởi tạo sự kiện
     function initEvents() {
         checkKokoroStatus();
-        overrideSpeakText();
-
+        
         var btn = document.getElementById('kkDownloadBtn');
         if (btn && !btn.__bound) {
             btn.__bound = true;
@@ -267,13 +251,33 @@ def build_kokoro_js():
                 });
             });
         }
+        
+        // Nếu đã tải từ trước, tự động load model vào bộ nhớ (chạy ngầm)
+        if (localStorage.getItem(KK_CACHE_KEY) === 'true' && !kkModel && !isDownloading) {
+            console.log("[Kokoro] Tự động khôi phục model từ cache...");
+            initKokoro(); // Nó sẽ lấy từ cache trình duyệt cực nhanh
+        }
     }
 
-    // Chạy khi DOM sẵn sàng
+    // ⭐ BƠM THUỐC: Cứ 1 giây kiểm tra xem hàm speakText có bị ghi đè không
+    setInterval(function() {
+        if (localStorage.getItem(KK_CACHE_KEY) === 'true') {
+            if (!window.speakText || !window.speakText.__isKokoro) {
+                console.log("[Kokoro] Phát hiện bị ghi đè, đang chiếm lại quyền điều khiển nút loa...");
+                overrideSpeakText();
+            }
+        } else {
+            // Nếu chưa tải thì không cần ghi đè
+            if (!window.speakText || !window.speakText.__isKokoro) {
+                overrideSpeakText(); // Vẫn ghi đè nhưng nó sẽ fallback
+            }
+        }
+    }, 1000);
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initEvents);
     } else {
-        setTimeout(initEvents, 1000); // Đợi các module khác load xong
+        setTimeout(initEvents, 1000);
     }
 })();
 """
