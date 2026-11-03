@@ -40571,40 +40571,56 @@ console.log('[Mnemonic] Module loaded OK — API: ' + VOCAB_API_URL);
             if (evt && evt.stopPropagation) evt.stopPropagation();
             
             if (!kkModel || localStorage.getItem(KK_CACHE_KEY) !== 'true') {
-                console.log("[Kokoro] Chưa tải model, dùng giọng mặc định.");
                 if (typeof window.__originalSpeakText === 'function') {
                     return window.__originalSpeakText.call(this, text, btn, evt);
                 }
                 return;
             }
 
-            console.log("[Kokoro] Đang xử lý:", text);
             if (btn) btn.classList.add('speaking');
             
             try {
+                // ⭐ 1. MỞ KHÓA ÂM THANH IOS NGAY LẬP TỨC (Trong ngữ cảnh chạm)
+                var AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!window.__kkAudioCtx) {
+                    window.__kkAudioCtx = new AudioContext();
+                }
+                if (window.__kkAudioCtx.state === 'suspended') {
+                    await window.__kkAudioCtx.resume();
+                }
+                
+                // Phát một âm thanh im lặng cực ngắn để "đánh thức" loa
+                var buffer = window.__kkAudioCtx.createBuffer(1, 1, 22050);
+                var source = window.__kkAudioCtx.createBufferSource();
+                source.buffer = buffer;
+                source.connect(window.__kkAudioCtx.destination);
+                source.start(0);
+
                 var voiceSelect = document.getElementById('kkVoiceSelect');
-                // Lấy giọng từ dropdown (zm_009 hoặc zf_008)
                 var selectedVoice = voiceSelect ? voiceSelect.value : 'zm_009'; 
                 if (!selectedVoice) selectedVoice = 'zm_009';
-
-                console.log("[Kokoro] Giọng chọn:", selectedVoice);
 
                 var audio = await kkModel.generate(text, { 
                     voice: selectedVoice,
                     speed: (typeof voiceState !== 'undefined' && voiceState.rate) ? voiceState.rate : 1.0
                 });
                 
+                // ⭐ 2. PHÁT ÂM THANH BẰNG WEB AUDIO API (Không bị chặn)
                 var blob = audio.toBlob();
-                var url = URL.createObjectURL(blob);
-                var audioEl = new Audio(url);
+                var arrayBuffer = await blob.arrayBuffer();
+                var audioBuffer = await window.__kkAudioCtx.decodeAudioData(arrayBuffer);
                 
-                audioEl.onended = function() {
+                var playSource = window.__kkAudioCtx.createBufferSource();
+                playSource.buffer = audioBuffer;
+                playSource.connect(window.__kkAudioCtx.destination);
+                
+                playSource.onended = function() {
                     if (btn) btn.classList.remove('speaking');
-                    URL.revokeObjectURL(url);
                 };
                 
-                await audioEl.play();
-                console.log("[Kokoro] Đã phát xong.");
+                playSource.start(0);
+                console.log("[Kokoro] Đã phát xong bằng Web Audio API.");
+
             } catch (e) {
                 console.error("[Kokoro] Lỗi:", e);
                 alert("Lỗi khi đọc AI: " + e.message);
@@ -40616,7 +40632,6 @@ console.log('[Mnemonic] Module loaded OK — API: ' + VOCAB_API_URL);
         };
         window.speakText.__isKokoro = true;
     }
-
     function initEvents() {
         checkKokoroStatus();
         
