@@ -18,7 +18,6 @@ from social_template import (
     build_social_css, build_social_html, build_social_js,
     build_tiktok_bar_html
 )
-from kokoro_tts_module import build_kokoro_css, build_kokoro_html, build_kokoro_js
 from accounts_template import (
     build_accounts_css, build_accounts_html,
     build_accounts_js, build_all_auth,
@@ -451,7 +450,6 @@ full_css = (
     + "\n/* DEVICE LIMITER */\n" + build_device_css()
     + "\n/* DEVICE ACCOUNT MONITOR */\n" + build_dam_css()
     + "\n/* AUTO SCALE */\n" + build_auto_scale_css()
-    + "\n/* KOKORO TTS */\n" + build_kokoro_css()
     + "\n/* CUSTOM PRACTICE */\n" + build_custom_practice_css()
 )
 ui_html = build_ui_html()
@@ -462,10 +460,6 @@ ui_html = ui_html.replace("<!-- __QUICK_INTRO_BANNER__ -->", build_intro_html())
 ui_html = ui_html.replace(
     "<!-- __CUSTOM_PRACTICE_SECTION__ -->",
     build_custom_practice_html()
-)
-ui_html = ui_html.replace(
-    '<div class="voice-note">', 
-    build_kokoro_html() + '\n<div class="voice-note">'
 )
 
 _fav_html = build_favorites_html()
@@ -1209,7 +1203,6 @@ full_js = (
     + "\n/* DEVICE LIMITER */\n" + build_device_js()
     + "\n/* DEVICE ACCOUNT MONITOR */\n" + build_dam_js()
     + "\n/* CUSTOM PRACTICE */\n" + build_custom_practice_js()
-    + "\n/* KOKORO TTS */\n" + build_kokoro_js()
 )
 full_js = full_js.replace('<script>', '').replace('</script>', '')
 full_js = full_js.replace('<SCRIPT>', '').replace('</SCRIPT>', '')
