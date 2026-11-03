@@ -183,16 +183,21 @@ def build_kokoro_js():
     }
 
     // 4. Ghi đè hàm speakText hiện tại của bạn
+    // 4. Ghi đè hàm speakText hiện tại của bạn
     function overrideSpeakText() {
-        var originalSpeakText = window.speakText;
+        // Lưu lại hàm gốc
+        if (!window.__originalSpeakText) {
+            window.__originalSpeakText = window.speakText;
+        }
         
+        // Tạo hàm mới
         window.speakText = async function(text, btn, evt) {
             if (evt) evt.stopPropagation();
             
-            // Nếu chưa tải Model (hoặc đang tải dở), dùng giọng mặc định
+            // Nếu chưa tải Model, dùng giọng mặc định
             if (!kkModel || localStorage.getItem(KK_CACHE_KEY) !== 'true') {
-                if (typeof originalSpeakText === 'function') {
-                    return originalSpeakText.call(this, text, btn, evt);
+                if (typeof window.__originalSpeakText === 'function') {
+                    return window.__originalSpeakText.call(this, text, btn, evt);
                 }
                 return;
             }
@@ -201,9 +206,14 @@ def build_kokoro_js():
             if (btn) btn.classList.add('speaking');
             
             try {
+                // ⭐ LẤY GIỌNG TỪ DROPDOWN ĐÃ CHỌN
                 var voiceSelect = document.getElementById('kkVoiceSelect');
-                var selectedVoice = voiceSelect ? voiceSelect.value : 'zm_yunxi';
-                
+                var selectedVoice = voiceSelect ? voiceSelect.value : 'zm_yunxi'; 
+                // Nếu value rỗng thì mặc định là Vân Hy
+                if (!selectedVoice) selectedVoice = 'zm_yunxi';
+
+                console.log("[Kokoro] Đang đọc với giọng:", selectedVoice);
+
                 var audio = await kkModel.generate(text, { 
                     voice: selectedVoice,
                     speed: (typeof voiceState !== 'undefined' && voiceState.rate) ? voiceState.rate : 1.0
@@ -223,13 +233,23 @@ def build_kokoro_js():
                 console.error("Lỗi Kokoro generate:", e);
                 if (btn) btn.classList.remove('speaking');
                 // Fallback
-                if (typeof originalSpeakText === 'function') {
-                    return originalSpeakText.call(this, text, btn, evt);
+                if (typeof window.__originalSpeakText === 'function') {
+                    return window.__originalSpeakText.call(this, text, btn, evt);
                 }
             }
         };
     }
 
+    // ⭐ Thêm hàm bảo vệ để chống bị module khác ghi đè
+    setInterval(function() {
+        if (localStorage.getItem(KK_CACHE_KEY) === 'true' && kkModel) {
+            // Nếu phát hiện hàm speakText đã bị module khác đổi mất
+            if (!window.speakText.__isKokoro) {
+                overrideSpeakText();
+                window.speakText.__isKokoro = true; // Đánh dấu
+            }
+        }
+    }, 2000);
     // 5. Khởi tạo các sự kiện
     function initEvents() {
         checkKokoroStatus();
