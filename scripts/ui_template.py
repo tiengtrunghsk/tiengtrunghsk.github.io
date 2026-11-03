@@ -4777,6 +4777,8 @@ function pickVoice() {
     var priorities = [
         function(v){ return v.lang === 'zh-CN' && /Ting-?Ting/i.test(v.name); },
         function(v){ return v.lang === 'zh-CN' && /Siri/i.test(v.name); },
+        function(v){ return v.lang === 'zh-CN' && /Google/i.test(v.name); },
+        function(v){ return v.lang === 'zh-CN' && /Huihui|Yaoyao|Kangkang/i.test(v.name); },
         function(v){ return v.lang === 'zh-CN' && v.localService; },
         function(v){ return v.lang === 'zh-CN'; },
         function(v){ return v.lang === 'zh-TW'; },
