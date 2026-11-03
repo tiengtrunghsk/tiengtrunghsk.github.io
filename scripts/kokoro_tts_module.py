@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Module tích hợp Kokoro TTS (AI) vào web - Phiên bản TIẾNG TRUNG.
-- Sử dụng thư viện @uzen/kokoro-js (hỗ trợ model v1.1-zh).
-- Hỗ trợ giọng Nam/Nữ tiếng Trung chất lượng cao.
-- Chạy 100% trên trình duyệt, lưu model vào Cache.
+Module tích hợp Kokoro TTS (AI) vào web - Bản Test với file âm thanh cụ thể.
+- Giọng Nam: zm_009
+- Giọng Nữ: zf_008
 """
 
 def build_kokoro_css():
@@ -64,12 +63,8 @@ def build_kokoro_html():
 
     <div class="kk-voice-select-wrap" id="kkVoiceSelectWrap">
         <select class="kk-voice-select" id="kkVoiceSelect">
-            <option value="zm_yunxi">Nam - Vân Hy (Ấm áp)</option>
-            <option value="zm_yunyang">Nam - Vân Dương (Trầm ấm)</option>
-            <option value="zm_yunjian">Nam - Vân Kiện (Mạnh mẽ)</option>
-            <option value="zf_xiaoxiao">Nữ - Tiểu Tiểu (Dịu dàng)</option>
-            <option value="zf_xiaoyi">Nữ - Tiểu Nghệ (Chuyên nghiệp)</option>
-            <option value="zf_xiaobei">Nữ - Tiểu Bối (Năng động)</option>
+            <option value="zm_009">Nam - Giọng 009</option>
+            <option value="zf_008">Nữ - Giọng 008</option>
         </select>
     </div>
 </div>
@@ -78,16 +73,15 @@ def build_kokoro_html():
 def build_kokoro_js():
     return r"""
 /* ═══════════════════════════════════════════════════════════ */
-/* KOKORO TTS MODULE - BẢN TIẾNG TRUNG (v1.1-zh)               */
+/* KOKORO TTS MODULE - TEST FILE zm_009 & zf_008               */
 /* ═══════════════════════════════════════════════════════════ */
 (function() {
     'use strict';
     
     var kkModel = null;
     var isDownloading = false;
-    var KK_CACHE_KEY = 'kokoro_zh_model_loaded';
+    var KK_CACHE_KEY = 'kokoro_zh_model_loaded_v2'; // Đổi key để xóa cache cũ
 
-    // 1. Kiểm tra trạng thái
     function checkKokoroStatus() {
         var badge = document.getElementById('kkStatusBadge');
         var btn = document.getElementById('kkDownloadBtn');
@@ -104,7 +98,6 @@ def build_kokoro_js():
         }
     }
 
-    // 2. Tải thư viện @uzen/kokoro-js
     function loadKokoroLibrary() {
         return new Promise(function(resolve, reject) {
             if (window.KokoroTTS) return resolve();
@@ -126,7 +119,6 @@ def build_kokoro_js():
         });
     }
 
-    // 3. Khởi tạo Model (v1.1-zh)
     async function initKokoro() {
         if (kkModel) return kkModel;
         if (isDownloading) return null;
@@ -145,12 +137,10 @@ def build_kokoro_js():
             if(progressText) progressText.textContent = 'Đang tải Model tiếng Trung (~127MB)...';
             if(progressBar) progressBar.style.width = '20%';
 
-            // ⭐ Model tiếng Trung v1.1
             kkModel = await window.KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.1-zh-ONNX", {
                 dtype: "q8",
                 device: "wasm",
-                // ⭐ Đường dẫn chứa file giọng .bin (bạn phải tự tải và đặt vào public/kokoro/voices/)
-                voicePath: "/kokoro/voices",
+                voicePath: "/kokoro/voices", // Thư mục chứa zm_009.bin và zf_008.bin
                 progress_callback: function(progress) {
                     if (progress.status === 'progress' && progress.total) {
                         var pct = Math.round((progress.loaded / progress.total) * 100);
@@ -168,7 +158,7 @@ def build_kokoro_js():
             setTimeout(function() {
                 if(progressWrap) progressWrap.classList.remove('show');
                 checkKokoroStatus();
-                alert("✅ Đã tải xong giọng AI tiếng Trung! Hãy thử bấm nút loa.");
+                alert("✅ Đã tải xong giọng AI! Hãy thử bấm nút loa.");
             }, 800);
 
             return kkModel;
@@ -182,7 +172,6 @@ def build_kokoro_js():
         }
     }
 
-    // 4. Ghi đè hàm speakText
     function overrideSpeakText() {
         if (!window.__originalSpeakText) {
             window.__originalSpeakText = window.speakText;
@@ -191,7 +180,6 @@ def build_kokoro_js():
         window.speakText = async function(text, btn, evt) {
             if (evt && evt.stopPropagation) evt.stopPropagation();
             
-            // Nếu chưa tải, dùng giọng cũ
             if (!kkModel || localStorage.getItem(KK_CACHE_KEY) !== 'true') {
                 console.log("[Kokoro] Chưa tải model, dùng giọng mặc định.");
                 if (typeof window.__originalSpeakText === 'function') {
@@ -205,8 +193,9 @@ def build_kokoro_js():
             
             try {
                 var voiceSelect = document.getElementById('kkVoiceSelect');
-                var selectedVoice = voiceSelect ? voiceSelect.value : 'zm_yunxi'; 
-                if (!selectedVoice) selectedVoice = 'zm_yunxi';
+                // Lấy giọng từ dropdown (zm_009 hoặc zf_008)
+                var selectedVoice = voiceSelect ? voiceSelect.value : 'zm_009'; 
+                if (!selectedVoice) selectedVoice = 'zm_009';
 
                 console.log("[Kokoro] Giọng chọn:", selectedVoice);
 
@@ -238,7 +227,6 @@ def build_kokoro_js():
         window.speakText.__isKokoro = true;
     }
 
-    // 5. Khởi tạo sự kiện
     function initEvents() {
         checkKokoroStatus();
         
@@ -255,18 +243,15 @@ def build_kokoro_js():
             });
         }
         
-        // Tự động khôi phục model từ cache nếu đã tải trước đó
         if (localStorage.getItem(KK_CACHE_KEY) === 'true' && !kkModel && !isDownloading) {
-            console.log("[Kokoro] Tự động khôi phục model tiếng Trung từ cache...");
+            console.log("[Kokoro] Tự động khôi phục model từ cache...");
             initKokoro();
         }
     }
 
-    // ⭐ Bơm thuốc: Đảm bảo không bị module khác ghi đè
     setInterval(function() {
         if (localStorage.getItem(KK_CACHE_KEY) === 'true') {
             if (!window.speakText || !window.speakText.__isKokoro) {
-                console.log("[Kokoro] Phát hiện bị ghi đè, đang chiếm lại quyền...");
                 overrideSpeakText();
             }
         } else {
