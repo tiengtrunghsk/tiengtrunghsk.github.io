@@ -1853,23 +1853,48 @@ function escapeJs(s) {
     if (s == null) return '';
     return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"');
 }
+// ✅ SỬA LẠI: Cho phép cả 'admin' và 'super_admin' đi tiếp
 function isSuperAdmin() {
-    if (!currentUser || currentUser.role !== 'admin') return false;
+    if (!currentUser) return false;
+    
+    // Lấy role (chấp nhận cả admin và super_admin)
+    var role = (currentUser.role || '').toLowerCase();
+    if (role !== 'admin' && role !== 'super_admin') return false;
+    
+    // Nếu role trong DB là super_admin thì auto true
+    if (role === 'super_admin') return true;
+    
+    // Fallback: Nếu role vẫn là 'admin' nhưng email trùng với SUPER_ADMIN cấu hình cứng
     var email = (currentUser.email || '').toLowerCase().trim();
-    return email === SUPER_ADMIN.toLowerCase().trim();
+    if (typeof SUPER_ADMIN !== 'undefined' && SUPER_ADMIN) {
+        return email === SUPER_ADMIN.toLowerCase().trim();
+    }
+    return false;
 }
+
 function isHiddenAdmin() {
-    if (!currentUser || currentUser.role !== 'admin') return false;
+    if (!currentUser) return false;
+    var role = (currentUser.role || '').toLowerCase();
+    if (role !== 'admin' && role !== 'super_admin') return false;
     return !isSuperAdmin();
 }
+
 function isSubAdmin() {
-    if (!currentUser || currentUser.role !== 'admin') return false;
+    if (!currentUser) return false;
+    var role = (currentUser.role || '').toLowerCase();
+    if (role !== 'admin' && role !== 'super_admin') return false;
+    
     if (isSuperAdmin()) return false;
     return currentUser.isSubAdmin === true || currentUser.permissions !== undefined;
 }
+
 function hasPermission(permKey) {
-    if (!currentUser || currentUser.role !== 'admin') return false;
-    if (isSuperAdmin()) return true;
+    if (!currentUser) return false;
+    var role = (currentUser.role || '').toLowerCase();
+    if (role !== 'admin' && role !== 'super_admin') return false;
+    
+    if (isSuperAdmin()) return true; // Super Admin có mọi quyền
+    
     var perms = currentUser.permissions || {};
     if (perms[permKey] === undefined) {
         return DEFAULT_ADMIN_PERMS[permKey] === true;
