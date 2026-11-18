@@ -450,16 +450,16 @@ full_css = (
     + "\n/* DEVICE LIMITER */\n" + build_device_css()
     + "\n/* DEVICE ACCOUNT MONITOR */\n" + build_dam_css()
     + "\n/* AUTO SCALE */\n" + build_auto_scale_css()
-    + "\n/* CUSTOM PRACTICE */\n" + build_custom_practice_css()
+    # + "\n/* CUSTOM PRACTICE */\n" + build_custom_practice_css()
 )
 ui_html = build_ui_html()
 ui_html = patch_html(ui_html)
 ui_html = inject_assemble_html(ui_html)
 ui_html = ui_html.replace("<!-- __TIKTOK_BAR__ -->", build_tiktok_bar_html())
 ui_html = ui_html.replace("<!-- __QUICK_INTRO_BANNER__ -->", build_intro_html())
-ui_html = ui_html.replace(
-    "<!-- __CUSTOM_PRACTICE_SECTION__ -->",
-    build_custom_practice_html()
+# ui_html = ui_html.replace(
+#    "<!-- __CUSTOM_PRACTICE_SECTION__ -->",
+#   build_custom_practice_html()
 )
 
 _fav_html = build_favorites_html()
@@ -1202,7 +1202,7 @@ full_js = (
     + "\n/* LOGIN FALLBACK */\n" + build_login_fallback_js()
     + "\n/* DEVICE LIMITER */\n" + build_device_js()
     + "\n/* DEVICE ACCOUNT MONITOR */\n" + build_dam_js()
-    + "\n/* CUSTOM PRACTICE */\n" + build_custom_practice_js()
+    # + "\n/* CUSTOM PRACTICE */\n" + build_custom_practice_js()
 )
 full_js = full_js.replace('<script>', '').replace('</script>', '')
 full_js = full_js.replace('<SCRIPT>', '').replace('</SCRIPT>', '')
