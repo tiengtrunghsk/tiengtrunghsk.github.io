@@ -460,7 +460,7 @@ ui_html = ui_html.replace("<!-- __QUICK_INTRO_BANNER__ -->", build_intro_html())
 # ui_html = ui_html.replace(
 #    "<!-- __CUSTOM_PRACTICE_SECTION__ -->",
 #   build_custom_practice_html()
-)
+# )
 
 _fav_html = build_favorites_html()
 
