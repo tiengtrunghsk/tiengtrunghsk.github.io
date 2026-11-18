@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Intro Template — Banner marquee chạy chữ thông báo tính năng Trợ Lý AI Dịch Thuật & Tạo bài học từ ảnh.
+Intro Template — Banner marquee chạy chữ thông báo
+"Học tiếng Trung cho người đi làm".
 Màu sắc nổi bật, tương phản cao, dễ nhận diện.
 
 Cung cấp 3 hàm:
-  - build_intro_css()   → CSS cho banner marquee + 3 nút mock
-  - build_intro_html()  → HTML cho banner marquee + 3 nút mock
+  - build_intro_css()   → CSS cho banner marquee + 2 nút mock
+  - build_intro_html()  → HTML cho banner marquee + 2 nút mock
   - build_intro_js()    → JS điều khiển banner + highlight nút thật
 """
 
@@ -14,23 +15,24 @@ Cung cấp 3 hàm:
 # ═══════════════════════════════════════════════════════════════════
 def build_intro_css():
     return r"""
-/* ═══════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════ */
 /* QUICK INTRO BANNER — Marquee nổi bật, dễ nhận diện            */
-/* ═══════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════ */
 .quick-intro-banner {
     display: flex;
     align-items: center;
     gap: .65rem;
     padding: .65rem .9rem;
-    margin-bottom: 1.05rem;
-    /* ⭐ Gradient: Xanh dương -> Tím (Đồng bộ với Trợ Lý Dịch) */
-    background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+    margin-bottom: 1rem;
+    /* Nền Gradient rực rỡ: Xanh lá -> Xanh dương */
+    background: linear-gradient(135deg, #10b981 0%, #3b82f6 50%, #6366f1 100%);
     border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 14px;
     overflow: hidden;
     position: relative;
     animation: qibSlideDown .5s cubic-bezier(.34, 1.56, .64, 1);
-    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    /* Hiệu ứng phát sáng (Glow) xung quanh banner */
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
     transition: box-shadow .3s ease, transform .3s ease;
 }
 @keyframes qibSlideDown {
@@ -44,19 +46,19 @@ body[data-vocab-mode="1"] .quick-intro-banner {
     display: none !important;
 }
 
-/* Icon máy ảnh/robot: Màu Vàng kim nổi bật */
+/* Icon loa: Nền đỏ/hồng rực, phát sáng */
 .qib-icon {
     width: 38px;
     height: 38px;
     border-radius: 10px;
-    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    background: linear-gradient(135deg, #ef4444, #ec4899);
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.1rem;
     flex-shrink: 0;
-    box-shadow: 0 3px 12px rgba(245, 158, 11, 0.5);
+    box-shadow: 0 3px 12px rgba(236, 72, 153, 0.5);
     position: relative;
     z-index: 2;
 }
@@ -67,8 +69,16 @@ body[data-vocab-mode="1"] .quick-intro-banner {
     height: 32px;
     overflow: hidden;
     position: relative;
-    mask-image: linear-gradient(90deg, transparent 0%, #000 5%, #000 95%, transparent 100%);
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 5%, #000 95%, transparent 100%);
+    mask-image: linear-gradient(90deg,
+        transparent 0%,
+        #000 5%,
+        #000 95%,
+        transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg,
+        transparent 0%,
+        #000 5%,
+        #000 95%,
+        transparent 100%);
 }
 
 .qib-track {
@@ -76,7 +86,7 @@ body[data-vocab-mode="1"] .quick-intro-banner {
     align-items: center;
     height: 100%;
     white-space: nowrap;
-    animation: qibScroll 28s linear infinite;
+    animation: qibScroll 25s linear infinite;
     will-change: transform;
 }
 @keyframes qibScroll {
@@ -112,7 +122,7 @@ body[data-vocab-mode="1"] .quick-intro-banner {
 }
 
 /* ═══════════════════════════════════════════════════════════ */
-/* NÚT MOCK BÊN PHẢI — minh hoạ nút thật trên card             */
+/* 2 NÚT MOCK BÊN PHẢI — minh hoạ nút thật trên card            */
 /* ═══════════════════════════════════════════════════════════ */
 .qib-mock-actions {
     display: flex;
@@ -135,7 +145,8 @@ body[data-vocab-mode="1"] .quick-intro-banner {
     font-size: .95rem;
     cursor: pointer;
     flex-shrink: 0;
-    transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, background .2s, border-color .2s;
+    transition: transform .2s cubic-bezier(.34,1.56,.64,1),
+                box-shadow .2s, background .2s, border-color .2s;
     position: relative;
     font-family: inherit;
     padding: 0;
@@ -146,12 +157,11 @@ body[data-vocab-mode="1"] .quick-intro-banner {
 .qib-mock-btn:hover {
     transform: scale(1.15) translateY(-2px);
     background: #fff;
-    color: #3b82f6;
+    color: #1e40af;
     border-color: #fff;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
-/* Hiệu ứng pulse nhấn mạnh nút dịch ảnh / tạo bài học từ ảnh */
-.qib-mock-btn.img::after {
+.qib-mock-btn.full::after {
     content: '';
     position: absolute;
     inset: -4px;
@@ -204,7 +214,7 @@ body[data-vocab-mode="1"] .quick-intro-banner {
 }
 
 /* Responsive cho Mobile */
-@media (max-width: 560px) {
+@media (max-width: 500px) {
     .quick-intro-banner {
         padding: .55rem .65rem;
         gap: .5rem;
@@ -239,7 +249,7 @@ body[data-vocab-mode="1"] .quick-intro-banner {
         height: 28px;
     }
 }
-@media (max-width: 400px) {
+@media (max-width: 380px) {
     .qib-mock-btn.write {
         display: none;
     }
@@ -251,38 +261,33 @@ body[data-vocab-mode="1"] .quick-intro-banner {
 # ═══════════════════════════════════════════════════════════════════
 def build_intro_html():
     return r"""
-<!-- QUICK INTRO BANNER — Giới thiệu Tạo bài học từ ảnh & Trợ lý Dịch thuật AI -->
+<!-- QUICK INTRO BANNER — Học tiếng Trung cho người đi làm + 2 nút mock -->
 <div class="quick-intro-banner" id="quickIntroBanner">
     <div class="qib-icon">
-        <i class="fas fa-camera-retro"></i>
+        <i class="fas fa-graduation-cap"></i>
     </div>
 
     <div class="qib-marquee">
         <div class="qib-track">
             <span class="qib-item sep">
-                📸 TÍNH NĂNG MỚI: TẠO BÀI HỌC TỪ ẢNH & TRỢ LÝ AI - Chụp ảnh văn bản, cắt vùng OCR thông minh và tự động tạo bài tập luyện tập trong 1 click!
+                🎓 Học tiếng Trung cho người đi làm — Phản xạ văn phòng &amp; công xưởng, luyện đánh máy, ghép câu, viết HSK 1-9 mỗi ngày
             </span>
             <span class="qib-item sep">
-                📸 TÍNH NĂNG MỚI: TẠO BÀI HỌC TỪ ẢNH & TRỢ LÝ AI - Chụp ảnh văn bản, cắt vùng OCR thông minh và tự động tạo bài tập luyện tập trong 1 click!
+                🎓 Học tiếng Trung cho người đi làm — Phản xạ văn phòng &amp; công xưởng, luyện đánh máy, ghép câu, viết HSK 1-9 mỗi ngày
             </span>
         </div>
     </div>
 
     <div class="qib-mock-actions">
-        <button type="button" class="qib-mock-btn img"
-                id="qibMockImgBtn"
-                title="Tạo bài học từ ảnh / Dịch ảnh">
-            <i class="fas fa-camera"></i>
-        </button>
         <button type="button" class="qib-mock-btn write"
                 id="qibMockWriteBtn"
-                title="Đổi chiều dịch Việt - Trung">
-            <i class="fas fa-exchange-alt"></i>
+                title="Bấm nút này trên mỗi câu để luyện viết chữ Hán">
+            <i class="fas fa-pen-fancy"></i>
         </button>
         <button type="button" class="qib-mock-btn full"
                 id="qibMockFullBtn"
-                title="Bắt đầu dịch văn bản tự do">
-            <i class="fas fa-rocket"></i>
+                title="Bấm nút này trên mỗi câu để mở chế độ luyện tập toàn màn hình">
+            <i class="fas fa-expand"></i>
         </button>
     </div>
 
@@ -299,9 +304,9 @@ def build_intro_html():
 # ═══════════════════════════════════════════════════════════════════
 def build_intro_js():
     return r"""
-/* ═══════════════════════════════════════════════════════════ */
-/* QUICK INTRO BANNER — Marquee + 3 nút mock + auto-hide theo tab */
-/* ═══════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════ */
+/* QUICK INTRO BANNER — Marquee + 2 nút mock + auto-hide theo tab */
+/* ═══════════════════════════════════════════════════════════════ */
 function initQuickIntroBanner() {
     var banner = $('quickIntroBanner');
     var dismiss = $('quickIntroDismiss');
@@ -334,22 +339,31 @@ function initQuickIntroBanner() {
         window.addEventListener('resize', updateSpeed);
     }
 
-    /* ─── 3 nút mock — click để làm nổi bật nút thật trên khung Trợ lý dịch ─── */
-    var mockImgBtn   = $('qibMockImgBtn');
+    /* ─── 2 nút mock — click để làm nổi bật nút thật trên card đầu tiên ─── */
     var mockWriteBtn = $('qibMockWriteBtn');
     var mockFullBtn  = $('qibMockFullBtn');
 
     function highlightRealButton(selector) {
-        var targetBtn = document.querySelector(selector);
+        var firstCard = document.querySelector('.card');
+        if (!firstCard) {
+            var main = document.getElementById('mainContent');
+            if (main) {
+                window.scrollTo({
+                    top: main.getBoundingClientRect().top + window.scrollY - 100,
+                    behavior: 'smooth'
+                });
+            }
+            return;
+        }
+
+        var targetBtn = firstCard.querySelector(selector);
         if (!targetBtn) return;
 
-        // Cuộn đến phần tử tương ứng
         window.scrollTo({
-            top: targetBtn.getBoundingClientRect().top + window.scrollY - 150,
+            top: firstCard.getBoundingClientRect().top + window.scrollY - 100,
             behavior: 'smooth'
         });
 
-        // Hiệu ứng nhấp nháy
         var origBoxShadow = targetBtn.style.boxShadow;
         var origTransform = targetBtn.style.transform;
         var origZIndex = targetBtn.style.zIndex;
@@ -358,7 +372,7 @@ function initQuickIntroBanner() {
             count++;
             if (count % 2 === 1) {
                 targetBtn.style.boxShadow = '0 0 0 6px rgba(37,99,235,.4), 0 4px 14px rgba(37,99,235,.4)';
-                targetBtn.style.transform = 'scale(1.1)';
+                targetBtn.style.transform = 'scale(1.25)';
                 targetBtn.style.zIndex = '100';
             } else {
                 targetBtn.style.boxShadow = origBoxShadow || '';
@@ -374,23 +388,12 @@ function initQuickIntroBanner() {
         }, 400);
     }
 
-    if (mockImgBtn && !mockImgBtn.__bound) {
-        mockImgBtn.__bound = true;
-        mockImgBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            // Trỏ đến nút chụp/tải ảnh thật (cpUploadImgBtn)
-            highlightRealButton('#cpUploadImgBtn');
-        });
-    }
-
     if (mockWriteBtn && !mockWriteBtn.__bound) {
         mockWriteBtn.__bound = true;
         mockWriteBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            // Trỏ đến nút chuyển đổi ngôn ngữ (cpSwitchBtn)
-            highlightRealButton('#cpSwitchBtn');
+            highlightRealButton('.write-btn');
         });
     }
 
@@ -399,8 +402,7 @@ function initQuickIntroBanner() {
         mockFullBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            // Trỏ đến nút bắt đầu dịch (cpStartBtn)
-            highlightRealButton('#cpStartBtn');
+            highlightRealButton('.practice-full-btn');
         });
     }
 
@@ -500,9 +502,9 @@ function handleIntroBtnClick() {
         if (typeof window.initApp !== 'function') return false;
         if (window.initApp.__introHooked) return true;
 
-        var _origIntApp = window.initApp;
+        var _origInitApp = window.initApp;
         window.initApp = function() {
-            _origIntApp.apply(this, arguments);
+            _origInitApp.apply(this, arguments);
             initQuickIntroBanner();
 
             /* ⭐ Bind nút intro trên header */
